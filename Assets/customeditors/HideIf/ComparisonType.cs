@@ -1,0 +1,8 @@
+﻿public enum ComparisonType {
+	EQUALS,
+	NOTEQUALS,
+	GREATERTHAN,
+	LESSTHAN,
+	GREATEROREQUAL,
+	LESSOREQUAL
+}
