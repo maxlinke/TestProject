@@ -20,8 +20,12 @@ public class DeformableTerrainWithShaders : MonoBehaviour {
 	Color32[] pixels;
 
 	void Start () {
+		if(this.gameObject.layer != LayerMask.NameToLayer("DeformableTerrain")){
+			Debug.LogWarning("Deformable Terrain \"" + this.gameObject.name + "\" is not tagged!");
+		}
 		controlTextureSize = Mathf.NextPowerOfTwo(Mathf.FloorToInt(Mathf.Sqrt(mf.sharedMesh.vertexCount) + 0.5f));
 		controlTexture = new Texture2D(controlTextureSize, controlTextureSize);
+		controlTexture.wrapMode = TextureWrapMode.Clamp;
 		pixels = GetFullColor32Array(controlTextureSize * controlTextureSize, Color.white);
 		controlTexture.SetPixels32(pixels);
 		controlTexture.Apply();
@@ -59,6 +63,7 @@ public class DeformableTerrainWithShaders : MonoBehaviour {
 		RaycastHit centerHit, extentsHit;
 		allOkay &= Physics.Raycast(colliderCenter, Vector3.down, out centerHit, Mathf.Infinity, LayerMask.GetMask("DeformableTerrain"));
 		allOkay &= Physics.Raycast(colliderExtents, Vector3.down, out extentsHit, Mathf.Infinity, LayerMask.GetMask("DeformableTerrain"));
+		if(allOkay)	allOkay = (centerHit.collider == extentsHit.collider);
 
 		if(allOkay){
 			Vector2 centerUV = centerHit.textureCoord;
@@ -109,8 +114,8 @@ public class DeformableTerrainWithShaders : MonoBehaviour {
 
 	void FillRectangle (ref Color32[] colors, int width, int height, int sx, int sy, int dx, int dy, Color newColor) {
 		Color32 col32 = ToColor32(newColor);
-		if((width - sx) < dx) dx = width - sx;
-		if((height - sy) < dy) dy = height - sy;
+		if(dx > (width - sx)) dx = width - sx;
+		if(dy > (height - sy)) dy = height - sy;
 		for(int i=0; i<dy; i++){
 			for(int j=0; j<dx; j++){
 				int y = i + sy;
