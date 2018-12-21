@@ -5,6 +5,8 @@ using UnityEngine;
 public class DeformableTerrainWithShaders : MonoBehaviour {
 
 	//assumptions: the object is a simple uv-unwrapped plane that's not rotated (y axis is okay)
+	//TODO just generate the plane in script here. have a button to make it happen in edit mode
+	//TODO resistance when moving through stuff...
 
 	[SerializeField] MeshFilter mf;
 	[SerializeField] MeshRenderer mr;
@@ -23,15 +25,22 @@ public class DeformableTerrainWithShaders : MonoBehaviour {
 		if(this.gameObject.layer != LayerMask.NameToLayer("DeformableTerrain")){
 			Debug.LogWarning("Deformable Terrain \"" + this.gameObject.name + "\" is not tagged!");
 		}
+		//setting up the texture. size is determine automatically based on number of vertices in the mesh (assumed to be a smooth-shaded and evenly subdivided plane)
 		controlTextureSize = Mathf.NextPowerOfTwo(Mathf.FloorToInt(Mathf.Sqrt(mf.sharedMesh.vertexCount) + 0.5f));
 		controlTexture = new Texture2D(controlTextureSize, controlTextureSize);
 		controlTexture.wrapMode = TextureWrapMode.Clamp;
 		pixels = GetFullColor32Array(controlTextureSize * controlTextureSize, Color.white);
 		controlTexture.SetPixels32(pixels);
 		controlTexture.Apply();
+		//setting up the materialpropertyblock which will be applied to the meshrenderer each update
 		propBlock = new MaterialPropertyBlock();
 		propBlock.SetFloat(deformationAmountPropertyName, deformationAmount);
 		propBlock.SetTexture(texturePropertyName, controlTexture);
+		//recalculating and then setting the bounds so the object doesn't get culled prematurely
+		mf.sharedMesh.RecalculateBounds();
+		Bounds newBounds = mf.sharedMesh.bounds;
+		newBounds.extents += Vector3.up * deformationAmount;
+		mf.sharedMesh.bounds = newBounds;
 	}
 
 	void Reset () {
