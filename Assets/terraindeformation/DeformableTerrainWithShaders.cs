@@ -10,7 +10,6 @@ public class DeformableTerrainWithShaders : MonoBehaviour {
 
 	[SerializeField] MeshFilter mf;
 	[SerializeField] MeshRenderer mr;
-	[SerializeField] Collider col;
 	[SerializeField] string texturePropertyName;
 	[SerializeField] string deformationAmountPropertyName;
 	[SerializeField] float deformationAmount;
@@ -46,7 +45,6 @@ public class DeformableTerrainWithShaders : MonoBehaviour {
 	void Reset () {
 		mf = GetComponent<MeshFilter>();
 		mr = GetComponent<MeshRenderer>();
-		col = GetComponent<Collider>();
 		controlTextureSize = 128;
 		deformationAmount = 1;
 		deformationRadiusScale = 1;
