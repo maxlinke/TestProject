@@ -9,36 +9,6 @@ public class TerrainGenerator : MonoBehaviour {
 
 	private const int MAX_RNG_OFFSET = 1024;
 
-	[System.Serializable] public struct NoiseSettings {
-		public float sampleScale;
-		[Range(0f, 1f)] public float sampleStrength;
-	}
-
-	private class PerlinNoiseSource {		//TODO externalize, and inheritalize... make inherit from a generic noisesource
-
-		private float sampleScale;
-		private float sampleStrength;
-		private Vector2 sampleOffset;
-
-		public PerlinNoiseSource (NoiseSettings sampleSettings, Vector2 sampleOffset) {
-			this.sampleScale = sampleSettings.sampleScale;
-			this.sampleStrength = sampleSettings.sampleStrength;
-			this.sampleOffset = sampleOffset;
-		}
-
-		/// <summary>
-		/// Does a perlin noise lookup at x and y. Return is (mostly) in [-1, 1]
-		/// </summary>
-		public float Evaluate (float x, float y) {
-			float sample = Mathf.PerlinNoise(
-				(x + sampleOffset.x) / sampleScale,
-				(y + sampleOffset.y) / sampleScale
-			);
-			return sampleStrength * ((2f * sample) - 1f);
-		}
-
-	}
-
 	[Header("Components")]
 	[SerializeField] MeshFilter mf;
 	[SerializeField] MeshCollider mc;
@@ -48,13 +18,14 @@ public class TerrainGenerator : MonoBehaviour {
 	[SerializeField] [Range(1, 1024)] int xTiles;
 	[SerializeField] [Range(1, 1024)] int zTiles;
 	[SerializeField] float tileSize;
-	[SerializeField] float uvScale;
+	[SerializeField] float uvScale;			//TODO make optional (also editor) either just 0-1 uv coords for the whole thing or what i currently do
 
 	[Header("Deformation Settings")]
 	[SerializeField] [Range(-1f, 1f)] float deformationDirection;
 	[SerializeField] float deformationStrength;
-	[SerializeField] NoiseSettings[] perlinSettings;
-
+	[SerializeField] bool DEBUG_USE_TEXTURES_AS_SOURCE;				//TODO enum? and use the editor to only draw one of the arrays
+	[SerializeField] PerlinNoiseSource[] perlinNoiseSources;
+	[SerializeField] TextureNoiseSource[] textureNoiseSources;
 
 	void Reset () {
 		mf = GetComponent<MeshFilter>();
@@ -68,11 +39,19 @@ public class TerrainGenerator : MonoBehaviour {
 
 		deformationDirection = 0f;
 		deformationStrength = 1f;
-		perlinSettings = new NoiseSettings[0];
+		DEBUG_USE_TEXTURES_AS_SOURCE = false;
+		perlinNoiseSources = new PerlinNoiseSource[0];
+		textureNoiseSources = new TextureNoiseSource[0];
 	}
 
 	public void Generate () {
-		PerlinNoiseSource[] noiseSources = GetNoiseSources(perlinSettings, GetRandomNumberGenerator(seed)); 
+		NoiseSource[] noiseSources;
+		if(DEBUG_USE_TEXTURES_AS_SOURCE){
+			noiseSources = textureNoiseSources;
+		}else{
+			noiseSources = perlinNoiseSources;
+		}
+		InitNoiseSources(ref noiseSources, GetRandomNumberGenerator(seed)); 
 
 		int xVerts = xTiles + 1;
 		int zVerts = zTiles + 1;
@@ -130,20 +109,18 @@ public class TerrainGenerator : MonoBehaviour {
 	}
 
 	System.Random GetRandomNumberGenerator (string seed) {
+		seed = seed.Replace(" ", "");
 		if(seed.Length < 1) return new System.Random();
 		return new System.Random(seed.GetHashCode());
 	}
 
-	PerlinNoiseSource[] GetNoiseSources (NoiseSettings[] perlinSettings, System.Random rng) {
-		PerlinNoiseSource[] noiseSources = new PerlinNoiseSource[perlinSettings.Length];
+	void InitNoiseSources (ref NoiseSource[] noiseSources, System.Random rng) {
 		for(int i=0; i<noiseSources.Length; i++){
-			Vector2 sampleOffset = new Vector2(
+			noiseSources[i].offset = new Vector2(
 				rng.Next(-MAX_RNG_OFFSET, MAX_RNG_OFFSET),
 				rng.Next(-MAX_RNG_OFFSET, MAX_RNG_OFFSET)
 			);
-			noiseSources[i] = new PerlinNoiseSource(perlinSettings[i], sampleOffset);
 		}
-		return noiseSources;
 	}
 
 }
