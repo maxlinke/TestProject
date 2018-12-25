@@ -7,6 +7,9 @@ public class TextureNoiseSource : NoiseSource {
 
 	public Texture2D texture;
 
+	/// <summary>
+	/// Does a texture lookup at the given uv-coordinates. Output is the texture's luminance denormalized to [-1, 1]
+	/// </summary>
 	public override float Evaluate (float x, float y) {
 		TransformCoords(ref x, ref y);
 		x = Mathf.Repeat(x, 1f);

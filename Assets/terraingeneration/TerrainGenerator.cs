@@ -88,8 +88,6 @@ public class TerrainGenerator : MonoBehaviour {
 					case UVMode.NORMALIZED: texcoords[index] = new Vector2((float)i/xTiles, (float)j/zTiles); break;
 					default: throw new UnityException("unsupported uv mode \"" + uvMode.ToString() + "\"");
 				}
-
-//				normals[index] = irrelevant because they get calculated at the end
 			}
 		}
 
