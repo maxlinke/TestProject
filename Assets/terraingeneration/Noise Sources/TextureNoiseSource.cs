@@ -8,7 +8,7 @@ public class TextureNoiseSource : NoiseSource {
 	public Texture2D texture;
 
 	public override float Evaluate (float x, float y) {
-		ScaleAndOffset(ref x, ref y);
+		TransformCoords(ref x, ref y);
 		x = Mathf.Repeat(x, 1f);
 		y = Mathf.Repeat(y, 1f);
 		Color col = texture.GetPixelBilinear(x, y);

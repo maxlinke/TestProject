@@ -11,13 +11,28 @@ public abstract class NoiseSource {
 	}
 
 	public NoiseSettings settings;
+	public bool randomOffset;
+	public bool randomRotation;
 	[HideInInspector] public Vector2 offset;
+	[HideInInspector] public float rotation;
 
 	public abstract float Evaluate (float x, float y);
 
-	protected void ScaleAndOffset (ref float x, ref float y) {
-		x = (x + offset.x) / settings.scale;
-		y = (y + offset.y) / settings.scale;
+	protected void TransformCoords (ref float x, ref float y) {
+		if(randomOffset){
+			x = x + offset.x;
+			y = y + offset.y;
+		}
+		if(randomRotation){
+			float sin = Mathf.Sin(rotation);
+			float cos = Mathf.Cos(rotation);
+			float ox = x;
+			float oy = y;
+			x = (cos * ox) + (sin * oy);
+			y = (cos * oy) - (sin * ox);
+		}
+		x = x / settings.scale;
+		y = y / settings.scale;
 	}
 
 }

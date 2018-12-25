@@ -4,10 +4,19 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour {
 
-	//TODO optional texture as noise source 
 	//TODO other shapes than a rectangle (free form would be nice but i have no clue how to do it nicely) (maybe confine to a bunch of colliders OR cut out certain colliders?)
 
 	private const int MAX_RNG_OFFSET = 1024;
+
+	public enum UVMode {
+		VERTEXCOORDS,
+		NORMALIZED
+	}
+
+	public enum NoiseSourceType {
+		PERLIN,
+		TEXTURE
+	}
 
 	[Header("Components")]
 	[SerializeField] MeshFilter mf;
@@ -18,14 +27,15 @@ public class TerrainGenerator : MonoBehaviour {
 	[SerializeField] [Range(1, 1024)] int xTiles;
 	[SerializeField] [Range(1, 1024)] int zTiles;
 	[SerializeField] float tileSize;
-	[SerializeField] float uvScale;			//TODO make optional (also editor) either just 0-1 uv coords for the whole thing or what i currently do
+	[SerializeField] UVMode uvMode;
+	[SerializeField] float uvScale;			//TODO custom editor
 
 	[Header("Deformation Settings")]
 	[SerializeField] [Range(-1f, 1f)] float deformationDirection;
 	[SerializeField] float deformationStrength;
-	[SerializeField] bool DEBUG_USE_TEXTURES_AS_SOURCE;				//TODO enum? and use the editor to only draw one of the arrays
-	[SerializeField] PerlinNoiseSource[] perlinNoiseSources;
-	[SerializeField] TextureNoiseSource[] textureNoiseSources;
+	[SerializeField] NoiseSourceType noiseSourceType;
+	[SerializeField] PerlinNoiseSource[] perlinNoiseSources;		//TODO custom editor
+	[SerializeField] TextureNoiseSource[] textureNoiseSources;		//TODO custom editor
 
 	void Reset () {
 		mf = GetComponent<MeshFilter>();
@@ -39,17 +49,17 @@ public class TerrainGenerator : MonoBehaviour {
 
 		deformationDirection = 0f;
 		deformationStrength = 1f;
-		DEBUG_USE_TEXTURES_AS_SOURCE = false;
+		noiseSourceType = NoiseSourceType.PERLIN;
 		perlinNoiseSources = new PerlinNoiseSource[0];
 		textureNoiseSources = new TextureNoiseSource[0];
 	}
 
 	public void Generate () {
 		NoiseSource[] noiseSources;
-		if(DEBUG_USE_TEXTURES_AS_SOURCE){
-			noiseSources = textureNoiseSources;
-		}else{
-			noiseSources = perlinNoiseSources;
+		switch(noiseSourceType){
+			case NoiseSourceType.PERLIN: noiseSources = perlinNoiseSources; break;
+			case NoiseSourceType.TEXTURE: noiseSources = textureNoiseSources; break;
+			default: throw new UnityException("unsupported noise source type \"" + noiseSourceType.ToString() + "\"");
 		}
 		InitNoiseSources(ref noiseSources, GetRandomNumberGenerator(seed)); 
 
@@ -73,7 +83,12 @@ public class TerrainGenerator : MonoBehaviour {
 				}
 				float y = (deformNoise + deformationDirection) * deformationStrength;
 				vertices[index] = new Vector3(x, y, z);
-				texcoords[index] = new Vector2(x, z) / uvScale;
+				switch(uvMode){
+					case UVMode.VERTEXCOORDS: texcoords[index] = new Vector2(x, z) / uvScale; break;
+					case UVMode.NORMALIZED: texcoords[index] = new Vector2((float)i/xTiles, (float)j/zTiles); break;
+					default: throw new UnityException("unsupported uv mode \"" + uvMode.ToString() + "\"");
+				}
+
 //				normals[index] = irrelevant because they get calculated at the end
 			}
 		}
@@ -120,6 +135,7 @@ public class TerrainGenerator : MonoBehaviour {
 				rng.Next(-MAX_RNG_OFFSET, MAX_RNG_OFFSET),
 				rng.Next(-MAX_RNG_OFFSET, MAX_RNG_OFFSET)
 			);
+			noiseSources[i].rotation = (float)rng.NextDouble() * Mathf.PI * 2f;
 		}
 	}
 

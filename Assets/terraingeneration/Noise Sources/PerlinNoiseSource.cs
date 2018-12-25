@@ -9,7 +9,7 @@ public class PerlinNoiseSource : NoiseSource {
 	/// Does a perlin noise lookup at x and y. Return is (mostly) in [-1, 1]
 	/// </summary>
 	public override float Evaluate (float x, float y) {
-		ScaleAndOffset(ref x, ref y);
+		TransformCoords(ref x, ref y);
 		float sample = Mathf.PerlinNoise(x, y);
 		return settings.strength * ((2f * sample) - 1f);
 	}
