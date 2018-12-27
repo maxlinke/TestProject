@@ -52,20 +52,51 @@ public class MeshGraph {
 
 	}
 
-	private struct IndexTriangle {
-		public int index1, index2, index3;
+	private class VertexTriangle {
+
+		public GraphVertex this[int index] {
+			get { return vertices[index]; }
+			set { vertices[index] = value; }
+		}
+
+		private GraphVertex[] vertices;
+
+		public VertexTriangle () {
+			vertices = new GraphVertex[3];
+		}
+
+		public VertexTriangle (GraphVertex v1, GraphVertex v2, GraphVertex v3) {
+			vertices = new GraphVertex[]{v1, v2, v3};
+		}
+
+		public bool Contains (GraphVertex vertex) {
+			for(int i=0; i<vertices.Length; i++){
+				if(vertices[i].Equals(vertex)) return true;
+			}
+			return false;
+		}
+
 	}
 
 	private string name;
 	private Bounds bounds;
 	List<GraphVertex> vertices;
+	List<VertexTriangle> triangles;
 
 	public MeshGraph () {
 		name = "";
 		vertices = new List<GraphVertex>();
+		triangles = new List<VertexTriangle>();
 	}
 
 	public void RemoveVertex (GraphVertex vertex) {
+		List<VertexTriangle> connectedTris = new List<VertexTriangle>();
+		for(int i=0; i<triangles.Count; i++){
+			if(triangles[i].Contains(vertex)) connectedTris.Add(triangles[i]);
+		}
+		for(int i=0; i<connectedTris.Count; i++){
+			triangles.Remove(connectedTris[i]);
+		}
 		for(int i=0; i<vertices.Count; i++){
 			vertices[i].DisconnectFrom(vertex);
 		}
@@ -81,20 +112,19 @@ public class MeshGraph {
 		Vector3[] outputNormals = new Vector3[vertices.Count];
 		Vector2[] outputUV = new Vector2[vertices.Count];
 		Vector4[] outputTangents = new Vector4[vertices.Count];
-		List<IndexTriangle> triangles = new List<IndexTriangle>();
 		for(int i=0; i<vertices.Count; i++){
 			outputVertices[i] = vertices[i].position;
 			outputNormals[i] = vertices[i].normal;
 			outputUV[i] = vertices[i].texcoord;
 			outputTangents[i] = vertices[i].tangent;
-			triangles.AddRange(GetTriangles(vertices[i], false));
 		}
 		int[] outputTriangles = new int[triangles.Count * 3];
 		for(int i=0; i<triangles.Count; i++){
+			VertexTriangle tri = triangles[i];
 			int i3 = i * 3;
-			outputTriangles[i3+0] = triangles[i].index1;
-			outputTriangles[i3+1] = triangles[i].index2;
-			outputTriangles[i3+2] = triangles[i].index3;
+			outputTriangles[i3+0] = vertices.IndexOf(tri[0]);
+			outputTriangles[i3+1] = vertices.IndexOf(tri[1]);
+			outputTriangles[i3+2] = vertices.IndexOf(tri[2]);
 		}
 		Mesh output = new Mesh();
 		output.vertices = outputVertices;
@@ -108,8 +138,6 @@ public class MeshGraph {
 	}
 
 	public static MeshGraph FromMesh (Mesh mesh) {
-		if(mesh.vertices.LongLength != (long)mesh.vertices.Length) throw new UnityException("Mesh \"" + mesh.name + "\" has too many vertices to become a MeshGraph!");
-		if((mesh.triangles.Length % 3) != 0) throw new UnityException("Mesh \"" + mesh.name + "\" has a weird interpretation of triangles...");
 		bool copyNormals = (mesh.normals.Length == mesh.vertices.Length);
 		bool copyUVs = (mesh.uv.Length == mesh.vertices.Length);
 		bool copyTangents = (mesh.tangents.Length == mesh.vertices.Length);
@@ -122,6 +150,7 @@ public class MeshGraph {
 			if(copyTangents) newVert.tangent = mesh.tangents[i];
 			verts[i] = newVert;
 		}
+		VertexTriangle[] tris = new VertexTriangle[mesh.triangles.Length / 3];
 		for(int i=0; i<mesh.triangles.Length; i+=3){
 			int index1 = mesh.triangles[i+0];
 			int index2 = mesh.triangles[i+1];
@@ -129,55 +158,14 @@ public class MeshGraph {
 			verts[index1].ConnectTo(verts[index2]);
 			verts[index1].ConnectTo(verts[index3]);
 			verts[index2].ConnectTo(verts[index3]);
+			tris[i/3] = new VertexTriangle(verts[index1], verts[index2], verts[index3]);
 		}
 		MeshGraph output = new MeshGraph();
 		output.name = mesh.name;
 		output.bounds = mesh.bounds;
 		output.vertices.AddRange(verts);
+		output.triangles.AddRange(tris);
 		return output;
-	}
-
-	private IndexTriangle[] GetTriangles (GraphVertex vertex, bool includeLowerIndexVertices = true) {
-		List<IndexTriangle> output = new List<IndexTriangle>();
-		GraphVertex[] connected = vertex.GetConnectedVertices();
-		int mainIndex = vertices.IndexOf(vertex);
-		//this is an easy way of making sure you only get each triangle once...
-		if(!includeLowerIndexVertices){
-			List<GraphVertex> newConnected = new List<GraphVertex>();
-			for(int i=0; i<connected.Length; i++){
-				if(vertices.IndexOf(connected[i]) > mainIndex){
-					newConnected.Add(connected[i]);
-				}
-			}
-			connected = newConnected.ToArray();
-		}
-		//caching indices because it may improve performance...
-		int[] connectedIndices = new int[connected.Length];
-		for(int i=0; i<connected.Length; i++){
-			connectedIndices[i] = vertices.IndexOf(connected[i]);
-		}
-		//if two connected vertices are themselves connected, we've got a triangle.
-		for(int i=0; i<connected.Length-1; i++){
-			for(int j=i+1; j<connected.Length; j++){
-				if(connected[i].IsConnectedTo(connected[j])){
-					Vector3 averageNormal = vertex.normal + connected[i].normal + connected[j].normal;
-					Vector3 crossNormal = Vector3.Cross(connected[i].position - vertex.position, connected[j].position - connected[i].position);	//TODO replace all this yo.
-					IndexTriangle newTriangle = new IndexTriangle();
-					//keeping the winding order
-					if(Vector3.Dot(averageNormal, crossNormal) > 0){
-						newTriangle.index1 = mainIndex;
-						newTriangle.index2 = connectedIndices[i];
-						newTriangle.index3 = connectedIndices[j];
-					}else{
-						newTriangle.index1 = connectedIndices[j];
-						newTriangle.index2 = connectedIndices[i];
-						newTriangle.index3 = mainIndex;
-					}
-					output.Add(newTriangle);
-				}
-			}
-		}
-		return output.ToArray();
 	}
 
 }
