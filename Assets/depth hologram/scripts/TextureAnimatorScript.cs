@@ -20,10 +20,6 @@ public class TextureAnimatorScript : MonoBehaviour {
 		mat.mainTexture = textures[texIndex];
 		StartCoroutine(TextureSwitcher(delay));
 	}
-	
-	void Update () {
-		//TODO maybe don't upload new textures but instead just switch uv-coords?
-	}
 
 	IEnumerator TextureSwitcher(float delay){
 		while(true){

@@ -5,7 +5,6 @@ using UnityEngine;
 public class DeformableTerrainWithShaders : MonoBehaviour {
 
 	//assumptions: the object is a simple uv-unwrapped plane that's not rotated (y axis is okay)
-	//TODO just generate the plane in script here. have a button to make it happen in edit mode
 	//TODO resistance when moving through stuff...
 
 	[SerializeField] MeshFilter mf;

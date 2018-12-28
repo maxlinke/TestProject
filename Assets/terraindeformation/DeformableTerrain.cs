@@ -9,18 +9,6 @@ public class DeformableTerrain : MonoBehaviour {
 	//also try a bigger (more resolution, same size) heightmap and make a function to lower an entire area...
 	//i should also make the terrain completely non-static since all this could change
 
-	//TODO try the same effect with a shader... 
-	//need to calculate new normals n shit...
-	//plan :
-	//> base mesh could be whatever (terrain is nice but also not because of weirdness in terrain shaders)
-	//> extrude normals along world y
-	//> have a control texture for that
-	//> color in the control texture based on collisions
-	//potential issues: huge deformation (1m) and small objects (a small ball)...
-	//also: manually induce a lot of drag on rigidbodies colliding with it (onStay()...)
-	//and maybe use an object-/world-space normal map and update that with a new calculated normal each time the control texture is updated?
-	//oh yeah, it's going to have to be a surface shader with addshadow...
-
 	//ORRR!!!
 	//have a basemesh that is used for collision and used in modified form for rendering
 	//the rendering variant is just extruded upwards (maybe have a control texture (or even vertex colours))

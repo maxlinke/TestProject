@@ -190,7 +190,6 @@ public class WheeledVehicle : MonoBehaviour {
 		}
 	}
 
-	//TODO externalize and stuff
 	float GetSteerInput () {
 		float steerInput = 0f;
 		if(Input.GetKey(KeyCode.A)) steerInput -= 1f;

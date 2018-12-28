@@ -22,18 +22,18 @@ public class TerrainGenerator : MonoBehaviour {
 
 	[Header("General Settings")]
 	public string seed;
-	[SerializeField] [Range(1, 1024)] int xTiles;
-	[SerializeField] [Range(1, 1024)] int zTiles;
+	[SerializeField] [Range(1, 254)] int xTiles;
+	[SerializeField] [Range(1, 254)] int zTiles;
 	[SerializeField] float tileSize;
 	[SerializeField] UVMode uvMode;
-	[SerializeField] float uvScale;			//TODO custom editor
+	[SerializeField] float uvScale;
 
 	[Header("Deformation Settings")]
 	[SerializeField] [Range(-1f, 1f)] float deformationDirection;
 	[SerializeField] float deformationStrength;
 	[SerializeField] NoiseSourceType noiseSourceType;
-	[SerializeField] PerlinNoiseSource[] perlinNoiseSources;		//TODO custom editor
-	[SerializeField] TextureNoiseSource[] textureNoiseSources;		//TODO custom editor
+	[SerializeField] PerlinNoiseSource[] perlinNoiseSources;
+	[SerializeField] TextureNoiseSource[] textureNoiseSources;
 
 	void Reset () {
 		mf = GetComponent<MeshFilter>();

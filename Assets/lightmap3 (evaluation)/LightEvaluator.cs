@@ -38,10 +38,12 @@ public class LightEvaluator : MonoBehaviour {
 	[SerializeField] KeyCode key_zoom;
 
 	Light[] realtimeLights;
+	Collider[] allCollidersOnThisGameObject;
 
 	void Start () {
 		Cursor.lockState = CursorLockMode.Locked;
 		realtimeLights = lightSwitch.GetRealtimeLights();
+		allCollidersOnThisGameObject = gameObject.GetComponentsInChildren<Collider>();
 	}
 
 	void Update () {
@@ -58,7 +60,7 @@ public class LightEvaluator : MonoBehaviour {
 		directLightImage.transform.localScale = new Vector3(directLight, 1f, 1f);
 		float lightProbeLight = GetTotalLightProbeLight();
 		lightProbeImage.transform.localScale = new Vector3(lightProbeLight, 1f, 1f);
-		float visibility = Mathf.Pow(Mathf.Clamp01(directLight + lightProbeLight), 0.5f);	//TODO there's a square root (pow(x, 0.5)) here, which makes sense when you see it in action...
+		float visibility = Mathf.Pow(Mathf.Clamp01(directLight + lightProbeLight), 0.5f);	//there's a square root (pow(x, 0.5)) here, which makes sense when you see it in action...
 		visibilityImage.transform.localScale = new Vector3(visibility, 1f, 1f);
 	}
 
@@ -88,9 +90,20 @@ public class LightEvaluator : MonoBehaviour {
 	}
 
 	float GetTotalDirectLight () {
+		//cache enabled state of all colliders and disable them so they dont get hit by raycasts
+		bool[] colliderEnabledState = new bool[allCollidersOnThisGameObject.Length];
+		for(int i=0; i<allCollidersOnThisGameObject.Length; i++){
+			colliderEnabledState[i] = allCollidersOnThisGameObject[i].enabled;
+			allCollidersOnThisGameObject[i].enabled = false;
+		}
+		//calculate lighting
 		float lightSum = 0f;
 		for(int i=0; i<realtimeLights.Length; i++){
 			lightSum += GetDirectLight(realtimeLights[i]);
+		}
+		//re-enable colliders to what they were before
+		for(int i=0; i<allCollidersOnThisGameObject.Length; i++){
+			allCollidersOnThisGameObject[i].enabled = colliderEnabledState[i];
 		}
 		return lightSum;
 	}
@@ -134,7 +147,6 @@ public class LightEvaluator : MonoBehaviour {
 		return Mathf.Clamp01(f);
 	}
 
-	//TODO of course this won't work if the cast rays are colliding with the casting object itself...
 	float FuzzyVisibility (Light l, float testRadius = 1f) {
 		bool fixedDirection = (l.type == LightType.Directional);
 		float visibility = 0f;
