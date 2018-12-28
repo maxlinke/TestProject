@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour {
 
-	//TODO other shapes than a rectangle (free form would be nice but i have no clue how to do it nicely) (maybe confine to a bunch of colliders OR cut out certain colliders?)
-
 	private const int MAX_RNG_OFFSET = 1024;
 
 	public enum UVMode {
@@ -23,7 +21,7 @@ public class TerrainGenerator : MonoBehaviour {
 	[SerializeField] MeshCollider mc;
 
 	[Header("General Settings")]
-	[SerializeField] string seed;
+	public string seed;
 	[SerializeField] [Range(1, 1024)] int xTiles;
 	[SerializeField] [Range(1, 1024)] int zTiles;
 	[SerializeField] float tileSize;
