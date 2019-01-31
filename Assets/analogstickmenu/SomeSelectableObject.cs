@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 public class SomeSelectableObject : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
 
 	[SerializeField] Text textField;
+	[SerializeField] Image outline;
 	[SerializeField] float upscaleDuration;
 	[SerializeField] float selectedScale;
 	[SerializeField] float wigglePeriod;
@@ -46,8 +47,9 @@ public class SomeSelectableObject : MonoBehaviour, IPointerEnterHandler, IPointe
 	}
 
 	void OnEnable () {
-		textField.text = GenerateRandomString(5);
+		textField.text = GenerateRandomString(1);
 		this.m_selected = false;
+		OnDeselect();
 		this.m_rectTransform = ((RectTransform) this.transform);
 	}
 
@@ -59,11 +61,13 @@ public class SomeSelectableObject : MonoBehaviour, IPointerEnterHandler, IPointe
 	void OnSelect () {
 		StopAllCoroutines();
 		StartCoroutine(ScaleCoroutine(Vector3.one * selectedScale, upscaleDuration));
+		outline.gameObject.SetActive(true);
 	}
 
 	void OnDeselect () {
 		StopAllCoroutines();
 		StartCoroutine(ScaleCoroutine(Vector3.one, resetDuration));
+		outline.gameObject.SetActive(false);
 	}
 
 	public void OnPointerEnter (PointerEventData ped) {
