@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 268bbc388e12b8d4c807b0c3f62ac395, type: 3}
+  m_Name: +3
+  m_EditorClassIdentifier: 
+  type: 0
+  elementColor: {r: 0, g: 0, b: 0, a: 1}
+  backgroundSaturation: 0.667
+  backgroundBrightness: 1
+  overrideBackgroundMaterial: 0
+  backgroundMaterial: {fileID: 0}
+  useSprite: 0
+  sprite: {fileID: 0}
+  text: 3
+  value: 3

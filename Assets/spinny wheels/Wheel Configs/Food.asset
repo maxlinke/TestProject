@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 387f3b529ce08904bac91d55a8c1b56e, type: 3}
+  m_Name: Food
+  m_EditorClassIdentifier: 
+  desaturatedBackgroundColor: {r: 0.85331404, g: 0.9558824, b: 0.7942258, a: 1}
+  saturatedBackgroundColor: {r: 0.5275177, g: 0.8308824, b: 0.28103375, a: 1}
+  slices:
+  - numberOfSegments: 9
+    effect: {fileID: 11400000, guid: 22614fc3106616d4c983ec4722030f33, type: 2}
+  - numberOfSegments: 2
+    effect: {fileID: 11400000, guid: 0169a322b78ff2b418bbb0de36f0d13a, type: 2}
+  - numberOfSegments: 1
+    effect: {fileID: 11400000, guid: 41927c264e5595a42a6220b957e9f252, type: 2}

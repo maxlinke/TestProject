@@ -4,6 +4,8 @@
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
         [NoScaleOffset] _MetallicGlossMap ("Metallic + Smoothness (A)", 2D) = "white" {}
+        _MetallicMultiplier ("Metallic Multiplier", Range(0.0, 1.0)) = 1.0
+        _SmoothnessMultiplier ("Smoothness Multiplier", Range(0.0, 1.0)) = 1.0
         [NoScaleOffset] _BumpMap ("Normal Map", 2D) = "bump" {}
         [NoScaleOffset] _EnvironmentMap ("Environment", CUBE) = "" {}
         _DiffuseMipLevel ("Diffuse Mip Level", Range(0.0, 20.0)) = 10.0
@@ -89,6 +91,8 @@
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
             float4 _MainTex_ST;
+            half _MetallicMultiplier;
+            half _SmoothnessMultiplier;
 
             v2f vert (appdata_t v) {
                 v2f OUT;
@@ -141,8 +145,8 @@
                 half4 tex = tex2D(_MainTex, IN.texcoord);
                 half4 metal = tex2D(_MetallicGlossMap, IN.texcoord);
 
-                half metallic = metal.r;
-                half smoothness = metal.a;
+                half metallic = metal.r * _MetallicMultiplier;
+                half smoothness = metal.a * _SmoothnessMultiplier;
 
                 half3 albedo = (tex + _TextureSampleAdd) * IN.color * _Color;
 

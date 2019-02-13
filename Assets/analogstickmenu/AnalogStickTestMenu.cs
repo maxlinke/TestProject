@@ -49,7 +49,6 @@ public class AnalogStickTestMenu : MonoBehaviour {
 	}
 
 	[Header("Components")]
-	[SerializeField] Canvas parentCanvas;
 	[SerializeField] Button entryExitButton;
 	[SerializeField] Button shuffleButton;
 	[SerializeField] GameObject someSelectablePrefab;
@@ -76,12 +75,13 @@ public class AnalogStickTestMenu : MonoBehaviour {
 	[SerializeField] float exitDuration;
 	[SerializeField] AnimationCurve parentExitCurve;
 	[SerializeField] AnimationCurve selectableExitCurve;
-	[SerializeField] float shuffleEntryDuration;
-	[SerializeField] float shuffleExitDuration;
-	[SerializeField] AnimationCurve selectableShuffleCurve;
+	[SerializeField] float shuffleDuration;
 
 	[Header("DEBUG")]
-	[SerializeField] GameObject deadzoneDrawerOrigin;
+	[SerializeField] GameObject DEBUG_deadzoneDrawerOrigin;
+	[SerializeField] GameObject DEBUG_screenPositionTestObject;
+
+	Canvas parentCanvas;
 
 	SomeSelectableObject currentlySelectedObject;
 	SomeSelectableObject[] selectables;
@@ -99,6 +99,13 @@ public class AnalogStickTestMenu : MonoBehaviour {
 	Coroutine parentCoroutine;
 	Coroutine selectableCoroutine;
 
+	void Awake () {
+		parentCanvas = GetComponentInParent<Canvas>();
+		if(parentCanvas.renderMode == RenderMode.ScreenSpaceCamera){
+			parentCanvas.planeDistance = parentCanvas.worldCamera.nearClipPlane + 0.01f;
+		}
+	}
+
 	void Start () {
 		RegenerateSelectables();
 		UpdateRanges();
@@ -106,10 +113,11 @@ public class AnalogStickTestMenu : MonoBehaviour {
 		SetSelectablesCramped();
 		SetButtonToEntry();
 		shuffleButton.onClick.RemoveAllListeners();
-		shuffleButton.onClick.AddListener( () => { StartCoroutine(Shuffle(shuffleEntryDuration, shuffleExitDuration)); });
+		shuffleButton.onClick.AddListener( () => { StartCoroutine(Shuffle(shuffleDuration)); });
 	}
 
 	void Update () {
+		PositionTesting();
 		if(Input.GetKeyDown(KeyCode.R)){
 			Start();
 		}
@@ -176,12 +184,32 @@ public class AnalogStickTestMenu : MonoBehaviour {
 		stickWasInDeadzone = stickIsInDeadZone;
 	}
 
+	void PositionTesting () {
+		Vector2 mouseScreenPos = Input.mousePosition;
+		Vector3 objectPos = DEBUG_screenPositionTestObject.transform.TransformPoint(DEBUG_screenPositionTestObject.transform.position);
+		Vector3 objectScreenPos;
+		switch(parentCanvas.renderMode){
+			case RenderMode.ScreenSpaceOverlay:
+				objectScreenPos = objectPos;
+				break;
+			case RenderMode.ScreenSpaceCamera:
+				objectScreenPos = parentCanvas.worldCamera.transform.InverseTransformPoint(objectPos);
+				break;
+			case RenderMode.WorldSpace:
+				objectScreenPos = Vector3.zero;	//it's basically the same as screen space camera
+				break;
+			default:
+				throw new UnityException("wat?");
+		}
+		Debug.Log(string.Format("({0:F3}, {1:F3}, {2:F3})", objectScreenPos.x, objectScreenPos.y, objectScreenPos.z));
+	}
+
 	void DrawDeadzones (float joyOri) {
 		joyOri = -Mathf.Abs(joyOri);
 		float scale = 30f;
-		Vector3 start = deadzoneDrawerOrigin.transform.position;
-		Vector3 right = deadzoneDrawerOrigin.transform.right;
-		Vector3 up = deadzoneDrawerOrigin.transform.up;
+		Vector3 start = DEBUG_deadzoneDrawerOrigin.transform.position;
+		Vector3 right = DEBUG_deadzoneDrawerOrigin.transform.right;
+		Vector3 up = DEBUG_deadzoneDrawerOrigin.transform.up;
 		Debug.DrawLine(start + (scale * (-Mathf.PI - 0.1f) * right), start + (scale * 0.1f * right), Color.green);
 		Debug.DrawRay(start, up * 0.1f * scale, Color.green);
 		Debug.DrawRay(start + (scale * right * -Mathf.PI), up * 0.1f * scale, Color.green);
@@ -406,20 +434,21 @@ public class AnalogStickTestMenu : MonoBehaviour {
 		}
 	}
 
-	IEnumerator Shuffle (float incomingDuration, float exitingDuration) {
+	IEnumerator Shuffle (float duration) {
 		bool entryExitButtonInteractable = entryExitButton.interactable;
+		float halfDuration = duration * 0.5f;
 		entryExitButton.interactable = false;
 		selectableCoroutine.Stop(this);
-		selectableCoroutine = StartCoroutine(MoveAndRotate(selectableRectTransforms, crampedSelectablePositions, crampedSelectableRotations, incomingDuration));
-		yield return new WaitForSeconds(incomingDuration);
+		selectableCoroutine = StartCoroutine(MoveAndRotate(selectableRectTransforms, crampedSelectablePositions, crampedSelectableRotations, halfDuration));
+		yield return new WaitForSeconds(halfDuration);
 		numberOfObjects = Random.Range(MIN_NUMBER_OF_OBJECTS, MAX_NUMBER_OF_OBJECTS + 1);
 		RegenerateSelectables();
 		UpdateRanges();
 		SetParentExtended();
 		SetSelectablesCramped();
 		selectableCoroutine.Stop(this);
-		selectableCoroutine = StartCoroutine(MoveAndRotate(selectableRectTransforms, spreadSelectablePositions, spreadSelectableRotations, exitingDuration));
-		yield return new WaitForSeconds(exitingDuration);
+		selectableCoroutine = StartCoroutine(MoveAndRotate(selectableRectTransforms, spreadSelectablePositions, spreadSelectableRotations, halfDuration));
+		yield return new WaitForSeconds(halfDuration);
 		entryExitButton.interactable = entryExitButtonInteractable;
 	}
 

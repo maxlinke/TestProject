@@ -8,4 +8,8 @@ public static class MyExtensions {
         }
     }
 
+	public static void SetGOActive (this Component component, bool value) {
+		component.gameObject.SetActive(value);
+	}
+
 }

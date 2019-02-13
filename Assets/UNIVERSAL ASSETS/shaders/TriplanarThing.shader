@@ -6,6 +6,7 @@ Shader "Custom/TriplanarThing" {
 		_Color ("Color", Color) = (1,1,1,1)
 		_Tiling ("Tiling", Float) = 1.0
 		[NoScaleOffset] _MainTex ("Albedo (RGB)", 2D) = "white" {}
+		_Unlit ("Unlit", Range(0.0, 1.0)) = 0.0
 	}
 
 	SubShader {
@@ -21,6 +22,7 @@ Shader "Custom/TriplanarThing" {
 		sampler2D _MainTex;
 		fixed4 _Color;
 		float _Tiling;
+		float _Unlit;
 
 		struct Input {
 			float3 worldPos;
@@ -46,7 +48,8 @@ Shader "Custom/TriplanarThing" {
 			fixed4 c = blending.x * cx + blending.y * cy + blending.z * cz;
 			c *= _Color;
 
-			o.Albedo = c.rgb;
+			o.Albedo = (1.0 - _Unlit) * c.rgb;
+			o.Emission = _Unlit * c.rgb;
 			o.Alpha = c.a;
 		}
 
