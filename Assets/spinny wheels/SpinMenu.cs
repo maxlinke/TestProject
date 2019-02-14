@@ -7,6 +7,7 @@ public class SpinMenu : MonoBehaviour {
 
 	[Header("Components")]
 	[SerializeField] Transform wheelParent;
+	[SerializeField] AffectionDisplayer affectionDisplayer;
 
 	[Header("Prefabs")]
 	[SerializeField] SpinnyWheel wheelPrefab;
@@ -39,10 +40,12 @@ public class SpinMenu : MonoBehaviour {
 	[SerializeField] int debug_numberOfOtherData;
 	[SerializeField] SpinnyWheelConfig debug_otherData;
 
+	bool wheelsWereSpinning;
 	List<SpinnyWheel> wheels;
 	Coroutine timerAndAutoStopCoroutine;
 
 	void Awake () {
+		wheelsWereSpinning = false;
 		wheels = new List<SpinnyWheel>();
 		debug_typeText.text = "";
 		debug_resultText.text = "";
@@ -58,35 +61,55 @@ public class SpinMenu : MonoBehaviour {
 		if(Input.GetKeyDown(keyRandomize)){
 			RandomlyGenerateNew();
 		}
-		if(Input.GetKeyDown(keyStart) && AllWheelsStopped()){
-			for(int i=0; i<wheels.Count; i++){
-				wheels[i].StartSpinning(Random.Range(minStartDelay, maxStartDelay));
-			}
-			wheelParent.transform.localScale = Vector3.one;
-			timerAndAutoStopCoroutine = StartCoroutine(VisualTimer(maxStartDelay, durationUntilAutoStop));
-		}else if(Input.GetKeyDown(keyStop) && AllWheelsSpinning()){
-			for(int i=0; i<wheels.Count; i++){
-				wheels[i].StopSpinning();
-			}
-			timerAndAutoStopCoroutine.Stop(this);
-			debug_visualTimer.transform.localScale = new Vector3(0f, 1f, 1f);
+		bool allWheelsStopped = AllWheelsStopped();
+		bool allWheelsSpinning = AllWheelsSpinning();
+		if(Input.GetKeyDown(keyStart) && allWheelsStopped){
+			StartSpin();
+		}else if(Input.GetKeyDown(keyStop) && allWheelsSpinning){
+			StopSpin();
 		}
-		if(AllWheelsStopped()){
-			string result = "";
-			int totalValue = 0;
-			for(int i=0; i<wheels.Count; i++){
-				SpinnyWheelSlice topSlice = wheels[i].GetSliceOnTop();
-				SpinnyWheelEffect topEffect = topSlice.Effect;
-				if(topEffect.Type.Equals(SpinnyWheelEffect.EffectType.VALUE)){
-					totalValue += topEffect.Value;
-				}else{
-					result += ", " + wheels[i].GetSliceOnTop().Effect.name;
-				}
-			}
-			debug_resultText.text = totalValue.ToString() + result;
-		}else{
+		if(allWheelsStopped && wheelsWereSpinning){
+			DisplayWheelResultAndUpdateAffectionDisplay();
+		}else if(!allWheelsStopped && !wheelsWereSpinning){
 			debug_resultText.text = "";
 		}
+		wheelsWereSpinning = !allWheelsStopped;
+	}
+
+	void StartSpin () {
+		for(int i=0; i<wheels.Count; i++){
+			wheels[i].StartSpinning(Random.Range(minStartDelay, maxStartDelay));
+		}
+		wheelParent.transform.localScale = Vector3.one;
+		timerAndAutoStopCoroutine = StartCoroutine(VisualTimer(maxStartDelay, durationUntilAutoStop));
+	}
+
+	void StopSpin () {
+		for(int i=0; i<wheels.Count; i++){
+			wheels[i].StopSpinning();
+		}
+		timerAndAutoStopCoroutine.Stop(this);
+		debug_visualTimer.transform.localScale = new Vector3(0f, 1f, 1f);
+	}
+
+	void DisplayWheelResultAndUpdateAffectionDisplay () {
+		string result = "";
+		int totalValue = 0;
+		int likeDelta = 0;
+		for(int i=0; i<wheels.Count; i++){
+			SpinnyWheelSlice topSlice = wheels[i].GetSliceOnTop();
+			SpinnyWheelEffect topEffect = topSlice.Effect;
+			if(topEffect.Type.Equals(SpinnyWheelEffect.EffectType.VALUE)){
+				totalValue += topEffect.Value;
+			}else{
+				result += ", " + topEffect.name;
+				if(topEffect.Type.Equals(SpinnyWheelEffect.EffectType.LIKEDELTA)){
+					likeDelta += topEffect.Value;
+				}
+			}
+		}
+		debug_resultText.text = totalValue.ToString() + result;
+		affectionDisplayer.DEBUG_SIMPLE_LIKE_UPDATE(likeDelta);
 	}
 
 	[ContextMenu("Generate new with given params")]

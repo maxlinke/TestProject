@@ -635,6 +635,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 114803933923799340, guid: 5cce90589636ff543a2739c32713586a,
+        type: 2}
+      propertyPath: affectionDisplayer
+      value: 
+      objectReference: {fileID: 1384797767}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5cce90589636ff543a2739c32713586a, type: 2}
   m_IsPrefabParent: 0
@@ -867,6 +872,12 @@ Mesh:
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   m_MeshOptimized: 0
+--- !u!114 &1384797767 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114291594532324654, guid: 3cc2af5393f5c224e9794bf06fd62837,
+    type: 2}
+  m_PrefabInternal: {fileID: 380305667}
+  m_Script: {fileID: 11500000, guid: a6fd289cc9df19945846c16903907cc0, type: 3}
 --- !u!1001 &1427388894
 Prefab:
   m_ObjectHideFlags: 0

@@ -198,6 +198,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wheelParent: {fileID: 224848018304576362}
+  affectionDisplayer: {fileID: 0}
   wheelPrefab: {fileID: 114503134570871798, guid: acbe2e355eda6d8468d258097cd0fcc5,
     type: 2}
   baseData: {fileID: 11400000, guid: 634e0885e0d881a469e3345a714c32fe, type: 2}
@@ -215,6 +216,7 @@ MonoBehaviour:
   maxStartDelay: 1
   randomizeRotationOnSpawn: 0
   durationUntilAutoStop: 5
+  timerScalesParent: 0
   minWheelParentScale: 0.8
   debug_visualTimer: {fileID: 114227197833641320}
   debug_typeText: {fileID: 114752938228626872}

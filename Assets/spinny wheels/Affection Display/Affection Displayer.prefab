@@ -169,7 +169,7 @@ GameObject:
   - component: {fileID: 224983227831486354}
   - component: {fileID: 114064368419748856}
   m_Layer: 5
-  m_Name: Viewport
+  m_Name: Viewport (Person)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 224036118940402472}
   - component: {fileID: 114269656174745808}
   m_Layer: 5
-  m_Name: Viewport
+  m_Name: Viewport (Group)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -253,6 +253,69 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameTextField: {fileID: 114454700627624478}
   groupTextField: {fileID: 114583096832254538}
+  personLikeViewport: {fileID: 224983227831486354}
+  groupLikeViewport: {fileID: 224036118940402472}
+  personLikeElementHeightToWidth: 0.75
+  groupLikeElementHeightToWidth: 0.5
+  personLikeFontSize: 30
+  groupLikeFontSize: 20
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  advanceTime: 0.25
+  advanceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 1
+      value: 1
+      inSlope: 4.8570094
+      outSlope: 4.8570094
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
+  returnTime: 0.25
+  returnCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 1
+      inSlope: -3.3000011
+      outSlope: -3.3000011
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 0.2
+      value: 0
+      inSlope: -6.818181
+      outSlope: 3.5
+      tangentMode: 1
+    - serializedVersion: 2
+      time: 0.6
+      value: 0
+      inSlope: -3.9166636
+      outSlope: 2.1206894
+      tangentMode: 1
+    - serializedVersion: 2
+      time: 0.8
+      value: 0
+      inSlope: -1.9374993
+      outSlope: 0.7500001
+      tangentMode: 1
+    - serializedVersion: 2
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
 --- !u!114 &114454700627624478
 MonoBehaviour:
   m_ObjectHideFlags: 1
