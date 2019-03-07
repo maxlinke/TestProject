@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: custom_reflect
-  m_Shader: {fileID: 4800000, guid: 8e67f459efdf12348a0099ee9e7173c5, type: 3}
+  m_Name: custom_ui_default
+  m_Shader: {fileID: 4800000, guid: d059154b329d5684da5bb8b5591b67ce, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -38,7 +38,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EnvironmentMap:
-        m_Texture: {fileID: 8900000, guid: aaa40c8802649ab489137dfb39ddc1a8, type: 3}
+        m_Texture: {fileID: 8900000, guid: fcda8ac9313f2b142a684af931c97b0c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
