@@ -128,15 +128,17 @@ public class TriangleMeshGenerator : MonoBehaviour {
             int localB = 0;
             int localC = 0;
             int ringIndex = 0;
-            bool atLeastOnePointInRadius = true;
-
-            while(atLeastOnePointInRadius){
-                atLeastOnePointInRadius = false;
+            int ringIndexLimit = 101;
+            while(ringIndex < ringIndexLimit){
+                bool atLeastOnePointInRadius = false;
                 localA++;
                 localB--;
                 ringIndex++;
                 int pointsOnRing = ringIndex * 6;
                 TraceRing();
+                if(!atLeastOnePointInRadius){
+                    break;
+                }
 
                 void TraceRing () {
                     TraceSegment(() => {localB--; localC++;}, () => (localC >= 0)); //will be skipped on the first ring because c is already 0
@@ -168,8 +170,9 @@ public class TriangleMeshGenerator : MonoBehaviour {
                         }
                     }
                 }
-
-                
+            }
+            if(ringIndex == ringIndexLimit){
+                Debug.LogError("max rings allowed reached!");
             }
         }
         return output;
