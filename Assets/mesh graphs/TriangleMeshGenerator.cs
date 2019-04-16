@@ -60,10 +60,17 @@ public class TriangleMeshGenerator : MonoBehaviour {
         }
         if(referencePoints != null){
             Gizmos.color = Color.white;
+            Handles.color = Color.white;
             foreach(var point in referencePoints){
-                Gizmos.DrawSphere(transform.TransformPoint(ABCtoLocalXYZ(point)), 0.25f);
+                Vector3 worldPoint = transform.TransformPoint(ABCtoLocalXYZ(point));
+                Gizmos.DrawSphere(worldPoint, 0.25f);
+                Handles.Label(worldPoint, $"(A: {point.a}, B: {point.b})");
             }
         }
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(transform.position, transform.TransformDirection(aAxis * lineLength));
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawRay(transform.position, transform.TransformDirection(bAxis * lineLength));
         for(int i=-debugResolution; i<=debugResolution; i++){
             for(int j=-debugResolution; j<=debugResolution; j++){
                 Vector3 debugPoint = selectionCenter + (debugSize * new Vector3(i, 0, j) / debugResolution);
@@ -72,16 +79,58 @@ public class TriangleMeshGenerator : MonoBehaviour {
                 byte g = (byte)((137 * approx.b) % 255);
                 byte b = (byte)((231 * approx.a + 197 * approx.b) % 255);
                 Gizmos.color = new Color32(r, g, b, (byte)(255));
-                Gizmos.DrawSphere(debugPoint, 0.05f);
+                // Gizmos.DrawSphere(debugPoint, 0.05f);
+                Gizmos.DrawCube(debugPoint, 0.05f * Vector3.one);
             }
         }
     }
 
     TriMeshPoint LocalXYZtoNearestABC (Vector3 localPoint) {
-        localPoint /= lineLength;
-        int a = Mathf.FloorToInt(Vector3.Dot(localPoint, aAxis) + 0.5f);
-        int b = Mathf.FloorToInt(Vector3.Dot(localPoint, bAxis) + 0.5f);
-        return new TriMeshPoint(a, b);
+        var normedLocalPoint =  localPoint /  lineLength;
+        float fA = Vector3.Dot(normedLocalPoint, aAxis);
+        float fB = Vector3.Dot(normedLocalPoint, bAxis);
+        // bool aSafe = IsInSafeZone(fA, out float aSafe01, out float aNonSafe01);
+        // bool bSafe = IsInSafeZone(fB, out float bSafe01, out float bNonSafe01);
+        // if(aSafe && bSafe){
+        //     //nothing, a and b are fine
+        // }else{
+        //     if(aSafe){
+                
+        //     }else if(bSafe){
+
+        //     }else{
+
+        //     }
+        //     fA = 0;
+        //     fB = 0;
+        // }
+        int a = Mathf.FloorToInt(fA + 0.5f);
+        int b = Mathf.FloorToInt(fB + 0.5f);
+        // return new TriMeshPoint(a, b);
+        TriMeshPoint closest = default;
+        float closestSqrDist = Mathf.Infinity;
+        for(int i=-1; i<=1; i++){
+            for(int j=-1; j<=1; j++){
+                var temp = new TriMeshPoint(a + i, b + j);
+                float tempSqrDist = (localPoint - ABCtoLocalXYZ(temp)).sqrMagnitude;
+                if(tempSqrDist < closestSqrDist){
+                    closest = temp;
+                    closestSqrDist = tempSqrDist;
+                }
+            }
+        }
+        return closest;
+
+        bool IsInSafeZone (float floatVal, out float safeValue01, out float nonSafeValue01) {
+            // float tan30 = Mathf.Tan(Mathf.Deg2Rad * 30);
+            // float rMin = tan30 * lineLength;
+            // float halfSafe = tan30 * rMin;
+            float halfSafe = lineLength / 3f;   //tan(30) squared = 1/3
+            floatVal = Mathf.Repeat(floatVal, 1f);
+            safeValue01 = Mathf.Clamp01((floatVal + halfSafe) / (2f * halfSafe));
+            nonSafeValue01 = Mathf.Clamp01((floatVal - halfSafe) / (1f - (2f * halfSafe)));
+            return (nonSafeValue01 <= 0 || nonSafeValue01 >= 1);
+        }
     }
 
     Vector3 ABCtoLocalXYZ (TriMeshPoint triPoint) {
