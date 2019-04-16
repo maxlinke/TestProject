@@ -65,3 +65,4 @@ $RECYCLE.BIN/
 /.idea/
 /[Aa]ssets/Plugins/Editor/JetBrains
 /[Aa]ssets/Plugins/Editor/JetBrains.meta
+.vscode/settings.json
