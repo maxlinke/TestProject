@@ -366,7 +366,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 579843397}
-  - component: {fileID: 579843396}
   m_Layer: 0
   m_Name: Ref Sphere
   m_TagString: Untagged
@@ -374,19 +373,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!135 &579843396
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 579843395}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &579843397
 Transform:
   m_ObjectHideFlags: 0
@@ -395,7 +381,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 579843395}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.82, y: 0, z: 1.13}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -499,10 +485,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97c971fd93e2a3f43ae0833049af723c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  refCollider: {fileID: 579843396}
+  selectObject: {fileID: 579843395}
   lineLength: 2
-  debugResolution: 64
-  debugSize: 5
+  debugGizmoSize: 1
 --- !u!4 &1613567100
 Transform:
   m_ObjectHideFlags: 0

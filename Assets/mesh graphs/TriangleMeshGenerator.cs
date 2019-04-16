@@ -9,104 +9,72 @@ using UnityEditor;
 [ExecuteAlways]
 public class TriangleMeshGenerator : MonoBehaviour {
 
-    [SerializeField] SphereCollider refCollider;
+    [SerializeField] GameObject selectObject;
     [SerializeField] float lineLength;
-    [SerializeField] int debugResolution;
-    [SerializeField] float debugSize;
+    [SerializeField] float debugGizmoSize;
 
-    Vector3 selectionCenter;
-    List<TriMeshPoint> selectionPoints; //local space
-    List<TriMeshPoint> referencePoints; //also local space
+    Vector3 aAxis => new Vector3(1f, 0f, 0f);
+    Vector3 bAxis => new Vector3(-Mathf.Sin(Mathf.Deg2Rad * 30), 0f, -Mathf.Cos(Mathf.Deg2Rad * 30));
 
-    Vector3 aAxis;
-    Vector3 bAxis;
-
-    void Update () {
-        EnsureAxesAndMatrixExist();
-        if(referencePoints == null){
-            referencePoints = new List<TriMeshPoint>();
-            for(int i=-10; i<11; i++){
-                for(int j=-10; j<11; j++){
-                    referencePoints.Add(new TriMeshPoint(i, j));
-                }
-            }
-        }
-        if((refCollider != null) && (Mathf.Abs(lineLength) > 0)){
-            selectionCenter = refCollider.transform.transform.position + (refCollider.transform.rotation * refCollider.center);
-            Vector3 localSelectionCenter = transform.InverseTransformPoint(selectionCenter);
-            if(selectionPoints == null){
-                selectionPoints = new List<TriMeshPoint>();
-            }
-            selectionPoints.Clear();
-            selectionPoints.Add(LocalXYZtoNearestABC(localSelectionCenter));
-        }
-    }
-
-    void EnsureAxesAndMatrixExist () {
-        aAxis = new Vector3(1f, 0f, 0f);
-        bAxis = new Vector3(-Mathf.Sin(Mathf.Deg2Rad * 30), 0f, -Mathf.Cos(Mathf.Deg2Rad * 30));
-    }
+    float bigGizmoSize => debugGizmoSize;
+    float mediumGizmosSize => 0.5f * debugGizmoSize;
+    float smallGizmoSize => 0.25f * debugGizmoSize;
+    float miniGizmoSize => 0.05f * debugGizmoSize;
 
     void OnDrawGizmos () {
-        Gizmos.color = Color.white;
-        Gizmos.DrawSphere(selectionCenter, 1f);
+        DrawDebugGridAndAxes();
+        if(selectObject != null){
+            DrawSelectDebugInfo(selectObject.transform.position);
+        }
+    }
+
+    void DrawDebugGridAndAxes (int referenceGridRes = 10) {
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(transform.position, 1f);
-        if(selectionPoints != null){
-            Gizmos.color = Color.black;
-            foreach(var point in selectionPoints){
-                Gizmos.DrawSphere(transform.TransformPoint(ABCtoLocalXYZ(point)), 0.5f);
+        Gizmos.DrawSphere(transform.position, mediumGizmosSize);
+        var referencePoints = new List<TriMeshPoint>();
+        for(int i=-referenceGridRes; i<=referenceGridRes; i++){
+            for(int j=-referenceGridRes; j<=referenceGridRes; j++){
+                referencePoints.Add(new TriMeshPoint(i, j));
             }
         }
-        if(referencePoints != null){
-            Gizmos.color = Color.white;
-            Handles.color = Color.white;
-            foreach(var point in referencePoints){
-                Vector3 worldPoint = transform.TransformPoint(ABCtoLocalXYZ(point));
-                Gizmos.DrawSphere(worldPoint, 0.25f);
-                Handles.Label(worldPoint, $"(A: {point.a}, B: {point.b})");
-            }
+        Gizmos.color = Color.white;
+        Handles.color = Color.white;
+        foreach(var point in referencePoints){
+            Vector3 worldPoint = transform.TransformPoint(ABCtoLocalXYZ(point));
+            Gizmos.DrawSphere(worldPoint, smallGizmoSize);
+            Handles.Label(worldPoint, $"(A: {point.a}, B: {point.b})");
         }
         Gizmos.color = Color.yellow;
         Gizmos.DrawRay(transform.position, transform.TransformDirection(aAxis * lineLength));
         Gizmos.color = Color.magenta;
         Gizmos.DrawRay(transform.position, transform.TransformDirection(bAxis * lineLength));
-        for(int i=-debugResolution; i<=debugResolution; i++){
-            for(int j=-debugResolution; j<=debugResolution; j++){
-                Vector3 debugPoint = selectionCenter + (debugSize * new Vector3(i, 0, j) / debugResolution);
+    }
+
+    void DrawSelectDebugInfo (Vector3 worldMidPoint, int gridRes = 32, float gridSize = 4) {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(worldMidPoint, smallGizmoSize);
+        var localMidPoint = transform.InverseTransformPoint(worldMidPoint);
+        var localTriGridPoint = ABCtoLocalXYZ(LocalXYZtoNearestABC(localMidPoint));
+        var worldTriGridPoint = transform.TransformPoint(localTriGridPoint);
+        Gizmos.color = Color.black;
+        Gizmos.DrawSphere(worldTriGridPoint, mediumGizmosSize);
+        for(int i=-gridRes; i<=gridRes; i++){
+            for(int j=-gridRes; j<=gridRes; j++){
+                Vector3 debugPoint = worldMidPoint + (gridSize * new Vector3(i, 0, j) / gridRes);
                 var approx = LocalXYZtoNearestABC(transform.InverseTransformPoint(debugPoint));
                 byte r = (byte)((71 * approx.a) % 255);
                 byte g = (byte)((137 * approx.b) % 255);
                 byte b = (byte)((231 * approx.a + 197 * approx.b) % 255);
                 Gizmos.color = new Color32(r, g, b, (byte)(255));
-                // Gizmos.DrawSphere(debugPoint, 0.05f);
-                Gizmos.DrawCube(debugPoint, 0.05f * Vector3.one);
+                Gizmos.DrawCube(debugPoint, miniGizmoSize * Vector3.one);
             }
         }
     }
 
     TriMeshPoint LocalXYZtoNearestABC (Vector3 localPoint) {
         var normedLocalPoint =  localPoint /  lineLength;
-        float fA = Vector3.Dot(normedLocalPoint, aAxis);
-        float fB = Vector3.Dot(normedLocalPoint, bAxis);
-        // bool aSafe = IsInSafeZone(fA, out float aSafe01, out float aNonSafe01);
-        // bool bSafe = IsInSafeZone(fB, out float bSafe01, out float bNonSafe01);
-        // if(aSafe && bSafe){
-        //     //nothing, a and b are fine
-        // }else{
-        //     if(aSafe){
-                
-        //     }else if(bSafe){
-
-        //     }else{
-
-        //     }
-        //     fA = 0;
-        //     fB = 0;
-        // }
-        int a = Mathf.FloorToInt(fA + 0.5f);
-        int b = Mathf.FloorToInt(fB + 0.5f);
-        // return new TriMeshPoint(a, b);
+        int a = Mathf.FloorToInt(Vector3.Dot(normedLocalPoint, aAxis) + 0.5f);
+        int b = Mathf.FloorToInt(Vector3.Dot(normedLocalPoint, bAxis) + 0.5f);
         TriMeshPoint closest = default;
         float closestSqrDist = Mathf.Infinity;
         for(int i=-1; i<=1; i++){
@@ -120,23 +88,9 @@ public class TriangleMeshGenerator : MonoBehaviour {
             }
         }
         return closest;
-
-        bool IsInSafeZone (float floatVal, out float safeValue01, out float nonSafeValue01) {
-            // float tan30 = Mathf.Tan(Mathf.Deg2Rad * 30);
-            // float rMin = tan30 * lineLength;
-            // float halfSafe = tan30 * rMin;
-            float halfSafe = lineLength / 3f;   //tan(30) squared = 1/3
-            floatVal = Mathf.Repeat(floatVal, 1f);
-            safeValue01 = Mathf.Clamp01((floatVal + halfSafe) / (2f * halfSafe));
-            nonSafeValue01 = Mathf.Clamp01((floatVal - halfSafe) / (1f - (2f * halfSafe)));
-            return (nonSafeValue01 <= 0 || nonSafeValue01 >= 1);
-        }
     }
 
     Vector3 ABCtoLocalXYZ (TriMeshPoint triPoint) {
-        // float x = triPoint.a;
-        // float z = (triPoint.b - (triPoint.a * bAxis.x)) / bAxis.z;
-        // return new Vector3(x, 0, z) * lineLength;
         float z = ((triPoint.b * aAxis.x) - (bAxis.x * triPoint.a)) / ((bAxis.z * aAxis.x) - (aAxis.z * bAxis.x));
         float x = (triPoint.a - (z * aAxis.z)) / aAxis.x;
         return new Vector3(x, 0, z) * lineLength;
