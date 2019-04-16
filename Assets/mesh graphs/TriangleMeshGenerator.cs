@@ -10,6 +10,7 @@ using UnityEditor;
 public class TriangleMeshGenerator : MonoBehaviour {
 
     [SerializeField] GameObject selectObject;
+    [SerializeField] float selectRadius;
     [SerializeField] float lineLength;
     [SerializeField] float debugGizmoSize;
 
@@ -22,9 +23,16 @@ public class TriangleMeshGenerator : MonoBehaviour {
     float miniGizmoSize => 0.05f * debugGizmoSize;
 
     void OnDrawGizmos () {
-        DrawDebugGridAndAxes();
+        // DrawDebugGridAndAxes();
+        // if(selectObject != null){
+        //     DrawSelectDebugInfo(selectObject.transform.position);
+        // }
         if(selectObject != null){
-            DrawSelectDebugInfo(selectObject.transform.position);
+            var points = GetPointsInsideRadius(selectObject.transform.position, selectRadius);
+            Gizmos.color = Color.white;
+            foreach(var point in points){
+                Gizmos.DrawCube(ABCtoWorldXYZ(point), smallGizmoSize * Vector3.one);
+            }
         }
     }
 
@@ -42,12 +50,18 @@ public class TriangleMeshGenerator : MonoBehaviour {
         foreach(var point in referencePoints){
             Vector3 worldPoint = transform.TransformPoint(ABCtoLocalXYZ(point));
             Gizmos.DrawSphere(worldPoint, smallGizmoSize);
-            Handles.Label(worldPoint, $"(A: {point.a}, B: {point.b})");
+            Handles.Label(worldPoint, $"(A: {point.a}, B: {point.b}, C: {point.c})");
         }
         Gizmos.color = Color.yellow;
-        Gizmos.DrawRay(transform.position, transform.TransformDirection(aAxis * lineLength));
+        Handles.color = Gizmos.color;
+        var aRay = transform.TransformDirection(aAxis * lineLength);
+        Gizmos.DrawRay(transform.position, aRay);
+        Handles.Label(transform.position + aRay, "a");
         Gizmos.color = Color.magenta;
-        Gizmos.DrawRay(transform.position, transform.TransformDirection(bAxis * lineLength));
+        Handles.color = Gizmos.color;
+        var bRay = transform.TransformDirection(bAxis * lineLength);
+        Gizmos.DrawRay(transform.position, bRay);
+        Handles.Label(transform.position + bRay, "b");
     }
 
     void DrawSelectDebugInfo (Vector3 worldMidPoint, int gridRes = 32, float gridSize = 4) {
@@ -71,6 +85,10 @@ public class TriangleMeshGenerator : MonoBehaviour {
         }
     }
 
+    TriMeshPoint WorldXYZtoNearestABC (Vector3 worldPoint) {
+        return LocalXYZtoNearestABC(transform.InverseTransformPoint(worldPoint));
+    }
+
     TriMeshPoint LocalXYZtoNearestABC (Vector3 localPoint) {
         var normedLocalPoint =  localPoint /  lineLength;
         int a = Mathf.FloorToInt(Vector3.Dot(normedLocalPoint, aAxis) + 0.5f);
@@ -90,10 +108,75 @@ public class TriangleMeshGenerator : MonoBehaviour {
         return closest;
     }
 
+    Vector3 ABCtoWorldXYZ (TriMeshPoint triPoint) {
+        return transform.TransformPoint(ABCtoLocalXYZ(triPoint));
+    }
+
     Vector3 ABCtoLocalXYZ (TriMeshPoint triPoint) {
         float z = ((triPoint.b * aAxis.x) - (bAxis.x * triPoint.a)) / ((bAxis.z * aAxis.x) - (aAxis.z * bAxis.x));
         float x = (triPoint.a - (z * aAxis.z)) / aAxis.x;
         return new Vector3(x, 0, z) * lineLength;
+    }
+
+    List<TriMeshPoint> GetPointsInsideRadius (Vector3 worldCenterPoint, float worldRadius) {
+        var output = new List<TriMeshPoint>();
+        float sqrWorldRadius = worldRadius * worldRadius;
+        var triCenter = WorldXYZtoNearestABC(worldCenterPoint);
+        if(TriPointIsInRadius(triCenter) && lineLength > 0f){
+            output.Add(triCenter);
+            int localA = 0;
+            int localB = 0;
+            int localC = 0;
+            int ringIndex = 0;
+            bool atLeastOnePointInRadius = true;
+
+            while(atLeastOnePointInRadius){
+                atLeastOnePointInRadius = false;
+                localA++;
+                localB--;
+                ringIndex++;
+                int pointsOnRing = ringIndex * 6;
+                TraceRing();
+
+                void TraceRing () {
+                    TraceSegment(() => {localB--; localC++;}, () => (localC >= 0)); //will be skipped on the first ring because c is already 0
+                    TraceSegment(() => {localA--; localC++;}, () => (localA <= 0));
+                    TraceSegment(() => {localA--; localB++;}, () => (localB >= 0));
+                    TraceSegment(() => {localC--; localB++;}, () => (localC <= 0));
+                    TraceSegment(() => {localC--; localA++;}, () => (localA >= 0));
+                    TraceSegment(() => {localB--; localA++;}, () => (localB <= 0));
+                    CreateCheckAndPossiblyInsertPointAndCurrentLocalPos();
+
+                    void TraceSegment (System.Action step, System.Func<bool> stopCheck) {
+                        int segmentLoopCounter = 0;
+                        while(segmentLoopCounter < 100){
+                            if(stopCheck()){
+                                return;
+                            }
+                            CreateCheckAndPossiblyInsertPointAndCurrentLocalPos();
+                            step();
+                            segmentLoopCounter++;
+                        }
+                        Debug.LogError("breaking loop because loop counter reached limit. if this is intentional, adjust the hardcoded limit...");
+                    }
+
+                    void CreateCheckAndPossiblyInsertPointAndCurrentLocalPos () {
+                        var newPoint = new TriMeshPoint(localA + triCenter.a, localB + triCenter.b, localC + triCenter.c);
+                        if(TriPointIsInRadius(newPoint)){
+                            output.Add(newPoint);
+                            atLeastOnePointInRadius = true;
+                        }
+                    }
+                }
+
+                
+            }
+        }
+        return output;
+
+        bool TriPointIsInRadius (TriMeshPoint triPoint) {
+            return ((ABCtoWorldXYZ(triPoint) - worldCenterPoint).sqrMagnitude <= sqrWorldRadius);
+        }
     }
 
     struct TriMeshPoint {
