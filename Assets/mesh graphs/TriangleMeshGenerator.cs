@@ -30,7 +30,7 @@ public class TriangleMeshGenerator : MonoBehaviour {
         foreach(var point in selectedPoints){
             graph.AddVertex(point);
         }
-        mf.sharedMesh = graph.ToMesh(TriMeshGraph.UVMode.OBJECTNORMALIZED);
+        mf.sharedMesh = graph.ToMesh(true);
     }
 
     void OnDrawGizmos () {
@@ -249,14 +249,6 @@ public class TriangleMeshGenerator : MonoBehaviour {
 
     class TriMeshGraph {
 
-        //TODO use normal mesh graph to implement some sort of "patch holes" thingy...
-        //or maybe not. here i pretty much know that any vertex should have 6 neighbors unless it is at an edge...
-
-        public enum UVMode {
-            WORLDCOORDS,
-            OBJECTNORMALIZED
-        }
-
         public class TriMeshGraphVertex {
 
             public readonly TriMeshPoint point;
@@ -330,18 +322,25 @@ public class TriangleMeshGenerator : MonoBehaviour {
             }
         }
 
-        public Mesh ToMesh (UVMode uvMode) {
+        public Mesh ToMesh (bool patchHoles) {
+            if(patchHoles){
+                Debug.LogWarning("patching holes not yet implemented...");
+            }
             RegenerateConnections();
             Vector3[] meshVertices = new Vector3[vertices.Count];
             Vector2[] meshTexcoords = new Vector2[vertices.Count];
             var triangleList = new List<(int, int, int)>();
+            float minX = Mathf.Infinity;
+            float maxX = Mathf.NegativeInfinity;
+            float minZ = minX;
+            float maxZ = maxX;
             for(int i=0; i<vertices.Count; i++){
                 var vert = vertices[i];
-                meshVertices[i] = generator.ABCtoLocalXYZ(vert.point);      //maybe start off with local (for tex coords) then before the end transform them into world space?
+                meshVertices[i] = generator.ABCtoLocalXYZ(vert.point);
                 for(int j=i+1; j<vertices.Count; j++){
                     var otherVert = vertices[j];
                     if(vert.IsConnectedTo(otherVert)){
-                        for(int k=i+2; k<vertices.Count; k++){
+                        for(int k=j+1; k<vertices.Count; k++){
                             var otherOtherVert = vertices[k];
                             if(vert.IsConnectedTo(otherOtherVert) && otherVert.IsConnectedTo(otherOtherVert)){
                                 triangleList.Add((i, j, k));
@@ -349,6 +348,12 @@ public class TriangleMeshGenerator : MonoBehaviour {
                         }
                     }
                 }
+                float x = meshVertices[i].x;
+                float z = meshVertices[i].z;
+                minX = Mathf.Min(x, minX);
+                maxX = Mathf.Max(x, maxX);
+                minZ = Mathf.Min(z, minZ);
+                maxZ = Mathf.Max(z, maxZ);
             }
             int[] meshTriangles = new int[3 * triangleList.Count];
             for(int i=0; i<triangleList.Count; i++){
@@ -371,7 +376,9 @@ public class TriangleMeshGenerator : MonoBehaviour {
                 }
             }
             for(int i=0; i<meshVertices.Length; i++){
-                meshVertices[i] = generator.transform.TransformPoint(meshVertices[i]);
+                float x = meshVertices[i].x;
+                float z = meshVertices[i].z;
+                meshTexcoords[i] = new Vector2((x - minX) / (maxX - minX), (z - minZ) / (maxZ - minZ));
             }
             Mesh outputMesh = new Mesh();
             outputMesh.vertices = meshVertices;
