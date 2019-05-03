@@ -34,64 +34,11 @@ public class TriangleMeshGenerator : MonoBehaviour {
     }
 
     void OnDrawGizmos () {
-        // DrawDebugGridAndAxes();
-        // if(selectObject != null){
-        //     DrawSelectDebugInfo(selectObject.transform.position);
-        // }
         if(selectObject != null){
             var points = GetPointsInsideRadius(selectObject.transform.position, selectRadius);
             Gizmos.color = Color.white;
             foreach(var point in points){
                 Gizmos.DrawCube(ABCtoWorldXYZ(point), smallGizmoSize * Vector3.one);
-            }
-        }
-    }
-
-    void DrawDebugGridAndAxes (int referenceGridRes = 10) {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(transform.position, mediumGizmosSize);
-        var referencePoints = new List<TriMeshPoint>();
-        for(int i=-referenceGridRes; i<=referenceGridRes; i++){
-            for(int j=-referenceGridRes; j<=referenceGridRes; j++){
-                referencePoints.Add(new TriMeshPoint(i, j));
-            }
-        }
-        Gizmos.color = Color.white;
-        Handles.color = Color.white;
-        foreach(var point in referencePoints){
-            Vector3 worldPoint = transform.TransformPoint(ABCtoLocalXYZ(point));
-            Gizmos.DrawSphere(worldPoint, smallGizmoSize);
-            Handles.Label(worldPoint, $"(A: {point.a}, B: {point.b}, C: {point.c})");
-        }
-        Gizmos.color = Color.yellow;
-        Handles.color = Gizmos.color;
-        var aRay = transform.TransformDirection(aAxis * lineLength);
-        Gizmos.DrawRay(transform.position, aRay);
-        Handles.Label(transform.position + aRay, "a");
-        Gizmos.color = Color.magenta;
-        Handles.color = Gizmos.color;
-        var bRay = transform.TransformDirection(bAxis * lineLength);
-        Gizmos.DrawRay(transform.position, bRay);
-        Handles.Label(transform.position + bRay, "b");
-    }
-
-    void DrawSelectDebugInfo (Vector3 worldMidPoint, int gridRes = 32, float gridSize = 4) {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(worldMidPoint, smallGizmoSize);
-        var localMidPoint = transform.InverseTransformPoint(worldMidPoint);
-        var localTriGridPoint = ABCtoLocalXYZ(LocalXYZtoNearestABC(localMidPoint));
-        var worldTriGridPoint = transform.TransformPoint(localTriGridPoint);
-        Gizmos.color = Color.black;
-        Gizmos.DrawSphere(worldTriGridPoint, mediumGizmosSize);
-        for(int i=-gridRes; i<=gridRes; i++){
-            for(int j=-gridRes; j<=gridRes; j++){
-                Vector3 debugPoint = worldMidPoint + (gridSize * new Vector3(i, 0, j) / gridRes);
-                var approx = LocalXYZtoNearestABC(transform.InverseTransformPoint(debugPoint));
-                byte r = (byte)((71 * approx.a) % 255);
-                byte g = (byte)((137 * approx.b) % 255);
-                byte b = (byte)((231 * approx.a + 197 * approx.b) % 255);
-                Gizmos.color = new Color32(r, g, b, (byte)(255));
-                Gizmos.DrawCube(debugPoint, miniGizmoSize * Vector3.one);
             }
         }
     }
@@ -389,6 +336,7 @@ public class TriangleMeshGenerator : MonoBehaviour {
             outputMesh.RecalculateBounds();
             outputMesh.RecalculateNormals();
             outputMesh.RecalculateTangents();
+            outputMesh.name = "Generated TriMesh";
             return outputMesh;
         }
 
