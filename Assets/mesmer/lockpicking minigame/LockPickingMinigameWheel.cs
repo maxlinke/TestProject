@@ -1,0 +1,120 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class LockPickingMinigameWheel : MonoBehaviour {
+
+    public enum Spinability {
+        Clockwise,
+        Counterclockwise,
+        Free
+    }
+
+    [SerializeField] SimpleAnimation advanceAnim;
+    [SerializeField] Transform markerParent;
+    [SerializeField] Image colorImage;
+
+    LockPickingMinigameWheel linkedWheel;
+    int linkFactor;
+    Spinability spinability;
+    Coroutine rotationCoroutine;
+
+    public RectTransform rectTransform { get; private set; }
+    public int currentStep { get; private set; }
+    public int steps { get; private set; }
+
+    void Awake () {
+        rectTransform = GetComponent<RectTransform>();
+    }
+
+    public void Initialize (int steps, Spinability spinability = Spinability.Free, bool spawnStepMarkers = true) {
+        this.steps = steps;
+        currentStep = 0;
+        rectTransform.localEulerAngles = new Vector3(0f, 0f, -GetAngleForStep(0));
+        linkedWheel = null;
+        linkFactor = 0;
+        RemoveOldMarkers();
+        if(spawnStepMarkers){
+            SpawnMarkers();
+        }
+
+        void RemoveOldMarkers () {
+            for(int i=markerParent.childCount-1; i>=0; i--){
+                Destroy(markerParent.GetChild(i));
+            }
+        }
+
+        void SpawnMarkers () {
+            var mainMarker = GetNewMarker(0);
+            mainMarker.sizeDelta = new Vector2(20, 50);
+            var mainMarkerImage = mainMarker.gameObject.AddComponent<Image>();
+            mainMarkerImage.color = Color.black;
+            for(int i=1; i<steps; i++){
+                var subMarker = GetNewMarker(i);
+                subMarker.sizeDelta = new Vector2(10, 30);
+                var subMarkerImage = subMarker.gameObject.AddComponent<Image>();
+                subMarkerImage.color = 0.5f * Color.black + 0.5f * Color.clear;
+            }
+
+            RectTransform GetNewMarker (int index) {
+                float angle = 360f * ((float)index) / steps;
+                float radAngle = Mathf.Deg2Rad * angle;
+                float x = Mathf.Sin(radAngle);
+                float y = Mathf.Cos(radAngle);
+                var newMarkerRT = new GameObject("New Marker", typeof(RectTransform)).GetComponent<RectTransform>();
+                newMarkerRT.SetParent(markerParent, false);
+                newMarkerRT.pivot = new Vector2(0.5f, 1f);
+                newMarkerRT.SetAnchorPoint(0.5f * (new Vector2(x, y) + Vector2.one));
+                newMarkerRT.anchoredPosition = Vector2.zero;
+                newMarkerRT.localEulerAngles = new Vector3(0f, 0f, -angle);
+                return newMarkerRT;
+            }
+
+        }
+    }
+
+    public void SetLinkedToOther (LockPickingMinigameWheel otherWheel, int linkFactor) {
+        this.linkedWheel = otherWheel;
+        this.linkFactor = linkFactor;
+    }
+
+    public void SetColor (Color color) {
+        colorImage.color = color;
+    }
+
+    float GetAngleForStep (int step) {
+        return 360f * ((float)step / steps);
+    }
+
+    //TODO rotate step-by-step instead?
+    //TODO sounds
+    //TODO volume for those sounds
+    //TODO random duration offset for the anim?
+
+    public void RotateSteps (int stepsToRotate, System.Action onDoneRotating = null, bool instantly = false) {
+        rotationCoroutine.Stop(this);
+        int newStep = currentStep + stepsToRotate;
+        if(instantly){
+            rectTransform.localEulerAngles = new Vector3(0, 0, -GetAngleForStep(newStep));
+        }else{
+            rotationCoroutine = StartCoroutine(CoroutineUtils.GenericAnimationCoroutine<float>(
+                start: GetAngleForStep(currentStep),
+                end: GetAngleForStep(newStep),
+                set: lerped => { rectTransform.localEulerAngles = new Vector3(0, 0, -lerped); },
+                lerp: Mathf.LerpUnclamped,
+                anim: advanceAnim,
+                endAction: onDoneRotating
+            ));
+        }
+        currentStep = newStep;
+        if(linkedWheel != null){
+            linkedWheel.RotateSteps(linkFactor * stepsToRotate, instantly: instantly);
+        }
+    }
+
+    // int GetStepDeltaForLinkedWheel (int localStepDelta) {
+    //     return (linkFactor * localStepDelta * linkedWheel.steps) / this.steps;
+    // }
+	
+}

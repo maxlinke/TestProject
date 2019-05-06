@@ -40,6 +40,15 @@ public static class MyExtensions {
 		rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, y);
 	}
 
+    public static void SetAnchorPoint (this RectTransform rectTransform, float x, float y) {
+        SetAnchorPoint(rectTransform, new Vector2(x, y));
+    }
+
+    public static void SetAnchorPoint (this RectTransform rectTransform, Vector2 newAnchorPoint) {
+        rectTransform.anchorMin = newAnchorPoint;
+        rectTransform.anchorMax = newAnchorPoint;
+    }
+
 	public static void InvokeNullsafe (this System.Action action) {
 		if(action != null) action.Invoke();
 	}
