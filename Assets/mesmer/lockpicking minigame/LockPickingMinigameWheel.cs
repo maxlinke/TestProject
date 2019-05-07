@@ -47,7 +47,7 @@ public class LockPickingMinigameWheel : MonoBehaviour {
 
         void SpawnMarkers () {
             var mainMarker = GetNewMarker(0);
-            mainMarker.sizeDelta = new Vector2(20, 50);
+            mainMarker.sizeDelta = new Vector2(30, 50);
             var mainMarkerImage = mainMarker.gameObject.AddComponent<Image>();
             mainMarkerImage.color = Color.black;
             for(int i=1; i<steps; i++){

@@ -338,6 +338,7 @@ MonoBehaviour:
     type: 3}
   interactableWheelParent: {fileID: 227774880}
   randomRotationsAtInit: 3
+  numberOfWheels: 3
   minStepsPerWheel: 5
   maxStepsPerWheel: 9
   wheelAdvanceAnim:
