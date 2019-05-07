@@ -12,17 +12,17 @@ namespace Mesmer {
         [SerializeField] RectTransform interactableWheelParent;
 
         [Header("Settings")]
+        [SerializeField] bool goToFullRotationsAtUpright;
         [SerializeField, Range(1, 10)] int randomRotationsAtInit;
         [SerializeField, Range(1, 4)] int numberOfWheels;
         [SerializeField, Range(1, 10)] int minStepsPerWheel;
         [SerializeField, Range(1, 10)] int maxStepsPerWheel;
-        [SerializeField] SimpleAnimation wheelAdvanceAnim;
 
         Coroutine resetCoroutine;
         List<LockPickingMinigameWheel> activeWheels;
         LockPickingMinigameWheel passiveWheel;
 
-        readonly int[] hackyPrimes = {2, 3, 5, 7, 11, 13, 17, 19, 23}; 
+        readonly int[] hackyPrimes = {2, 3, 2, 3, 11, 13, 17, 19, 23}; 
         bool acceptInput;
         int currentlyActiveWheelIndex;
 
@@ -50,7 +50,7 @@ namespace Mesmer {
 
             for(int i=0; i<numberOfWheels; i++){
                 var wheel = MakeWheel(sizeMultiplier * size);
-                wheel.SetLinkedToOther(passiveWheel, hackyPrimes[i]);
+                wheel.SetLinkedToOther(passiveWheel, hackyPrimes[numberOfWheels - i - 1]);
                 wheel.SetColor(Color.white);
                 activeWheels.Add(wheel);
                 size--;
@@ -63,7 +63,7 @@ namespace Mesmer {
                 wheelsDone[i] = false;
                 int direction = 1 - (Random.Range(0, 2) * 2);
                 int wholeTurns = Random.Range(1, 4);
-                int fraction = Random.Range(0, activeWheels[i].steps);
+                int fraction = Random.Range(1, activeWheels[i].steps);
                 int indexDupe = i; 
                 activeWheels[i].RotateSteps(direction * (wholeTurns + fraction), () => { 
                     wheelsDone[indexDupe] = true; 
@@ -105,10 +105,18 @@ namespace Mesmer {
                     }else if(Input.GetKeyDown(KeyCode.S)){
                         SetActiveWheelViaOffset(1);
                     }
+                    var wheel = activeWheels[currentlyActiveWheelIndex];
+                    int stepsToRotate = 0;
                     if(Input.GetKeyDown(KeyCode.A)){
-                        activeWheels[currentlyActiveWheelIndex].RotateSteps(-1);
+                        stepsToRotate = -1;
                     }else if(Input.GetKeyDown(KeyCode.D)){
-                        activeWheels[currentlyActiveWheelIndex].RotateSteps(1);
+                        stepsToRotate = +1;
+                    }
+                    if(Input.GetKey(KeyCode.LeftShift) || ((wheel.currentStep % wheel.steps) == 0 && goToFullRotationsAtUpright)){
+                            stepsToRotate *= wheel.steps;
+                        }
+                    if(stepsToRotate != 0){
+                        wheel.RotateSteps(stepsToRotate);
                     }
                 }
             }
