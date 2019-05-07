@@ -15,8 +15,8 @@ namespace Mesmer {
         [SerializeField] bool goToFullRotationsAtUpright;
         [SerializeField, Range(1, 10)] int randomRotationsAtInit;
         [SerializeField, Range(1, 4)] int numberOfWheels;
-        [SerializeField, Range(1, 10)] int minStepsPerWheel;
-        [SerializeField, Range(1, 10)] int maxStepsPerWheel;
+        [SerializeField, Range(1, 20)] int minStepsPerWheel;
+        [SerializeField, Range(1, 20)] int maxStepsPerWheel;
 
         Coroutine resetCoroutine;
         List<LockPickingMinigameWheel> activeWheels;
@@ -44,17 +44,31 @@ namespace Mesmer {
             float sizeMultiplier = 100;
             int size = minSize + numberOfWheels;
 
-            passiveWheel = MakeWheel(size * sizeMultiplier);
-            passiveWheel.SetColor(0.8f * Color.white + 0.2f * Color.black);
-            size--;
+            // passiveWheel = MakeWheel(size * sizeMultiplier);
+            // passiveWheel.SetColor(0.8f * Color.white + 0.2f * Color.black);
+            // size--;
 
-            for(int i=0; i<numberOfWheels; i++){
-                var wheel = MakeWheel(sizeMultiplier * size);
-                wheel.SetLinkedToOther(passiveWheel, hackyPrimes[numberOfWheels - i - 1]);
-                wheel.SetColor(Color.white);
-                activeWheels.Add(wheel);
-                size--;
-            }
+            // for(int i=0; i<numberOfWheels; i++){
+            //     var wheel = MakeWheel(sizeMultiplier * size);
+            //     wheel.SetLinkedToOther(passiveWheel, hackyPrimes[numberOfWheels - i - 1]);
+            //     activeWheels.Add(wheel);
+            //     size--;
+            // }
+
+            passiveWheel = MakeWheelExplicit(600, 15);
+            passiveWheel.SetColor(0.8f * Color.white + 0.2f * Color.black);
+
+            var tempNew = MakeWheelExplicit(500, 7);
+            tempNew.SetLinkedToOther(passiveWheel, 1);
+            activeWheels.Add(tempNew);
+
+            tempNew = MakeWheelExplicit(400, 5);
+            tempNew.SetLinkedToOther(passiveWheel, 1);
+            activeWheels.Add(tempNew);
+
+            tempNew = MakeWheelExplicit(300, 3);
+            tempNew.SetLinkedToOther(passiveWheel, 1);
+            activeWheels.Add(tempNew);
 
             yield return new WaitForSeconds(0.5f);
             
@@ -65,7 +79,7 @@ namespace Mesmer {
                 int wholeTurns = Random.Range(1, 4);
                 int fraction = Random.Range(1, activeWheels[i].steps);
                 int indexDupe = i; 
-                activeWheels[i].RotateSteps(direction * (wholeTurns + fraction), () => { 
+                activeWheels[i].RotateSteps(direction * ((wholeTurns * activeWheels[i].steps) + fraction), () => { 
                     wheelsDone[indexDupe] = true; 
                 });
             }
@@ -86,9 +100,12 @@ namespace Mesmer {
             SetActiveWheel(activeWheels.Count - 1);
 
             LockPickingMinigameWheel MakeWheel (float sizeDeltaScale) {
+                return MakeWheelExplicit(sizeDeltaScale, Random.Range(minStepsPerWheel, maxStepsPerWheel));
+            }
+
+            LockPickingMinigameWheel MakeWheelExplicit (float sizeDeltaScale, int explicitStepCount) {
                 var newWheel = Instantiate(wheelPrefab, interactableWheelParent);
-                int newWheelStepCount = Random.Range(minStepsPerWheel, maxStepsPerWheel);
-                newWheel.Initialize(newWheelStepCount);
+                newWheel.Initialize(explicitStepCount);
                 newWheel.rectTransform.sizeDelta = Vector3.one * sizeDeltaScale;
                 return newWheel;
             }
