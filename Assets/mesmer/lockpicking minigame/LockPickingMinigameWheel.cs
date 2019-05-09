@@ -14,6 +14,13 @@ public class LockPickingMinigameWheel : MonoBehaviour {
     [SerializeField] SimpleAnimation advanceAnim;
     [SerializeField] Transform markerParent;
     [SerializeField] Image colorImage;
+    [SerializeField] Sprite subStepSprite;
+    [SerializeField] float distanceOfSubStepSpritesFromEdge;
+    [SerializeField] Vector2 mainNotchSize;
+    [SerializeField] float subMarkerCircleSize;
+    [SerializeField] Vector2 subMarkerRectangleSize;
+    [SerializeField] Color mainNotchColor;
+    [SerializeField] Color subMarkerColor;
 
     LockPickingMinigameWheel linkedWheel;
     int linkFactor;
@@ -46,22 +53,18 @@ public class LockPickingMinigameWheel : MonoBehaviour {
         }
 
         void SpawnMarkers () {
-            var mainMarker = GetNewMarker(0);
-            mainMarker.sizeDelta = new Vector2(30, 50);
-            var mainMarkerImage = mainMarker.gameObject.AddComponent<Image>();
-            mainMarkerImage.color = Color.black;
+            GetNewRectangleMarker(0, mainNotchSize, mainNotchColor);
             for(int i=1; i<steps; i++){
-                var subMarker = GetNewMarker(i);
-                subMarker.sizeDelta = new Vector2(10, 30);
-                var subMarkerImage = subMarker.gameObject.AddComponent<Image>();
-                subMarkerImage.color = 0.5f * Color.black + 0.5f * Color.clear;
+                GetNewCircleMarker(i, subMarkerCircleSize, subMarkerColor);
+                GetNewRectangleMarker(i, subMarkerRectangleSize, subMarkerColor);
             }
 
-            RectTransform GetNewMarker (int index) {
+            RectTransform GetNewMarker (int index, out Vector2 sineCosine) {
                 float angle = 360f * ((float)index) / steps;
                 float radAngle = Mathf.Deg2Rad * angle;
                 float x = Mathf.Sin(radAngle);
                 float y = Mathf.Cos(radAngle);
+                sineCosine = new Vector2(x, y);
                 var newMarkerRT = new GameObject("New Marker", typeof(RectTransform)).GetComponent<RectTransform>();
                 newMarkerRT.SetParent(markerParent, false);
                 newMarkerRT.pivot = new Vector2(0.5f, 1f);
@@ -69,6 +72,24 @@ public class LockPickingMinigameWheel : MonoBehaviour {
                 newMarkerRT.anchoredPosition = Vector2.zero;
                 newMarkerRT.localEulerAngles = new Vector3(0f, 0f, -angle);
                 return newMarkerRT;
+            }
+
+            RectTransform GetNewRectangleMarker (int index, Vector2 sizeDelta, Color color) {
+                var newMarker = GetNewMarker(index, out _);
+                newMarker.sizeDelta = sizeDelta;
+                var newMarkerImage = newMarker.gameObject.AddComponent<Image>();
+                newMarkerImage.color = color;
+                return newMarker;
+            }
+
+            RectTransform GetNewCircleMarker (int index, float size, Color color) {
+                var newMarker = GetNewMarker(index, out Vector2 sineCosine);
+                newMarker.sizeDelta = Vector2.one * size;
+                newMarker.anchoredPosition = sineCosine * distanceOfSubStepSpritesFromEdge * -1;
+                var newMarkerImage = newMarker.gameObject.AddComponent<Image>();
+                newMarkerImage.sprite = subStepSprite;
+                newMarkerImage.color = color;
+                return newMarker;
             }
 
         }

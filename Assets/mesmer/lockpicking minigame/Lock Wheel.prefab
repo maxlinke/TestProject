@@ -61,7 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -126,6 +126,13 @@ MonoBehaviour:
     m_animDuration: 0.333
   markerParent: {fileID: 9128041349338599394}
   colorImage: {fileID: 4730263083518959802}
+  subStepSprite: {fileID: 21300000, guid: 4828805c1432e66439dc8e0f560589ea, type: 3}
+  distanceOfSubStepSpritesFromEdge: 15
+  mainNotchSize: {x: 40, y: 60}
+  subMarkerCircleSize: 15
+  subMarkerRectangleSize: {x: 5, y: 20}
+  mainNotchColor: {r: 0, g: 0, b: 0, a: 1}
+  subMarkerColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.50980395}
 --- !u!1 &2601575410634684825
 GameObject:
   m_ObjectHideFlags: 0

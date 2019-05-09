@@ -12,6 +12,7 @@ namespace Mesmer {
         [SerializeField] RectTransform interactableWheelParent;
 
         [Header("Settings")]
+        [SerializeField] bool primeVariant;
         [SerializeField] bool goToFullRotationsAtUpright;
         [SerializeField, Range(1, 10)] int randomRotationsAtInit;
         [SerializeField, Range(1, 4)] int numberOfWheels;
@@ -40,37 +41,37 @@ namespace Mesmer {
             }
             activeWheels.Clear();
 
-            int minSize = 3;
-            float sizeMultiplier = 100;
-            int size = minSize + numberOfWheels;
+            if(!primeVariant){
+                int minSize = 3;
+                float sizeMultiplier = 100;
+                int size = minSize + numberOfWheels;
 
-            // passiveWheel = MakeWheel(size * sizeMultiplier);
-            // passiveWheel.SetColor(0.8f * Color.white + 0.2f * Color.black);
-            // size--;
+                passiveWheel = MakeWheel(size * sizeMultiplier);
+                passiveWheel.SetColor(0.8f * Color.white + 0.2f * Color.black);
+                size--;
 
-            // for(int i=0; i<numberOfWheels; i++){
-            //     var wheel = MakeWheel(sizeMultiplier * size);
-            //     wheel.SetLinkedToOther(passiveWheel, hackyPrimes[numberOfWheels - i - 1]);
-            //     activeWheels.Add(wheel);
-            //     size--;
-            // }
+                for(int i=0; i<numberOfWheels; i++){
+                    var wheel = MakeWheel(sizeMultiplier * size);
+                    wheel.SetLinkedToOther(passiveWheel, hackyPrimes[numberOfWheels - i - 1]);
+                    activeWheels.Add(wheel);
+                    size--;
+                }
+            }else{
+                passiveWheel = MakeWheelExplicit(600, 15);
+                passiveWheel.SetColor(0.8f * Color.white + 0.2f * Color.black);
 
-            passiveWheel = MakeWheelExplicit(600, 15);
-            passiveWheel.SetColor(0.8f * Color.white + 0.2f * Color.black);
+                var tempNew = MakeWheelExplicit(500, 7);
+                tempNew.SetLinkedToOther(passiveWheel, 1);
+                activeWheels.Add(tempNew);
 
-            var tempNew = MakeWheelExplicit(500, 7);
-            tempNew.SetLinkedToOther(passiveWheel, 1);
-            activeWheels.Add(tempNew);
+                tempNew = MakeWheelExplicit(400, 5);
+                tempNew.SetLinkedToOther(passiveWheel, 1);
+                activeWheels.Add(tempNew);
 
-            tempNew = MakeWheelExplicit(400, 5);
-            tempNew.SetLinkedToOther(passiveWheel, 1);
-            activeWheels.Add(tempNew);
-
-            tempNew = MakeWheelExplicit(300, 3);
-            tempNew.SetLinkedToOther(passiveWheel, 1);
-            activeWheels.Add(tempNew);
-
-            yield return new WaitForSeconds(0.5f);
+                tempNew = MakeWheelExplicit(300, 3);
+                tempNew.SetLinkedToOther(passiveWheel, 1);
+                activeWheels.Add(tempNew);
+            }
             
             bool[] wheelsDone = new bool[activeWheels.Count];
             for(int i=0; i<activeWheels.Count; i++){
@@ -117,16 +118,16 @@ namespace Mesmer {
                     resetCoroutine.Stop(this);
                     resetCoroutine = StartCoroutine(Reset());
                 }else{
-                    if(Input.GetKeyDown(KeyCode.W)){
+                    if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)){
                         SetActiveWheelViaOffset(-1);
-                    }else if(Input.GetKeyDown(KeyCode.S)){
+                    }else if(Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)){
                         SetActiveWheelViaOffset(1);
                     }
                     var wheel = activeWheels[currentlyActiveWheelIndex];
                     int stepsToRotate = 0;
-                    if(Input.GetKeyDown(KeyCode.A)){
+                    if(Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)){
                         stepsToRotate = -1;
-                    }else if(Input.GetKeyDown(KeyCode.D)){
+                    }else if(Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)){
                         stepsToRotate = +1;
                     }
                     if(Input.GetKey(KeyCode.LeftShift) || ((wheel.currentStep % wheel.steps) == 0 && goToFullRotationsAtUpright)){
