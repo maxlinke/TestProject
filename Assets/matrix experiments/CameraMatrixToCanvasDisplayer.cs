@@ -10,7 +10,8 @@ public class CameraMatrixToCanvasDisplayer : MonoBehaviour {
 
     void Update () {
         textField.text = string.Empty;
-        var mat = cam.worldToCameraMatrix;
+        // var mat = cam.worldToCameraMatrix;
+        var mat = cam.projectionMatrix;
         for(int i=0; i<4; i++){
             var row = mat.GetRow(i);
             for(int j=0; j<4; j++){

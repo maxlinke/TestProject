@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Rendering;
 
 [ExecuteAlways]
 public class CustomMatrixSetter : MonoBehaviour {
@@ -38,22 +37,23 @@ public class CustomMatrixSetter : MonoBehaviour {
 
         var cam = Camera.current;
 
+        // var viewMatrix = cam.worldToCameraMatrix;
+        // var projectionMatrix = cam.projectionMatrix;
+        // var flipMatrix = new Matrix4x4(
+        //     new Vector4(1, 0, 0, 0),
+        //     new Vector4(0, -1, 0, 0),
+        //     new Vector4(0, 0, 1, 0),
+        //     new Vector4(0, 0, 0, 1));
+        // var zFlipMatrix = new Matrix4x4(
+        //     new Vector4(1, 0, 0, 0),
+        //     new Vector4(0, 1, 0, 0),
+        //     new Vector4(0, 0, -1, 0),
+        //     new Vector4(0, 0, 0, 1));
+        // var cameraMatrix = flipMatrix * projectionMatrix * viewMatrix;
+
         var viewMatrix = cam.worldToCameraMatrix;
-        var projectionMatrix = cam.projectionMatrix;
-        var flipMatrix = new Matrix4x4(
-            new Vector4(1, 0, 0, 0),
-            new Vector4(0, -1, 0, 0),
-            new Vector4(0, 0, 1, 0),
-            new Vector4(0, 0, 0, 1));
-        var zFlipMatrix = new Matrix4x4(
-            new Vector4(1, 0, 0, 0),
-            new Vector4(0, 1, 0, 0),
-            new Vector4(0, 0, -1, 0),
-            new Vector4(0, 0, 0, 1));
-        // var cameraMatrix = cam.projectionMatrix * viewMatrix;
-        // projectionMatrix *= flipMatrix;
-        // viewMatrix *= flipMatrix;
-        var cameraMatrix = flipMatrix * projectionMatrix * viewMatrix;
+        var projectionMatrix = GL.GetGPUProjectionMatrix(cam.projectionMatrix, true);
+        var cameraMatrix = projectionMatrix * viewMatrix;
         
         var translationMatrix = Matrix4x4.Translate(transform.position);
         var rotationMatrix = Matrix4x4.Rotate(transform.rotation);
