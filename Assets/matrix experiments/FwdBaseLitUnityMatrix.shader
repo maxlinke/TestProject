@@ -43,10 +43,10 @@
             v2f vert (appdata v) {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                // o.vertex = UnityObjectToClipPos(o.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
                 o.worldNormal = UnityObjectToWorldNormal(v.normal).xyz;
+                // o.worldNormal = mul(UNITY_MATRIX_IT_MV, v.normal).xyz;
                 o.lightDir = WorldSpaceLightDir(v.vertex);
                 return o;
             }
@@ -55,6 +55,7 @@
                 fixed4 col = tex2D(_MainTex, i.uv) * _Color;
                 fixed diff = 0.5 * saturate(dot(i.lightDir, i.worldNormal)) + 0.5;
                 col *= diff;
+                col.rgb = i.worldNormal;
                 return col;
             }
             ENDCG

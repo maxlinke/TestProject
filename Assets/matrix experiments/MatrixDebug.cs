@@ -4,26 +4,27 @@ using UnityEngine.Rendering;
 [ExecuteAlways]
 public class MatrixDebug : MonoBehaviour {
 
-    Material mat;
+    MeshRenderer mr;
+    MaterialPropertyBlock mpb;
 
     void Awake () {
-        var mr = GetComponent<MeshRenderer>();
+        mr = GetComponent<MeshRenderer>();
         if(mr == null){
             Debug.LogError("no meshrenderer!");
             return;
         }
-        mat = mr.sharedMaterial;
-        if(mat == null){
-            Debug.LogError("no material on meshrenderer!");
-            return;
-        }
+        mpb = new MaterialPropertyBlock();
     }
 
     void OnWillRenderObject () {
-        if(mat == null){
-            Awake();
+        if(mr == null){
+            mr = GetComponent<MeshRenderer>();
             return;
         }
+        if(mpb == null){
+            mpb = new MaterialPropertyBlock();
+        }
+
         var translationMatrix = Matrix4x4.Translate(transform.position);
         var rotationMatrix = Matrix4x4.Rotate(transform.rotation);
         var scaleMatrix = Matrix4x4.Scale(transform.lossyScale);
@@ -40,23 +41,13 @@ public class MatrixDebug : MonoBehaviour {
         // var debugMatrix = GL.GetGPUProjectionMatrix(Camera.current.projectionMatrix, false);
         // almost done (the y-field [1][1] is still inverted...)
 
-        var debugMatrix = GL.GetGPUProjectionMatrix(Camera.current.projectionMatrix, true);
+        // var debugMatrix = GL.GetGPUProjectionMatrix(Camera.current.projectionMatrix, true);
         //i'll be damned... wtf, so rendertotexture needs to be true i guess... (it doesn't change from forward to deferred)
 
-        mat.SetMatrix("_DebugMatrix", debugMatrix);
+        var debugMatrix = (Camera.current.worldToCameraMatrix * modelMatrix).inverse.transpose;
 
-        // var a = new Matrix4x4(
-        //     new Vector4(2, 0, 0, 1),
-        //     new Vector4(0, 1, 0, 0),
-        //     new Vector4(0, 0, 1, 0),
-        //     new Vector4(4, 0, 0, -1));
-        // mat.SetMatrix("_DebugMatrixA", a);
-        // var b = new Matrix4x4(
-        //     new Vector4(1, 0, 0, 0),
-        //     new Vector4(0, 1, 0, 0),
-        //     new Vector4(0, 0, 1, 0),
-        //     new Vector4(0, 0, 0, 1));
-        // mat.SetMatrix("_DebugMatrixB", b);
+        mpb.SetMatrix("_DebugMatrix", debugMatrix);
+        mr.SetPropertyBlock(mpb);
     }
 	
 }

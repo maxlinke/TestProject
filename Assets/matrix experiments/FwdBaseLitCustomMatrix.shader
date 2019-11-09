@@ -32,6 +32,7 @@
             float4x4 CustomMVPMatrix;
             float4x4 CustomModelMatrix;
             float4x4 CustomNormalMatrix;
+            float4x4 CustomInverseModelMatrix;
 
             struct appdata {
                 float4 vertex : POSITION;
@@ -50,11 +51,16 @@
             v2f vert (appdata v) {
                 v2f o;
                 o.vertex = mul(CustomMVPMatrix, v.vertex);
-                // o.vertex = mul(CustomMVPMatrix, o.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.worldPos = mul(CustomModelMatrix, v.vertex).xyz;
-                o.worldNormal = mul(CustomNormalMatrix, v.normal).xyz;
+                // o.worldNormal = mul(CustomNormalMatrix, v.normal).xyz;
+                // o.worldNormal = normalize(mul((float3x3)CustomModelMatrix, v.normal.xyz));
+                o.worldNormal = normalize(mul(v.normal.xyz, (float3x3)CustomInverseModelMatrix));
                 o.lightDir = WorldSpaceLightDir(v.vertex);
+
+                // o.lightDir = normalize(o.lightDir);
+                o.worldNormal = normalize(o.worldNormal);
+
                 return o;
             }
 
@@ -62,6 +68,7 @@
                 fixed4 col = tex2D(_MainTex, i.uv) * _Color;
                 fixed diff = 0.5 * saturate(dot(i.lightDir, i.worldNormal)) + 0.5;
                 col *= diff;
+                col.rgb = i.worldNormal;
                 return col;
             }
             ENDCG

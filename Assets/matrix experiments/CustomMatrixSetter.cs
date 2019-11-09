@@ -1,33 +1,35 @@
 ﻿using UnityEngine;
-using UnityEngine.Rendering;
 
 [ExecuteAlways]
 public class CustomMatrixSetter : MonoBehaviour {
 
     Material mat;
+    MeshRenderer mr;
+    MaterialPropertyBlock mpb;
     int mvpMatrixID;
     int modelMatrixID;
     int normalMatrixID;
-
-    [SerializeField] Vector4 translation;
+    int inverseModelMatrixID;
 
     void Awake () {
-        var mr = GetComponent<MeshRenderer>();
+        mr = GetComponent<MeshRenderer>();
         if(mr == null){
             Debug.Log($"No MeshRenderer on \"{gameObject.name}\"!");
             return;
         }
+        mpb = new MaterialPropertyBlock();
+
         mat = mr.sharedMaterial;
         if(mat == null){
             Debug.Log($"No Material on MeshRenderer of \"{gameObject.name}\"!");
             return;
         }
+
         mvpMatrixID = Shader.PropertyToID("CustomMVPMatrix");
         modelMatrixID = Shader.PropertyToID("CustomModelMatrix");
         normalMatrixID = Shader.PropertyToID("CustomNormalMatrix");
+        inverseModelMatrixID = Shader.PropertyToID("CustomInverseModelMatrix");
     }
-
-    //the render matrix' z-axis is flipped according to openGL
 
     void OnWillRenderObject () {
         if(mat == null){
@@ -35,41 +37,35 @@ public class CustomMatrixSetter : MonoBehaviour {
             return;
         }
 
-        var cam = Camera.current;
+        if(mr == null){
+            return;
+        }
 
-        // var viewMatrix = cam.worldToCameraMatrix;
-        // var projectionMatrix = cam.projectionMatrix;
-        // var flipMatrix = new Matrix4x4(
-        //     new Vector4(1, 0, 0, 0),
-        //     new Vector4(0, -1, 0, 0),
-        //     new Vector4(0, 0, 1, 0),
-        //     new Vector4(0, 0, 0, 1));
-        // var zFlipMatrix = new Matrix4x4(
-        //     new Vector4(1, 0, 0, 0),
-        //     new Vector4(0, 1, 0, 0),
-        //     new Vector4(0, 0, -1, 0),
-        //     new Vector4(0, 0, 0, 1));
-        // var cameraMatrix = flipMatrix * projectionMatrix * viewMatrix;
+        if(mpb == null){
+            mpb = new MaterialPropertyBlock();
+        }
+
+        var cam = Camera.current;
 
         var viewMatrix = cam.worldToCameraMatrix;
         var projectionMatrix = GL.GetGPUProjectionMatrix(cam.projectionMatrix, true);
-        var cameraMatrix = projectionMatrix * viewMatrix;
         
         var translationMatrix = Matrix4x4.Translate(transform.position);
         var rotationMatrix = Matrix4x4.Rotate(transform.rotation);
         var scaleMatrix = Matrix4x4.Scale(transform.lossyScale);
 
         Matrix4x4 modelMatrix = translationMatrix * rotationMatrix * scaleMatrix; 
-        // modelMatrix.SetColumn(3, translation);
 
-        //the z-buffer is flipped for some reason...
+        var modelView = viewMatrix * modelMatrix;
 
-        Matrix4x4 mvpMatrix = cameraMatrix * modelMatrix;
-        Matrix4x4 normalMatrix = Matrix4x4.identity;
+        Matrix4x4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;        
+        Matrix4x4 normalMatrix = modelView.inverse.transpose;
 
-        mat.SetMatrix(mvpMatrixID, mvpMatrix);
-        mat.SetMatrix(modelMatrixID, modelMatrix);
-        mat.SetMatrix(normalMatrixID, normalMatrix);
+        mpb.SetMatrix(mvpMatrixID, mvpMatrix);
+        mpb.SetMatrix(modelMatrixID, modelMatrix);
+        mpb.SetMatrix(normalMatrixID, normalMatrix);
+        mpb.SetMatrix(inverseModelMatrixID, modelMatrix.inverse);
+        mr.SetPropertyBlock(mpb);
     }
 	
 }
