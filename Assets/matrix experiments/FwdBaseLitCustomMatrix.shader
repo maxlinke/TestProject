@@ -31,7 +31,7 @@
 
             float4x4 CustomMVPMatrix;
             float4x4 CustomModelMatrix;
-            float4x4 CustomNormalMatrix;
+            // float4x4 CustomNormalMatrix;
             float4x4 CustomInverseModelMatrix;
 
             struct appdata {
@@ -53,13 +53,11 @@
                 o.vertex = mul(CustomMVPMatrix, v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.worldPos = mul(CustomModelMatrix, v.vertex).xyz;
-                // o.worldNormal = mul(CustomNormalMatrix, v.normal).xyz;
-                // o.worldNormal = normalize(mul((float3x3)CustomModelMatrix, v.normal.xyz));
-                o.worldNormal = normalize(mul(v.normal.xyz, (float3x3)CustomInverseModelMatrix));
+                // o.worldNormal = normalize(mul(v.normal.xyz, (float3x3)unity_WorldToObject));
+                o.worldNormal = normalize(mul(v.normal, CustomInverseModelMatrix).xyz);
+                // o.worldNormal = v.normal;
                 o.lightDir = WorldSpaceLightDir(v.vertex);
-
-                // o.lightDir = normalize(o.lightDir);
-                o.worldNormal = normalize(o.worldNormal);
+                
 
                 return o;
             }

@@ -45,26 +45,24 @@ public class CustomMatrixSetter : MonoBehaviour {
             mpb = new MaterialPropertyBlock();
         }
 
-        var cam = Camera.current;
-
-        var viewMatrix = cam.worldToCameraMatrix;
-        var projectionMatrix = GL.GetGPUProjectionMatrix(cam.projectionMatrix, true);
-        
         var translationMatrix = Matrix4x4.Translate(transform.position);
         var rotationMatrix = Matrix4x4.Rotate(transform.rotation);
         var scaleMatrix = Matrix4x4.Scale(transform.lossyScale);
+        
+        var modelMatrix = translationMatrix * rotationMatrix * scaleMatrix; 
+        var inverseModelMatrix = modelMatrix.inverse;
 
-        Matrix4x4 modelMatrix = translationMatrix * rotationMatrix * scaleMatrix; 
-
-        var modelView = viewMatrix * modelMatrix;
-
-        Matrix4x4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;        
-        Matrix4x4 normalMatrix = modelView.inverse.transpose;
+        var cam = Camera.current;
+        var viewMatrix = cam.worldToCameraMatrix;
+        var projectionMatrix = GL.GetGPUProjectionMatrix(cam.projectionMatrix, true);
+       
+        var mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;        
+        var normalMatrix = (viewMatrix * modelMatrix).inverse.transpose;
 
         mpb.SetMatrix(mvpMatrixID, mvpMatrix);
         mpb.SetMatrix(modelMatrixID, modelMatrix);
         mpb.SetMatrix(normalMatrixID, normalMatrix);
-        mpb.SetMatrix(inverseModelMatrixID, modelMatrix.inverse);
+        mpb.SetMatrix(inverseModelMatrixID, inverseModelMatrix);
         mr.SetPropertyBlock(mpb);
     }
 	

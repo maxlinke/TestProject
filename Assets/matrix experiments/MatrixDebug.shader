@@ -43,7 +43,7 @@
             fixed4 frag (v2f i) : SV_Target {
                 int x = max(min(floor(i.uv.x * 4), 3), 0);
                 int y = max(min(floor(i.uv.y * 4), 3), 0);
-                float4x4 delta = UNITY_MATRIX_IT_MV - _DebugMatrix;
+                float4x4 delta = unity_WorldToObject - _DebugMatrix;
                 // float4x4 delta = _DebugMatrixA - _DebugMatrixB;
                 delta *= _Scale;
                 delta += 0.5;

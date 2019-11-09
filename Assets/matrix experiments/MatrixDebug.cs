@@ -44,7 +44,7 @@ public class MatrixDebug : MonoBehaviour {
         // var debugMatrix = GL.GetGPUProjectionMatrix(Camera.current.projectionMatrix, true);
         //i'll be damned... wtf, so rendertotexture needs to be true i guess... (it doesn't change from forward to deferred)
 
-        var debugMatrix = (Camera.current.worldToCameraMatrix * modelMatrix).inverse.transpose;
+        var debugMatrix = modelMatrix.inverse;
 
         mpb.SetMatrix("_DebugMatrix", debugMatrix);
         mr.SetPropertyBlock(mpb);
