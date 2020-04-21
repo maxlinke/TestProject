@@ -177,10 +177,18 @@ MonoBehaviour:
   handle2: {fileID: 774524548}
   controlHandle: {fileID: 1287973772}
   groundMode: 0
-  testStartT: 0.17
-  testDistance: 0.74
-  testDistanceOutput: 0.73959804
-  testIterations: 10
+  groundCollider: {fileID: 0}
+  placementMode: 0
+  flipSides: 0
+  placementRandomness: {x: 0, y: 0}
+  testStartT: 0.16
+  testDistance: 4.2
+  testEuclidian: 0
+  testDistanceOutput: 4.5049243
+  testDistanceOuptutDeviation: -0.3049245
+  testIterations: 9
+  testPrecision: 3
+  ASDF: 0
 --- !u!4 &57016536
 Transform:
   m_ObjectHideFlags: 0
@@ -189,7 +197,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 57016534}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.8, y: 1.5, z: 0}
+  m_LocalPosition: {x: 3.8, y: 1.5, z: 0.739}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 225470993}
