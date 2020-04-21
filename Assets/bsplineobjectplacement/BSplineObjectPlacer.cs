@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class BSplineObjectPlacer : MonoBehaviour {
 
-    [SerializeField] bool drawGizmos;
-    [SerializeField] float gizmoSize;
+    public const float MIN_GIZMO_SIZE = 0.05f;
+    public const float MAX_GIZMO_SIZE = 5f;
+
+    [SerializeField] public bool drawGizmos;
+    [SerializeField] public float gizmoSize;
 
     [Header("Handles")]
     [SerializeField] Transform handle1;
@@ -18,16 +21,16 @@ public class BSplineObjectPlacer : MonoBehaviour {
     [SerializeField] PlacementMode placementMode;
     [SerializeField] bool flipSides;
     [SerializeField] Vector2 placementRandomness;
+    [SerializeField] Vector3 rotationRandomness;
 
-    [Header("Debug")]
-    [SerializeField] float testStartT;
-    [SerializeField] float testDistance;
-    [SerializeField] bool testEuclidian;
-    [SerializeField] float testDistanceOutput;
-    [SerializeField] float testDistanceOuptutDeviation;
-    [SerializeField, Range(0, 20)] int testIterations;
-    [SerializeField, Range(0, 20)] int testPrecision;
-    [SerializeField] bool ASDF;
+    // [Header("Debug")]
+    // [SerializeField] float testStartT;
+    // [SerializeField] float testDistance;
+    // [SerializeField] bool testEuclidian;
+    // [SerializeField] float testDistanceOutput;
+    // [SerializeField] float testDistanceOuptutDeviation;
+    // [SerializeField, Range(0, 20)] int testIterations;
+    // [SerializeField, Range(0, 20)] int testPrecision;
 
     public bool setUp => (handle1 != null && handle2 != null && controlHandle != null);
 
@@ -40,44 +43,46 @@ public class BSplineObjectPlacer : MonoBehaviour {
     enum PlacementMode {
         CENTER,
         SIDE,
-        CORNER
+        CORNER  // which corner? front or back? how do i know the right corner?
     }
 
     void OnDrawGizmos () {
-        if(ASDF){
-            Debug.Log(BezierDistanceEstimate(0.5642f, 0.3123f));
-            ASDF = false;
-        }
+        gizmoSize = Mathf.Clamp(gizmoSize, MIN_GIZMO_SIZE, MAX_GIZMO_SIZE);
         if(!setUp || !drawGizmos){
             return;
         }
         var colorChache = Gizmos.color;
         Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(handle1.transform.position, 2f * gizmoSize);
-        Gizmos.DrawSphere(handle2.transform.position, 2f * gizmoSize);
-        Gizmos.DrawSphere(controlHandle.transform.position, 2f * gizmoSize);
+        float handleSize = 1f * gizmoSize;
+        float boxSize = 0.5f * gizmoSize;
+        Gizmos.DrawSphere(handle1.transform.position, handleSize);
+        Gizmos.DrawSphere(handle2.transform.position, handleSize);
+        Gizmos.DrawSphere(controlHandle.transform.position, handleSize);
         Gizmos.color = Color.magenta;
-        for(int i=0; i<100; i++){
-            Gizmos.DrawCube(BezierPoint((float)i / 99), gizmoSize * 0.2f * Vector3.one);
+        float l = BezierLengthEstimate();
+        float placementDistance = 3f * Mathf.Abs(boxSize);
+        if(l > 0){
+            float t = 0f;
+            while(t < 1f){
+                Gizmos.DrawCube(BezierPoint(t), boxSize * Vector3.one);
+                t = NextTFromEuclidianDistance(t, placementDistance, 10, true, l);
+            }
         }
-        Gizmos.color = Color.white;
-        Vector3 s = BezierPoint(testStartT);
-        Vector3 t;
-        if(testEuclidian){
-            float nT = NextTFromEuclidianDistance(testStartT, testDistance, testIterations);
-            t = BezierPoint(nT);
-            testDistanceOutput = (s - t).magnitude;
-        }else{
-            float nT = NextTFromBezierDistance(testStartT, testDistance, testPrecision, testIterations);
-            t = BezierPoint(nT);
-            testDistanceOutput = BezierDistanceEstimate(testStartT, nT);
-        }
-        testDistanceOuptutDeviation = testDistance - testDistanceOutput;
-        Gizmos.DrawSphere(s, gizmoSize);
-        Gizmos.DrawSphere(t, gizmoSize);
-
-        // float l = BezierLengthEstimate();
-
+        // Gizmos.color = Color.white;
+        // Vector3 s = BezierPoint(testStartT);
+        // Vector3 t;
+        // if(testEuclidian){
+        //     float nT = NextTFromEuclidianDistance(testStartT, testDistance, testIterations);
+        //     t = BezierPoint(nT);
+        //     testDistanceOutput = (s - t).magnitude;
+        // }else{
+        //     float nT = NextTFromBezierDistance(testStartT, testDistance, testPrecision, testIterations);
+        //     t = BezierPoint(nT);
+        //     testDistanceOutput = BezierDistanceEstimate(testStartT, nT);
+        // }
+        // testDistanceOuptutDeviation = testDistance - testDistanceOutput;
+        // Gizmos.DrawSphere(s, gizmoSize);
+        // Gizmos.DrawSphere(t, gizmoSize);
         Gizmos.color = colorChache;
     }
 
@@ -107,6 +112,10 @@ public class BSplineObjectPlacer : MonoBehaviour {
             last = current;
         }
         return total;
+    }
+
+    float BezierLengthEstimate (int steps = 100) {
+        return BezierDistanceEstimate(0f, 1f, steps);
     }
 
     float NextTFromEuclidianDistance (float startT, float desiredDistance, int iterations = 16, bool dontCalculateLength = false, float inputLength = 0f) {
@@ -139,7 +148,7 @@ public class BSplineObjectPlacer : MonoBehaviour {
         if(desiredDistance == 0 || float.IsNaN(desiredDistance) || float.IsInfinity(desiredDistance)){
             return startT;
         }
-        float length = (dontCalculateLength ? inputLength : BezierDistanceEstimate(0f, 1f));
+        float length = (dontCalculateLength ? inputLength : BezierLengthEstimate());
         if(length == 0 || float.IsInfinity(length) || float.IsNaN(length)){
             return startT;
         }
