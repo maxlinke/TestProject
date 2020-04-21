@@ -182,10 +182,10 @@ MonoBehaviour:
   flipSides: 0
   placementRandomness: {x: 0, y: 0}
   testStartT: 0.16
-  testDistance: 4.2
+  testDistance: 3.82
   testEuclidian: 0
-  testDistanceOutput: 4.5049243
-  testDistanceOuptutDeviation: -0.3049245
+  testDistanceOutput: 4.122732
+  testDistanceOuptutDeviation: -0.30273223
   testIterations: 9
   testPrecision: 3
   ASDF: 0

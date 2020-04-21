@@ -123,9 +123,10 @@ public class BSplineObjectPlacer : MonoBehaviour {
     }
 
     float NextTFromBezierDistance (float startT, float desiredDistance, int precision, int iterations = 16, bool dontCalculateLength = false, float inputLength = 0f) {
+        float absDist = Mathf.Abs(desiredDistance);
         Vector3 startPoint = BezierPoint(startT);
         return NextTFromDistance(
-            getDistDelta: (testT) => (desiredDistance - BezierDistanceEstimate(startT, testT, precision)),
+            getDistDelta: (testT) => (absDist - BezierDistanceEstimate(startT, testT, precision)),
             startT: startT, 
             desiredDistance: desiredDistance, 
             iterations: iterations, 
