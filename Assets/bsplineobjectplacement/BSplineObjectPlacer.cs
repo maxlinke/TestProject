@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class BSplineObjectPlacer : MonoBehaviour {
 
@@ -52,23 +55,31 @@ public class BSplineObjectPlacer : MonoBehaviour {
             return;
         }
         var colorChache = Gizmos.color;
-        Gizmos.color = Color.yellow;
-        float handleSize = 1f * gizmoSize;
-        float boxSize = 0.5f * gizmoSize;
-        Gizmos.DrawSphere(handle1.transform.position, handleSize);
-        Gizmos.DrawSphere(handle2.transform.position, handleSize);
-        Gizmos.DrawSphere(controlHandle.transform.position, handleSize);
-        Gizmos.color = Color.magenta;
+
+        int hash = gameObject.GetHashCode();
+        float hue = (float)(hash % 256) / 256;
+        float saturation = (float)(hash % 71) / 71;
+        saturation = 0.25f + 0.5f * saturation;
+        float value = (float)(hash % 93) / 93;
+        value = 0.667f + 0.333f * value;
+        Gizmos.color = Color.HSVToRGB(hue, saturation, value);
+
+        Gizmos.DrawSphere(handle1.transform.position, gizmoSize);
+        Gizmos.DrawSphere(handle2.transform.position, gizmoSize);
+        Gizmos.DrawSphere(controlHandle.transform.position, gizmoSize);
         float l = BezierLengthEstimate();
-        float placementDistance = 3f * Mathf.Abs(boxSize);
+        float stepSize = 2f * gizmoSize;
         if(l > 0){
             float t = 0f;
+            Vector3 lastPoint = handle1.transform.position;
             while(t < 1f){
-                Gizmos.DrawCube(BezierPoint(t), boxSize * Vector3.one);
-                t = NextTFromEuclidianDistance(t, placementDistance, 10, true, l);
+                t = Mathf.Clamp01(NextTFromEuclidianDistance(t, stepSize, 10, true, l));
+                Vector3 newPoint = BezierPoint(t);
+                Gizmos.DrawLine(lastPoint, newPoint);
+                lastPoint = newPoint;
             }
         }
-        // Gizmos.color = Color.white;
+        // Gizmos.color = Color.yellow;
         // Vector3 s = BezierPoint(testStartT);
         // Vector3 t;
         // if(testEuclidian){
@@ -184,3 +195,18 @@ public class BSplineObjectPlacer : MonoBehaviour {
     }
 
 }
+
+#if UNITY_EDITOR
+
+[CustomEditor(typeof(BSplineObjectPlacer))]
+public class BSplineObjectPlacerEditor : Editor {
+
+    BSplineObjectPlacer bsop;
+
+    void OnEnable () {
+        bsop = target as BSplineObjectPlacer;
+    }
+
+}
+
+#endif

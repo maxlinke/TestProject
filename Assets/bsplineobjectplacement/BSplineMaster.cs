@@ -12,13 +12,9 @@ public class BSplineMaster : MonoBehaviour {
 
     public IEnumerable<BSplineObjectPlacer> GetChildren () {
         var children = GetComponentsInChildren<BSplineObjectPlacer>(true);
-        // if(children.Length > 0){
-            foreach(var child in children){
-                yield return child;
-            }
-        // }else{
-        //     yield return null;
-        // }
+        foreach(var child in children){
+            yield return child;
+        }
     }
 
     public void ToggleGizmos () {
