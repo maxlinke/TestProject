@@ -8,9 +8,16 @@ using UnityEditor;
 [ExecuteAlways]
 public class BSplineMaster : MonoBehaviour {
 
-    [SerializeField, Range(BSplineObjectPlacer.MIN_GIZMO_SIZE, BSplineObjectPlacer.MAX_GIZMO_SIZE)] float gizmoSize;
+    [SerializeField, Range(QuadraticBezierSpline.MIN_GIZMO_SIZE, QuadraticBezierSpline.MAX_GIZMO_SIZE)] float gizmoSize;
 
-    public IEnumerable<BSplineObjectPlacer> GetChildren () {
+    IEnumerable<QuadraticBezierSpline> GetSplineChildren () {
+        var children = GetComponentsInChildren<QuadraticBezierSpline>(true);
+        foreach(var child in children){
+            yield return child;
+        }
+    }
+
+    IEnumerable<BSplineObjectPlacer> GetPlacerChildren () {
         var children = GetComponentsInChildren<BSplineObjectPlacer>(true);
         foreach(var child in children){
             yield return child;
@@ -20,7 +27,7 @@ public class BSplineMaster : MonoBehaviour {
     public void ToggleGizmos () {
         bool gotValueToUse = false;
         bool valueToUse = false;
-        foreach(var child in GetChildren()){
+        foreach(var child in GetSplineChildren()){
             if(!gotValueToUse){
                 valueToUse = !child.drawGizmos;
                 gotValueToUse = true;
@@ -30,7 +37,7 @@ public class BSplineMaster : MonoBehaviour {
     }
 
     public void UpdateGizmoSizes () {
-        foreach(var child in GetChildren()){
+        foreach(var child in GetSplineChildren()){
             child.gizmoSize = gizmoSize;
         }
     }
