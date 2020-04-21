@@ -18,15 +18,6 @@ public class QuadraticBezierSpline : MonoBehaviour {
     [SerializeField] public Vector3 handle2;
     [SerializeField] public Vector3 controlHandle;
 
-    // [Header("Debug")]
-    // [SerializeField] float testStartT;
-    // [SerializeField] float testDistance;
-    // [SerializeField] bool testEuclidian;
-    // [SerializeField] float testDistanceOutput;
-    // [SerializeField] float testDistanceOuptutDeviation;
-    // [SerializeField, Range(0, 20)] int testIterations;
-    // [SerializeField, Range(0, 20)] int testPrecision;
-
     public Vector3 h1 => transform.TransformPoint(handle1);
     public Vector3 h2 => transform.TransformPoint(handle2);
     public Vector3 ch => transform.TransformPoint(controlHandle);
@@ -79,21 +70,6 @@ public class QuadraticBezierSpline : MonoBehaviour {
             Gizmos.DrawLine(lastPoint, newPoint);
             lastPoint = newPoint;
         });
-        // Gizmos.color = Color.yellow;
-        // Vector3 s = BezierPoint(testStartT);
-        // Vector3 t;
-        // if(testEuclidian){
-        //     float nT = NextTFromEuclidianDistance(testStartT, testDistance, testIterations);
-        //     t = BezierPoint(nT);
-        //     testDistanceOutput = (s - t).magnitude;
-        // }else{
-        //     float nT = NextTFromBezierDistance(testStartT, testDistance, testPrecision, testIterations);
-        //     t = BezierPoint(nT);
-        //     testDistanceOutput = BezierDistanceEstimate(testStartT, nT);
-        // }
-        // testDistanceOuptutDeviation = testDistance - testDistanceOutput;
-        // Gizmos.DrawSphere(s, gizmoSize);
-        // Gizmos.DrawSphere(t, gizmoSize);
         Gizmos.color = colorChache;
     }
 
