@@ -23,12 +23,12 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
     [SerializeField] Collider groundCollider;
     [SerializeField] bool noOvershoot;
     
-    enum DistanceMode {
+    public enum DistanceMode {
         EUCLIDIAN,
         BEZIER
     }
 
-    enum GroundMode {
+    public enum GroundMode {
         DISABLED,
         SNAP,
         SNAP_AND_ALIGN
@@ -39,17 +39,54 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
         randomSeed = 0;
     }
 
-    public void UpdateSeed (int newSeed) {
-        this.randomSeed = newSeed;
+    public void RandomizeSeed () {
+        int hash = Random.value.GetHashCode();
+        int loopCount = Mathf.Abs(hash)%64;
+        for(int i=0; i<loopCount; i++){
+            hash += Random.value.GetHashCode();
+        }
+        UpdateSeed(hash);
     }
 
-    public void UpdatePool (BSplineObjectPool newPool) {
+    public void UpdateSeed (int newSeed) {
+        this.randomSeed = newSeed;
+        ConditionalReplace();
+    }
+
+    public void UpdateRandomizationSettings (Vector3 newPlacementRandomness,  float newRotationRandomness) {
+        this.placementRandomness = newPlacementRandomness;
+        this.rotationRandomness = newRotationRandomness;
+        ConditionalReplace();
+    }
+
+    public void UpdateObjectSettings (BSplineObjectPool newPool, float newSpaceBetweenObjects) {
         this.objectPool = newPool;
+        this.spaceBetweenObjects = newSpaceBetweenObjects;
+        ConditionalReplace();
+    }
+
+    public void UpdatePlacementSettings (DistanceMode newDistanceMode, GroundMode newGroundMode, Collider newGroundCollider, bool newOvershootMode) {
+        this.distanceMode = newDistanceMode;
+        this.groundMode = newGroundMode;
+        this.groundCollider = newGroundCollider;
+        this.noOvershoot = newOvershootMode;
+        ConditionalReplace();
+    }
+
+    public void Rotate90Deg () {
+        universalRotationOffset = Mathf.Repeat(universalRotationOffset + 90f, 360f);
+        ConditionalReplace();
     }
 
     public void DeletePlacedObjects () {
         for(int i=transform.childCount-1; i>=0; i--){
             DestroyImmediate(transform.GetChild(i).gameObject);
+        }
+    }
+
+    void ConditionalReplace () {
+        if(transform.childCount > 0){
+            PlaceObjects();
         }
     }
 
@@ -262,20 +299,17 @@ public class BSplineObjectPlacerEditor : Editor {
 
     public override void OnInspectorGUI () {
         DrawDefaultInspector();
+        if(GUILayout.Button("Delete placed objects")){
+            bsop.DeletePlacedObjects();
+        }
         if(GUILayout.Button("(Re)Place")){
             bsop.PlaceObjects();
         }
-        if(GUILayout.Button("(Re)Place with new random seed")){
-            int hash = Random.value.GetHashCode();
-            int loopCount = Mathf.Abs(hash)%64;
-            for(int i=0; i<loopCount; i++){
-                hash += Random.value.GetHashCode();
-            }
-            bsop.UpdateSeed(hash);
-            bsop.PlaceObjects();
+        if(GUILayout.Button("Randomize Seed")){
+            bsop.RandomizeSeed();
         }
-        if(GUILayout.Button("Delete placed objects")){
-            bsop.DeletePlacedObjects();
+        if(GUILayout.Button("Rotate placed objects 90°")){
+            bsop.Rotate90Deg();
         }
     }
 

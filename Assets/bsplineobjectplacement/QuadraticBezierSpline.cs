@@ -10,7 +10,7 @@ public class QuadraticBezierSpline : MonoBehaviour {
     public const float MIN_GIZMO_SIZE = 0.05f;
     public const float MAX_GIZMO_SIZE = 5f;
 
-    [SerializeField] public bool drawGizmos;
+    [SerializeField] public bool alwaysDrawGizmos;
     [SerializeField] public float gizmoSize;
 
     [Header("Handles")]
@@ -23,7 +23,7 @@ public class QuadraticBezierSpline : MonoBehaviour {
     public Vector3 pC => transform.TransformPoint(controlHandle);
 
     protected virtual void Reset () {
-        drawGizmos = true;
+        alwaysDrawGizmos = true;
         gizmoSize = 0.5f;
         handle1 = new Vector3(-5f, 0f, -3f);
         handle2 = new Vector3(5f, 0f, -3f);
@@ -58,7 +58,7 @@ public class QuadraticBezierSpline : MonoBehaviour {
 
     protected virtual void OnDrawGizmos () {
         gizmoSize = Mathf.Clamp(gizmoSize, MIN_GIZMO_SIZE, MAX_GIZMO_SIZE);
-        if(!drawGizmos){
+        if(!alwaysDrawGizmos){
             return;
         }
         var colorChache = Gizmos.color;
@@ -75,9 +75,13 @@ public class QuadraticBezierSpline : MonoBehaviour {
     }
 
     void OnDrawGizmosSelected () {
-        if(!drawGizmos || Selection.activeGameObject != this.gameObject){
+        if(Selection.activeGameObject != this.gameObject){
             return;
         }
+        var gizmoCache = alwaysDrawGizmos;
+        alwaysDrawGizmos = true;
+        OnDrawGizmos();
+        alwaysDrawGizmos = gizmoCache;
         var colorChache = Gizmos.color;
         Gizmos.color = GetGizmoColor();
         float stepSize = 3f * gizmoSize;

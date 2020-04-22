@@ -8,8 +8,22 @@ using UnityEditor;
 [ExecuteAlways]
 public class BSplineMaster : MonoBehaviour {
 
+    [Header("Gizmo Settings")]
     [SerializeField, Range(QuadraticBezierSpline.MIN_GIZMO_SIZE, QuadraticBezierSpline.MAX_GIZMO_SIZE)] float gizmoSize;
+
+    [Header("Randomness")]
+    [SerializeField] Vector3 placementRandomness;
+    [SerializeField] float rotationRandomness;
+    
+    [Header("Object Settings")]
     [SerializeField] BSplineObjectPool objectPool;
+    [SerializeField] float spaceBetweenObjects;
+
+    [Header("Placement Settings")]
+    [SerializeField] BSplineObjectPlacer.DistanceMode distanceMode;
+    [SerializeField] BSplineObjectPlacer.GroundMode groundMode;
+    [SerializeField] Collider groundCollider;
+    [SerializeField] bool noOvershoot;
 
     IEnumerable<QuadraticBezierSpline> GetSplineChildren () {
         var children = GetComponentsInChildren<QuadraticBezierSpline>(true);
@@ -30,22 +44,52 @@ public class BSplineMaster : MonoBehaviour {
         bool valueToUse = false;
         foreach(var child in GetSplineChildren()){
             if(!gotValueToUse){
-                valueToUse = !child.drawGizmos;
+                valueToUse = !child.alwaysDrawGizmos;
                 gotValueToUse = true;
             }
-            child.drawGizmos = valueToUse;
+            child.alwaysDrawGizmos = valueToUse;
         }
     }
 
-    public void UpdateGizmoSizes () {
+    public void UpdateGizmoSettings () {
         foreach(var child in GetSplineChildren()){
             child.gizmoSize = gizmoSize;
         }
     }
 
-    public void UpdateObjectPools () {
+    public void UpdateRandomizationSettings () {
         foreach(var child in GetPlacerChildren()){
-            child.UpdatePool(objectPool);
+            child.UpdateRandomizationSettings(placementRandomness, rotationRandomness);
+        }
+    }    
+
+    public void UpdateObjectSettings () {
+        foreach(var child in GetPlacerChildren()){
+            child.UpdateObjectSettings(objectPool, spaceBetweenObjects);
+        }
+    }
+
+    public void UpdatePlacementSettings () {
+        foreach(var child in GetPlacerChildren()){
+            child.UpdatePlacementSettings(distanceMode, groundMode, groundCollider, noOvershoot);
+        }
+    }
+
+    public void RandomizeSeeds () {
+        foreach(var child in GetPlacerChildren()){
+            child.RandomizeSeed();
+        }
+    }
+
+    public void ReplaceAll () {
+        foreach(var child in GetPlacerChildren()){
+            child.PlaceObjects();
+        }
+    }
+
+    public void ClearAll () {
+        foreach(var child in GetPlacerChildren()){
+            child.DeletePlacedObjects();
         }
     }
 	
@@ -67,11 +111,27 @@ public class BSplineMasterEditor : Editor {
         if(GUILayout.Button("Toggle Gizmos")){
             bsm.ToggleGizmos();
         }
-        if(GUILayout.Button("Update Gizmo Size")){
-            bsm.UpdateGizmoSizes();
+        if(GUILayout.Button("Update Gizmo Settings")){
+            bsm.UpdateGizmoSettings();
         }
-        if(GUILayout.Button("Update Pools")){
-            bsm.UpdateObjectPools();
+        if(GUILayout.Button("Update Randomization Settings")){
+            bsm.UpdateRandomizationSettings();
+        }
+        if(GUILayout.Button("Update Object Settings")){
+            bsm.UpdateObjectSettings();
+        }
+        if(GUILayout.Button("Update Placement Settings")){
+            bsm.UpdatePlacementSettings();
+        }
+        GUILayout.Space(10);
+        if(GUILayout.Button("(Re)Place All")){
+            bsm.ReplaceAll();
+        }
+        if(GUILayout.Button("Randomize All")){
+            bsm.RandomizeSeeds();
+        }
+        if(GUILayout.Button("Clear All")){
+            bsm.ClearAll();
         }
     }
 
