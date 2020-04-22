@@ -9,6 +9,7 @@ using UnityEditor;
 public class BSplineMaster : MonoBehaviour {
 
     [SerializeField, Range(QuadraticBezierSpline.MIN_GIZMO_SIZE, QuadraticBezierSpline.MAX_GIZMO_SIZE)] float gizmoSize;
+    [SerializeField] BSplineObjectPool objectPool;
 
     IEnumerable<QuadraticBezierSpline> GetSplineChildren () {
         var children = GetComponentsInChildren<QuadraticBezierSpline>(true);
@@ -41,6 +42,12 @@ public class BSplineMaster : MonoBehaviour {
             child.gizmoSize = gizmoSize;
         }
     }
+
+    public void UpdateObjectPools () {
+        foreach(var child in GetPlacerChildren()){
+            child.UpdatePool(objectPool);
+        }
+    }
 	
 }
 
@@ -62,6 +69,9 @@ public class BSplineMasterEditor : Editor {
         }
         if(GUILayout.Button("Update Gizmo Size")){
             bsm.UpdateGizmoSizes();
+        }
+        if(GUILayout.Button("Update Pools")){
+            bsm.UpdateObjectPools();
         }
     }
 

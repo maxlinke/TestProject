@@ -18,9 +18,9 @@ public class QuadraticBezierSpline : MonoBehaviour {
     [SerializeField] public Vector3 handle2;
     [SerializeField] public Vector3 controlHandle;
 
-    public Vector3 h1 => transform.TransformPoint(handle1);
-    public Vector3 h2 => transform.TransformPoint(handle2);
-    public Vector3 ch => transform.TransformPoint(controlHandle);
+    public Vector3 p1 => transform.TransformPoint(handle1);
+    public Vector3 p2 => transform.TransformPoint(handle2);
+    public Vector3 pC => transform.TransformPoint(controlHandle);
 
     protected virtual void Reset () {
         drawGizmos = true;
@@ -35,6 +35,7 @@ public class QuadraticBezierSpline : MonoBehaviour {
         foreach(var ch in gameObject.name){
             hash += 17 * ch;
         }
+        hash = Mathf.Abs(hash);
         float hue = (float)(hash % 100) / 100;
         float saturation = (float)(hash % 90) / 90;
         saturation = 0.25f + 0.5f * saturation;
@@ -62,10 +63,10 @@ public class QuadraticBezierSpline : MonoBehaviour {
         }
         var colorChache = Gizmos.color;
         Gizmos.color = GetGizmoColor();
-        Gizmos.DrawSphere(h1, gizmoSize);
-        Gizmos.DrawSphere(h2, gizmoSize);
-        Gizmos.DrawSphere(ch, gizmoSize);
-        Vector3 lastPoint = h1;
+        Gizmos.DrawSphere(p1, gizmoSize);
+        Gizmos.DrawSphere(p2, gizmoSize);
+        Gizmos.DrawSphere(pC, gizmoSize);
+        Vector3 lastPoint = p1;
         GizmoLine(2f * gizmoSize, (newPoint) => {
             Gizmos.DrawLine(lastPoint, newPoint);
             lastPoint = newPoint;
@@ -89,12 +90,12 @@ public class QuadraticBezierSpline : MonoBehaviour {
 
     public Vector3 BezierPoint (float t) {
         float iT = 1f - t;
-        return ch + (iT * iT * (h1 - ch)) + (t * t * (h2 - ch));
+        return pC + (iT * iT * (p1 - pC)) + (t * t * (p2 - pC));
     }
 
     public Vector3 BezierDerivative (float t) {
         float iT = 1f - t;
-        return (2f * iT * (ch - h1)) + (2f * t * (h2 - ch));
+        return (2f * iT * (pC - p1)) + (2f * t * (p2 - pC));
     }
 
     public float BezierDistanceEstimate (float startT, float endT, int steps = 100) {
@@ -126,7 +127,7 @@ public class QuadraticBezierSpline : MonoBehaviour {
         );
     }
 
-    public float NextTFromBezierDistance (float startT, float desiredDistance, int precision, int iterations = 16, bool dontCalculateLength = false, float inputLength = 0f) {
+    public float NextTFromBezierDistance (float startT, float desiredDistance, int precision = 16, int iterations = 16, bool dontCalculateLength = false, float inputLength = 0f) {
         float absDist = Mathf.Abs(desiredDistance);
         Vector3 startPoint = BezierPoint(startT);
         return NextTFromDistance(
@@ -180,9 +181,9 @@ public class QuadraticBezierSpline : MonoBehaviour {
 
     public virtual void EditorHandles () {
         EditorGUI.BeginChangeCheck();
-        Vector3 newH1 = Handles.PositionHandle(h1, Quaternion.identity);
-        Vector3 newH2 = Handles.PositionHandle(h2, Quaternion.identity);
-        Vector3 newCH = Handles.PositionHandle(ch, Quaternion.identity);
+        Vector3 newH1 = Handles.PositionHandle(p1, Quaternion.identity);
+        Vector3 newH2 = Handles.PositionHandle(p2, Quaternion.identity);
+        Vector3 newCH = Handles.PositionHandle(pC, Quaternion.identity);
         if(EditorGUI.EndChangeCheck()){
             Undo.RecordObject(this, "Change Handle Position");
             handle1 = transform.InverseTransformPoint(newH1);
