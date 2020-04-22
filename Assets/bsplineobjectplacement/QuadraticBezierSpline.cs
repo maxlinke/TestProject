@@ -10,6 +10,7 @@ public class QuadraticBezierSpline : MonoBehaviour {
     public const float MIN_GIZMO_SIZE = 0.05f;
     public const float MAX_GIZMO_SIZE = 5f;
 
+    [SerializeField] public bool showHandles;
     [SerializeField] public bool alwaysDrawGizmos;
     [SerializeField] public float gizmoSize;
 
@@ -184,6 +185,9 @@ public class QuadraticBezierSpline : MonoBehaviour {
     #if UNITY_EDITOR
 
     public virtual void EditorHandles () {
+        if(!showHandles){
+            return;
+        }
         EditorGUI.BeginChangeCheck();
         Vector3 newH1 = Handles.PositionHandle(p1, Quaternion.identity);
         Vector3 newH2 = Handles.PositionHandle(p2, Quaternion.identity);

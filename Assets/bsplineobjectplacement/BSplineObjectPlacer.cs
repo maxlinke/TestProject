@@ -88,7 +88,11 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
 
     public void DeletePlacedObjects () {
         for(int i=transform.childCount-1; i>=0; i--){
-            DestroyImmediate(transform.GetChild(i).gameObject);
+            #if UNITY_EDITOR
+            Undo.DestroyObjectImmediate(transform.GetChild(i).gameObject);
+            #else
+            Destroy(transform.GetChild(i).gameObject);
+            #endif
         }
     }
 
@@ -143,7 +147,11 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
                     if(!placePointFound){
                         Debug.LogWarning("No place point found! Aborting...", this.gameObject);
                     }
+                    #if UNITY_EDITOR
                     DestroyImmediate(newGO);
+                    #else
+                    Destroy(newGO);
+                    #endif
                     return;
                 }
             }
@@ -155,7 +163,11 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
                 if(!successfullyPlaced){
                     Debug.LogWarning("No place point found! Aborting...", this.gameObject);
                 }
+                #if UNITY_EDITOR
                 DestroyImmediate(newGO);
+                #else
+                Destroy(newGO);
+                #endif
                 return;
             }
             // assign the material if there is one
@@ -163,6 +175,8 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
             if(newGOMat != null){
                 newGOMR.sharedMaterial = newGOMat;
             }
+            // save the creation
+            Undo.RegisterCreatedObjectUndo(newGO, "Placed object from spline");
             // finally do the last advance
             TryAdvanceT(spaceBetweenObjects, allowBackwards: true);
 
