@@ -7,10 +7,12 @@ public class BSplineObject : ScriptableObject {
 
     [SerializeField] GameObject prefab;
     [SerializeField] Material[] materials;
+    [SerializeField] bool useBoxColliderForSpacing;
 
     public GameObject Prefab => prefab;
     public Material this[int index] => materials[index];
     public int MaterialCount => materials.Length;
+    public bool UseBoxColliderForSpacing => useBoxColliderForSpacing;
 
     public Material RandomMaterial (System.Random rng = null) {
         if(materials == null || materials.Length <= 0){

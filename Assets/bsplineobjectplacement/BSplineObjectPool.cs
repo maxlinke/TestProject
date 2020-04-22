@@ -17,9 +17,9 @@ public class BSplineObjectPool : ScriptableObject {
     }
 
     // TODO nullcheck?
-    public (GameObject, Material) WeightedRandomObject (System.Random rng = null) {
+    public BSplineObject WeightedRandomObject (System.Random rng = null) {
         if(objects == null || objects.Length <= 0){
-            return (null, null);
+            return null;
         }
         var temp = new List<BSplineObject>();
         for(int i=0; i<objects.Length; i++){
@@ -28,11 +28,9 @@ public class BSplineObjectPool : ScriptableObject {
             }
         }
         if(rng == null){
-            var obj = temp[Random.Range(0, temp.Count)];
-            return (obj.Prefab, obj.RandomMaterial());
+            return temp[Random.Range(0, temp.Count)];
         }else{
-            var obj = temp[rng.Next(0, temp.Count)];
-            return (obj.Prefab, obj.RandomMaterial(rng));
+            return temp[rng.Next(0, temp.Count)];
         }
     }
 

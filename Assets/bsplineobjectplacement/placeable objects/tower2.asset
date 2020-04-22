@@ -15,3 +15,4 @@ MonoBehaviour:
   prefab: {fileID: 5575301443482430368, guid: 19a0712ed4f8bb24d86c7a4f524705f3, type: 3}
   materials:
   - {fileID: 2100000, guid: f0aa44db06ecdd647958ed4ab380c8fc, type: 2}
+  useBoxColliderForSpacing: 1
