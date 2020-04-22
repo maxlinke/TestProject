@@ -108,6 +108,7 @@ public class BSplineMasterEditor : Editor {
 
     public override void OnInspectorGUI () {
         DrawDefaultInspector();
+        GUILayout.Space(10);
         if(GUILayout.Button("Toggle Gizmos")){
             bsm.ToggleGizmos();
         }

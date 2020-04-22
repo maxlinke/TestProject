@@ -73,6 +73,14 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
         ConditionalReplace();
     }
 
+    public void ReverseDirection () {
+        var temp = handle2;
+        handle2 = handle1;
+        handle1 = temp;
+        universalRotationOffset = Mathf.Repeat(universalRotationOffset + 180f, 360f);
+        ConditionalReplace();
+    }
+
     public void Rotate90Deg () {
         universalRotationOffset = Mathf.Repeat(universalRotationOffset + 90f, 360f);
         ConditionalReplace();
@@ -299,6 +307,7 @@ public class BSplineObjectPlacerEditor : Editor {
 
     public override void OnInspectorGUI () {
         DrawDefaultInspector();
+        GUILayout.Space(10);
         if(GUILayout.Button("Delete placed objects")){
             bsop.DeletePlacedObjects();
         }
@@ -308,8 +317,12 @@ public class BSplineObjectPlacerEditor : Editor {
         if(GUILayout.Button("Randomize Seed")){
             bsop.RandomizeSeed();
         }
+        GUILayout.Space(10);
         if(GUILayout.Button("Rotate placed objects 90°")){
             bsop.Rotate90Deg();
+        }
+        if(GUILayout.Button("Reverse direction")){
+            bsop.ReverseDirection();
         }
     }
 
