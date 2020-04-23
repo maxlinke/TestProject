@@ -65,7 +65,6 @@ public class BSplineObjectPool : ScriptableObject {
             }
             Debug.LogError($"{nameof(BSplineObjectPool)} \"{this.name}\" has problems:\n{problemString}.");
         }
-        Debug.Log("filled list");
     }
 
     public BSplineObject WeightedRandomObject (System.Random rng = null) {

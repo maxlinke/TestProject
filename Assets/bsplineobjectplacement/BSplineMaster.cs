@@ -14,6 +14,7 @@ public class BSplineMaster : MonoBehaviour {
     [Header("Randomness")]
     [SerializeField] Vector3 placementRandomness;
     [SerializeField] float rotationRandomness;
+    [SerializeField, Tooltip(BSplineObjectPlacer.DUPLICATE_TOOLTIP)] BSplineObjectPlacer.DuplicateMode duplicateMode;
     
     [Header("Object Settings")]
     [SerializeField] BSplineObjectPool objectPool;
@@ -59,7 +60,7 @@ public class BSplineMaster : MonoBehaviour {
 
     public void UpdateRandomizationSettings () {
         foreach(var child in GetPlacerChildren()){
-            child.UpdateRandomizationSettings(placementRandomness, rotationRandomness);
+            child.UpdateRandomizationSettings(placementRandomness, rotationRandomness, duplicateMode);
         }
     }    
 

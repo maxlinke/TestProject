@@ -7,10 +7,14 @@ using UnityEditor;
 
 public class BSplineObjectPlacer : QuadraticBezierSpline {
 
+    public const string DUPLICATE_TOOLTIP = "This will mess with probabilities and might result in failure to finish!";
+    private const int MAX_PLACE_LOOP_COUNT = 1000;
+
     [Header("Randomness")]
     [SerializeField] int randomSeed;
     [SerializeField] Vector3 placementRandomness;
     [SerializeField] float rotationRandomness;
+    [SerializeField, Tooltip(DUPLICATE_TOOLTIP)] DuplicateMode duplicateMode;
 
     [Header("Object Settings")]
     [SerializeField] BSplineObjectPool objectPool;
@@ -34,6 +38,12 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
         SNAP_AND_ALIGN
     }
 
+    public enum DuplicateMode {
+        ALLOW,
+        AVOID_DUPLICATE_MODELS,
+        AVOID_DUPLICATE_APPEARANCE
+    }
+
     protected override void Reset () {
         base.Reset();
         randomSeed = 0;
@@ -53,9 +63,10 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
         ConditionalReplace();
     }
 
-    public void UpdateRandomizationSettings (Vector3 newPlacementRandomness,  float newRotationRandomness) {
+    public void UpdateRandomizationSettings (Vector3 newPlacementRandomness,  float newRotationRandomness, DuplicateMode newDuplicateMode) {
         this.placementRandomness = newPlacementRandomness;
         this.rotationRandomness = newRotationRandomness;
+        this.duplicateMode = newDuplicateMode;
         ConditionalReplace();
     }
 
@@ -124,25 +135,51 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
             PlacementLoop();
         }
         
+        // this is one big mess. i know. i don't care.
         void PlacementLoop () {
             float t = 0f;
             int loopCounter = 0;
+            GameObject lastPrefab = null;
+            Material lastMaterial = null;
             while(t < 1f){
-                if(loopCounter > 1000){
+                if(loopCounter > MAX_PLACE_LOOP_COUNT){
                     Debug.LogError("Reached loop limit, aborting!");
                     return;
                 }
                 loopCounter++;
-                // instantiate new model
+                // get new model
                 var newTemplate = objectPool.WeightedRandomObject(rng);
                 if(newTemplate == null){
                     Debug.LogError($"There was a null object in {objectPool.name}! Aborting placement!", this.gameObject);
                     return;
                 }
-                var newGO = Instantiate(newTemplate.Prefab, this.transform);
+                var newPrefab = newTemplate.Prefab;
+                var newMaterial = newTemplate.MaterialCount > 0 ? newTemplate.RandomMaterial(rng) : newPrefab.GetComponent<MeshRenderer>().sharedMaterial;
+                bool earlyContinue;
+                switch(duplicateMode){
+                    case DuplicateMode.ALLOW:
+                        earlyContinue = false;
+                        break;
+                    case DuplicateMode.AVOID_DUPLICATE_MODELS:
+                        earlyContinue = (lastPrefab == newPrefab);
+                        break;
+                    case DuplicateMode.AVOID_DUPLICATE_APPEARANCE:
+                        earlyContinue = (lastPrefab == newPrefab) && (lastMaterial == newMaterial);
+                        break;
+                    default:
+                        Debug.Log($"Unknown {typeof(DuplicateMode)} \"{duplicateMode}\"! Aborting...");
+                        return;
+                }
+                if(earlyContinue){
+                    continue;
+                }
+                lastPrefab = newPrefab;
+                lastMaterial = newMaterial;
+                // instantiate new model
+                var newGO = Instantiate(newPrefab, this.transform);
                 var newGOMR = newGO.GetComponent<MeshRenderer>();
                 var newGOMF = newGO.GetComponent<MeshFilter>();
-
+                // set up placement
                 Vector3 bPoint;
                 float rotationOffset;
                 // advance half the object's length
@@ -178,10 +215,7 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
                     return;
                 }
                 // assign the material if there is one
-                var newGOMat = newTemplate.RandomMaterial(rng);
-                if(newGOMat != null){
-                    newGOMR.sharedMaterial = newGOMat;
-                }
+                newGOMR.sharedMaterial = newMaterial;
                 // save the creation
                 Undo.RegisterCreatedObjectUndo(newGO, "Placed object from spline");
                 // finally do the last advance
