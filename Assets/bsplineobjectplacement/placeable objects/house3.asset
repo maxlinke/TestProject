@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 234873939955978475, guid: fee3d7176e3884c4b989fd452748afdc, type: 3}
   materials: []
+  useBoxColliderForSpacing: 0

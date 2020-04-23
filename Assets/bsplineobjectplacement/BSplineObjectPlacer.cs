@@ -226,7 +226,7 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
                 if(newTemplate.UseBoxColliderForSpacing){
                     var boxColliders = newGO.GetComponents<BoxCollider>();
                     if(boxColliders == null || boxColliders.Length <= 0){
-                        Debug.LogError("No BoxColliders present but they are marked to be used!");
+                        Debug.LogError($"No BoxColliders present on \"{newTemplate.name}\" but they are marked to be used!");
                         outputAdvanceDist = 0f;
                         return false;
                     }
