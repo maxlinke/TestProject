@@ -36,6 +36,7 @@ public class BSplineObject : ScriptableObject {
 public class BSplineObjectEditor : Editor {
 
     BSplineObject bso;
+    // Texture2D test;
 
     void OnEnable () {
         bso = target as BSplineObject;
@@ -43,18 +44,29 @@ public class BSplineObjectEditor : Editor {
 
     public override void OnInspectorGUI () {
         DrawDefaultInspector();
+        if(bso.Prefab == null){
+            Prefix();
+            EditorGUILayout.LabelField("No prefab assigned!");
+            return;
+        }
         var boxCols = bso.Prefab.GetComponents<BoxCollider>();
         bool useBoxCol = serializedObject.FindProperty("useBoxColliderForSpacing").boolValue;
         if(useBoxCol && boxCols.Length != 1){
-            EditorGUILayout.Space();
+            Prefix();
             if(boxCols.Length < 1){
                 EditorGUILayout.LabelField("No BoxCollider on object, even though it is marked to be used!");
             }else{
                 EditorGUILayout.LabelField("Multiple BoxColliders on object, this isn't supported!");
             }
         }else if(!useBoxCol && boxCols.Length == 1){
-            EditorGUILayout.Space();
+            Prefix();
             EditorGUILayout.LabelField("Do you want to use the attached BoxCollider for spacing?");
+        }
+
+        void Prefix () {
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("WARNING!!!");
         }
     }
 

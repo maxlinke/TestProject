@@ -19,3 +19,4 @@ MonoBehaviour:
   - {fileID: 2100000, guid: e27eebddd4e2fa04b98b457fcd5f5b5c, type: 2}
   - {fileID: 2100000, guid: 4b3f1479a7f4bf84e80ee2242ba26b05, type: 2}
   - {fileID: 2100000, guid: 67853cdab5ad2cb4ba32d83c0dec4d7c, type: 2}
+  useBoxColliderForSpacing: 0
