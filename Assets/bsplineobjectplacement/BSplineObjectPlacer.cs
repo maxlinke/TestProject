@@ -5,190 +5,181 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-public class BSplineObjectPlacer : QuadraticBezierSpline {
+namespace SplineTools {
 
-    public const string DUPLICATE_TOOLTIP = "This will mess with probabilities and might result in failure to finish!";
-    private const int MAX_PLACE_LOOP_COUNT = 1000;
+    public class BSplineObjectPlacer : QuadraticBezierSpline {
 
-    [Header("Randomness")]
-    [SerializeField] int randomSeed;
-    [SerializeField] Vector3 placementRandomness;
-    [SerializeField] float rotationRandomness;
-    [SerializeField, Tooltip(DUPLICATE_TOOLTIP)] DuplicateMode duplicateMode;
+        public const string DUPLICATE_TOOLTIP = "This will mess with probabilities and might result in failure to finish!";
+        private const int MAX_PLACE_LOOP_COUNT = 1000;
 
-    [Header("Object Settings")]
-    [SerializeField] BSplineObjectPool objectPool;
-    [SerializeField] float spaceBetweenObjects;
-    [SerializeField] float universalRotationOffset;
+        [Header("Randomness")]
+        [SerializeField] int randomSeed;
+        [SerializeField] Vector3 placementRandomness;
+        [SerializeField] float rotationRandomness;
 
-    [Header("Placement Settings")]
-    [SerializeField] DistanceMode distanceMode;
-    [SerializeField] GroundMode groundMode;
-    [SerializeField] Collider groundCollider;
-    [SerializeField] bool noOvershoot;
-    
-    public enum DistanceMode {
-        EUCLIDIAN,
-        BEZIER
-    }
+        [Header("Object Settings")]
+        [SerializeField] ObjectPool objectPool;
+        [SerializeField] float spaceBetweenObjects;
+        [SerializeField] float universalRotationOffset;
 
-    public enum GroundMode {
-        DISABLED,
-        SNAP,
-        SNAP_AND_ALIGN
-    }
+        [Header("Placement Settings")]
+        [SerializeField] DistanceMode distanceMode;
+        [SerializeField] GroundMode groundMode;
+        [SerializeField] Collider groundCollider;
+        [SerializeField] bool noOvershoot;
 
-    public enum DuplicateMode {
-        ALLOW,
-        AVOID_DUPLICATE_MODELS,
-        AVOID_DUPLICATE_APPEARANCE
-    }
-
-    protected override void Reset () {
-        base.Reset();
-        randomSeed = 0;
-    }
-
-    public void RandomizeSeed () {
-        int hash = Random.value.GetHashCode();
-        int loopCount = Mathf.Abs(hash)%64;
-        for(int i=0; i<loopCount; i++){
-            hash += Random.value.GetHashCode();
-        }
-        UpdateSeed(hash);
-    }
-
-    public void UpdateSeed (int newSeed) {
-        this.randomSeed = newSeed;
-        ConditionalReplace();
-    }
-
-    public void UpdateRandomizationSettings (Vector3 newPlacementRandomness,  float newRotationRandomness, DuplicateMode newDuplicateMode) {
-        this.placementRandomness = newPlacementRandomness;
-        this.rotationRandomness = newRotationRandomness;
-        this.duplicateMode = newDuplicateMode;
-        ConditionalReplace();
-    }
-
-    public void UpdateObjectSettings (BSplineObjectPool newPool, float newSpaceBetweenObjects) {
-        this.objectPool = newPool;
-        this.spaceBetweenObjects = newSpaceBetweenObjects;
-        ConditionalReplace();
-    }
-
-    public void UpdatePlacementSettings (DistanceMode newDistanceMode, GroundMode newGroundMode, Collider newGroundCollider, bool newOvershootMode) {
-        this.distanceMode = newDistanceMode;
-        this.groundMode = newGroundMode;
-        this.groundCollider = newGroundCollider;
-        this.noOvershoot = newOvershootMode;
-        ConditionalReplace();
-    }
-
-    public void ReverseDirection () {
-        var temp = handle2;
-        handle2 = handle1;
-        handle1 = temp;
-        universalRotationOffset = Mathf.Repeat(universalRotationOffset + 180f, 360f);
-        ConditionalReplace();
-    }
-
-    public void Rotate90Deg () {
-        universalRotationOffset = Mathf.Repeat(universalRotationOffset + 90f, 360f);
-        ConditionalReplace();
-    }
-
-    public void DeletePlacedObjects () {
-        for(int i=transform.childCount-1; i>=0; i--){
-            #if UNITY_EDITOR
-            Undo.DestroyObjectImmediate(transform.GetChild(i).gameObject);
-            #else
-            Destroy(transform.GetChild(i).gameObject);
-            #endif
-        }
-    }
-
-    void ConditionalReplace () {
-        if(transform.childCount > 0){
-            PlaceObjects();
-        }
-    }
-
-    public void PlaceObjects () {
-        DeletePlacedObjects();
-        if(BezierLengthEstimate() == 0f){
-            Debug.LogWarning("Curve Length is zero!", this.gameObject);
-            return;
-        }
-        if(objectPool == null){
-            Debug.LogWarning("Pool is null!", this.gameObject);
-            return;
-        }
-        if(objectPool.ObjectCount == 0){
-            Debug.LogWarning($"Pool is empty ({objectPool.name})!", this.gameObject);
-            return;
+        public enum DistanceMode {
+            EUCLIDIAN,
+            BEZIER
         }
 
-        System.Random rng = new System.Random(randomSeed);
-        if(!objectPool.gotCachedList){
-            objectPool.CacheWeightedArrayAndDoAction(PlacementLoop);
-        }else{
+        public enum GroundMode {
+            DISABLED,
+            SNAP,
+            SNAP_AND_ALIGN
+        }
+
+        protected override void Reset () {
+            base.Reset();
+            randomSeed = 0;
+        }
+
+        public void RandomizeSeed () {
+            int hash = Random.value.GetHashCode();
+            int loopCount = Mathf.Abs(hash)%64;
+            for(int i=0; i<loopCount; i++){
+                hash += Random.value.GetHashCode();
+            }
+            UpdateSeed(hash);
+        }
+
+        public void UpdateSeed (int newSeed) {
+            this.randomSeed = newSeed;
+            ConditionalReplace();
+        }
+
+        public void UpdateRandomizationSettings (Vector3 newPlacementRandomness,  float newRotationRandomness) {
+            this.placementRandomness = newPlacementRandomness;
+            this.rotationRandomness = newRotationRandomness;
+            ConditionalReplace();
+        }
+
+        public void UpdateObjectSettings (ObjectPool newPool, float newSpaceBetweenObjects) {
+            this.objectPool = newPool;
+            this.spaceBetweenObjects = newSpaceBetweenObjects;
+            ConditionalReplace();
+        }
+
+        public void UpdatePlacementSettings (DistanceMode newDistanceMode, GroundMode newGroundMode, Collider newGroundCollider, bool newOvershootMode) {
+            this.distanceMode = newDistanceMode;
+            this.groundMode = newGroundMode;
+            this.groundCollider = newGroundCollider;
+            this.noOvershoot = newOvershootMode;
+            ConditionalReplace();
+        }
+
+        public void ReverseDirection () {
+            var temp = handle2;
+            handle2 = handle1;
+            handle1 = temp;
+            universalRotationOffset = Mathf.Repeat(universalRotationOffset + 180f, 360f);
+            ConditionalReplace();
+        }
+
+        public void Rotate90Deg () {
+            universalRotationOffset = Mathf.Repeat(universalRotationOffset + 90f, 360f);
+            ConditionalReplace();
+        }
+
+        public void DeletePlacedObjects () {
+            for(int i=transform.childCount-1; i>=0; i--){
+                #if UNITY_EDITOR
+                Undo.DestroyObjectImmediate(transform.GetChild(i).gameObject);
+                #else
+                Destroy(transform.GetChild(i).gameObject);
+                #endif
+            }
+        }
+
+        void ConditionalReplace () {
+            if(transform.childCount > 0){
+                PlaceObjects();
+            }
+        }
+
+        public void PlaceObjects () {
+            DeletePlacedObjects();
+            if(BezierLengthEstimate() == 0f){
+                Debug.LogWarning("Curve Length is zero!", this.gameObject);
+                return;
+            }
+            if(objectPool == null){
+                Debug.LogWarning("Pool is null!", this.gameObject);
+                return;
+            }
+            if(objectPool.ObjectCount == 0){
+                Debug.LogWarning($"Pool is empty ({objectPool.name})!", this.gameObject);
+                return;
+            }
+
+            System.Random poolRNG = new System.Random(randomSeed);
+            System.Random splineRNG = new System.Random(randomSeed);
+            bool terminatePool = false;
+            if(!objectPool.Initiated){
+                objectPool.Initiate();
+                terminatePool = true;
+            }
             PlacementLoop();
-        }
-        
-        // this is one big mess. i know. i don't care.
-        void PlacementLoop () {
-            float t = 0f;
-            int loopCounter = 0;
-            GameObject lastPrefab = null;
-            Material lastMaterial = null;
-            while(t < 1f){
-                if(loopCounter > MAX_PLACE_LOOP_COUNT){
-                    Debug.LogError("Reached loop limit, aborting!");
-                    return;
-                }
-                loopCounter++;
-                // get new model
-                var newTemplate = objectPool.WeightedRandomObject(rng);
-                if(newTemplate == null){
-                    Debug.LogError($"There was a null object in {objectPool.name}! Aborting placement!", this.gameObject);
-                    return;
-                }
-                var newPrefab = newTemplate.Prefab;
-                var newMaterial = newTemplate.MaterialCount > 0 ? newTemplate.RandomMaterial(rng) : newPrefab.GetComponent<MeshRenderer>().sharedMaterial;
-                bool earlyContinue;
-                switch(duplicateMode){
-                    case DuplicateMode.ALLOW:
-                        earlyContinue = false;
-                        break;
-                    case DuplicateMode.AVOID_DUPLICATE_MODELS:
-                        earlyContinue = (lastPrefab == newPrefab);
-                        break;
-                    case DuplicateMode.AVOID_DUPLICATE_APPEARANCE:
-                        earlyContinue = (lastPrefab == newPrefab) && (lastMaterial == newMaterial);
-                        break;
-                    default:
-                        Debug.Log($"Unknown {typeof(DuplicateMode)} \"{duplicateMode}\"! Aborting...");
+            if(terminatePool){
+                objectPool.Terminate();
+            }
+
+            // this is one big mess. i know. i don't care.
+            void PlacementLoop () {
+                float t = 0f;
+                int loopCounter = 0;
+                while(t < 1f){
+                    if(loopCounter > MAX_PLACE_LOOP_COUNT){
+                        Debug.LogError("Reached loop limit, aborting!");
                         return;
-                }
-                if(earlyContinue){
-                    continue;
-                }
-                lastPrefab = newPrefab;
-                lastMaterial = newMaterial;
-                // instantiate new model
-                var newGO = Instantiate(newPrefab, this.transform);
-                var newGOMR = newGO.GetComponent<MeshRenderer>();
-                var newGOMF = newGO.GetComponent<MeshFilter>();
-                // set up placement
-                Vector3 bPoint;
-                float rotationOffset;
-                // advance half the object's length
-                if((noOvershoot && t == 0f) || t != 0f){
-                    bPoint = BezierPoint(t);
-                    rotationOffset = universalRotationOffset;
-                    bool placePointFound = TryPlaceAndAdvance();
-                    if(!placePointFound || t > 1f){
-                        if(!placePointFound){
+                    }
+                    loopCounter++;
+                    // get new model
+                    var newTemplate = objectPool.Next(poolRNG);
+                    // instantiate new model
+                    var newGO = Instantiate(newTemplate.Prefab, this.transform);
+                    var newGOMR = newGO.GetComponent<MeshRenderer>();
+                    newGOMR.sharedMaterial = newTemplate.Material;
+                    var newGOMF = newGO.GetComponent<MeshFilter>();
+                    // set up placement
+                    Vector3 bPoint;
+                    float rotationOffset;
+                    // advance half the object's length
+                    if((noOvershoot && t == 0f) || t != 0f){
+                        bPoint = BezierPoint(t);
+                        rotationOffset = universalRotationOffset;
+                        bool placePointFound = TryPlaceAndAdvance();
+                        if(!placePointFound || t > 1f){
+                            if(!placePointFound){
+                                Debug.LogWarning("No place point found! Aborting...", this.gameObject);
+                            }
+                            #if UNITY_EDITOR
+                            DestroyImmediate(newGO);
+                            #else
+                            Destroy(newGO);
+                            #endif
+                            return;
+                        }
+                    }
+                    // do the actual placement and advance the other half
+                    var placeOffset = Vector3.Scale(new Vector3(RandDist(), RandDist(), RandDist()), placementRandomness);
+                    var hPlaceOffset = new Vector3(placeOffset.x, 0f, placeOffset.z);
+                    var vPlaceOffset = new Vector3(0f, placeOffset.y, 0f);
+                    bPoint = BezierPoint(t) + hPlaceOffset;
+                    rotationOffset = universalRotationOffset + RandDist() * rotationRandomness;
+                    bool successfullyPlaced = TryPlaceAndAdvance();
+                    if(!successfullyPlaced || (t > 1f && noOvershoot)){
+                        if(!successfullyPlaced){
                             Debug.LogWarning("No place point found! Aborting...", this.gameObject);
                         }
                         #if UNITY_EDITOR
@@ -198,190 +189,176 @@ public class BSplineObjectPlacer : QuadraticBezierSpline {
                         #endif
                         return;
                     }
-                }
-                // do the actual placement and advance the other half
-                bPoint = BezierPoint(t) + Vector3.Scale(new Vector3(RandDist(), RandDist(), RandDist()), placementRandomness);
-                rotationOffset = universalRotationOffset + RandDist() * rotationRandomness;
-                bool successfullyPlaced = TryPlaceAndAdvance();
-                if(!successfullyPlaced || (t > 1f && noOvershoot)){
-                    if(!successfullyPlaced){
-                        Debug.LogWarning("No place point found! Aborting...", this.gameObject);
+                    newGO.transform.position += vPlaceOffset;
+                    // save the creation
+                    Undo.RegisterCreatedObjectUndo(newGO, "Placed object from spline");
+                    // finally do the last advance
+                    TryAdvanceT(spaceBetweenObjects, allowBackwards: true);
+
+                    float RandDist () {
+                        return 2f * (float)splineRNG.NextDouble() - 1f;
                     }
-                    #if UNITY_EDITOR
-                    DestroyImmediate(newGO);
-                    #else
-                    Destroy(newGO);
-                    #endif
-                    return;
-                }
-                // assign the material if there is one
-                newGOMR.sharedMaterial = newMaterial;
-                // save the creation
-                Undo.RegisterCreatedObjectUndo(newGO, "Placed object from spline");
-                // finally do the last advance
-                TryAdvanceT(spaceBetweenObjects, allowBackwards: true);
 
-                float RandDist () {
-                    return 2f * (float)rng.NextDouble() - 1f;
-                }
-
-                bool TryFindPlacePointAndNormal (out Vector3 outputPlacePoint, out Vector3 outputPlaceNormal) {
-                    outputPlacePoint = default;
-                    outputPlaceNormal = default;
-                    if(groundMode == GroundMode.DISABLED){
-                        outputPlacePoint = bPoint;
-                        outputPlaceNormal = Vector3.up;
-                        return true;
-                    }else{
-                        if(groundCollider == null){
-                            Debug.LogWarning("No ground collider set even though snapping to ground is activated!", this.gameObject);
-                        }
-                        var gcb = groundCollider.bounds;
-                        var ro = new Vector3(bPoint.x, gcb.center.y + gcb.extents.y + 1f, bPoint.z);
-                        groundCollider.Raycast(new Ray(ro, Vector3.down), out RaycastHit hit, 2f * gcb.extents.y + 2f);
-                        if(hit.collider != null){
-                            Debug.DrawLine(ro, hit.point, Color.green, 0f, false);
-                            Debug.DrawRay(hit.point, hit.normal, Color.blue, 0f, false);
-                            outputPlacePoint = hit.point;
-                            if(groundMode == GroundMode.SNAP_AND_ALIGN){
-                                outputPlaceNormal = hit.normal;
-                            }else{
-                                outputPlaceNormal = Vector3.up;
+                    bool TryFindPlacePointAndNormal (out Vector3 outputPlacePoint, out Vector3 outputPlaceNormal) {
+                        outputPlacePoint = default;
+                        outputPlaceNormal = default;
+                        if(groundMode == GroundMode.DISABLED){
+                            outputPlacePoint = bPoint;
+                            outputPlaceNormal = Vector3.up;
+                            return true;
+                        }else{
+                            if(groundCollider == null){
+                                Debug.LogWarning("No ground collider set even though snapping to ground is activated!", this.gameObject);
                             }
-                            return true;        
-                        }else{
-                            Debug.DrawRay(ro, Vector3.down * (gcb.extents.y * 2f + 2f), Color.red, 0f, false);
-                            return false;
+                            var gcb = groundCollider.bounds;
+                            var ro = new Vector3(bPoint.x, gcb.center.y + gcb.extents.y + 1f, bPoint.z);
+                            groundCollider.Raycast(new Ray(ro, Vector3.down), out RaycastHit hit, 2f * gcb.extents.y + 2f);
+                            if(hit.collider != null){
+                                Debug.DrawLine(ro, hit.point, Color.green, 0f, false);
+                                Debug.DrawRay(hit.point, hit.normal, Color.blue, 0f, false);
+                                outputPlacePoint = hit.point;
+                                if(groundMode == GroundMode.SNAP_AND_ALIGN){
+                                    outputPlaceNormal = hit.normal;
+                                }else{
+                                    outputPlaceNormal = Vector3.up;
+                                }
+                                return true;        
+                            }else{
+                                Debug.DrawRay(ro, Vector3.down * (gcb.extents.y * 2f + 2f), Color.red, 0f, false);
+                                return false;
+                            }
                         }
                     }
-                }
 
-                void PlaceAtPointAndNormalWithRotationOffset (Vector3 inputPlacePoint, Vector3 inputPlaceNormal, Vector3 inputSplineForward, float inputRotationOffset) {
-                    newGO.transform.position = inputPlacePoint;
-                    Vector3 lookFwd = Vector3.ProjectOnPlane(inputSplineForward, inputPlaceNormal);
-                    newGO.transform.rotation = Quaternion.LookRotation(lookFwd, inputPlaceNormal);
-                    newGO.transform.Rotate(Vector3.up, inputRotationOffset);
-                }
+                    void PlaceAtPointAndNormalWithRotationOffset (Vector3 inputPlacePoint, Vector3 inputPlaceNormal, Vector3 inputSplineForward, float inputRotationOffset) {
+                        newGO.transform.position = inputPlacePoint;
+                        Vector3 lookFwd = Vector3.ProjectOnPlane(inputSplineForward, inputPlaceNormal);
+                        newGO.transform.rotation = Quaternion.LookRotation(lookFwd, inputPlaceNormal);
+                        newGO.transform.Rotate(Vector3.up, inputRotationOffset);
+                    }
 
-                bool TryFindAdvanceDistance (Vector3 inputAdvanceDirection, out float outputAdvanceDist) {
-                    if(newTemplate.UseBoxColliderForSpacing){
-                        var boxColliders = newGO.GetComponents<BoxCollider>();
-                        if(boxColliders == null || boxColliders.Length <= 0){
-                            Debug.LogError($"No BoxColliders present on \"{newTemplate.name}\" but they are marked to be used!");
-                            outputAdvanceDist = 0f;
-                            return false;
-                        }
-                        if(boxColliders.Length > 1){
-                            Debug.LogError("Multiple BoxColliders present!");
-                            outputAdvanceDist = 0f;
-                            return false;
-                        }
-                        var col = boxColliders[0];
-                        var worldColCenter = newGO.transform.TransformPoint(col.center);
-                        var worldColSize = newGO.transform.TransformVector(col.size);
-                        var worldRD = -inputAdvanceDirection.normalized;
-                        var worldRO = worldColCenter - worldRD * worldColSize.magnitude * 2f;
-                        if(col.Raycast(new Ray(worldRO, worldRD), out var colRayHit, 2f * worldColSize.magnitude)){
-                            outputAdvanceDist = (worldColCenter - colRayHit.point).magnitude;
-                            return true;
+                    bool TryFindAdvanceDistance (Vector3 inputAdvanceDirection, out float outputAdvanceDist) {
+                        if(newTemplate.UseBoxColliderForSpacing){
+                            var boxColliders = newGO.GetComponents<BoxCollider>();
+                            if(boxColliders == null || boxColliders.Length <= 0){
+                                // Debug.LogError($"No BoxColliders present on \"{newTemplate.name}\" but they are marked to be used!");
+                                Debug.LogError("whack yo");
+                                outputAdvanceDist = 0f;
+                                return false;
+                            }
+                            if(boxColliders.Length > 1){
+                                Debug.LogError("Multiple BoxColliders present!");
+                                outputAdvanceDist = 0f;
+                                return false;
+                            }
+                            var col = boxColliders[0];
+                            var worldColCenter = newGO.transform.TransformPoint(col.center);
+                            var worldColSize = newGO.transform.TransformVector(col.size);
+                            var worldRD = -inputAdvanceDirection.normalized;
+                            var worldRO = worldColCenter - worldRD * worldColSize.magnitude * 2f;
+                            if(col.Raycast(new Ray(worldRO, worldRD), out var colRayHit, 2f * worldColSize.magnitude)){
+                                outputAdvanceDist = (worldColCenter - colRayHit.point).magnitude;
+                                return true;
+                            }else{
+                                Debug.LogError("No Hit!");
+                                outputAdvanceDist = 0f;
+                                return false;
+                            }
                         }else{
-                            Debug.LogError("No Hit!");
-                            outputAdvanceDist = 0f;
-                            return false;
-                        }
-                    }else{
-                        var bounds = newGOMF.sharedMesh.bounds;
-                        var localDir = newGO.transform.InverseTransformDirection(inputAdvanceDirection).normalized;
-                        var boundsRO = bounds.center + (localDir * bounds.extents.magnitude * 2f);
-                        if(bounds.IntersectRay(new Ray(boundsRO, -localDir), out float boundsHitDist)){
-                            var boundsHit = boundsRO - localDir * boundsHitDist;
-                            var worldBoundsCenter = newGO.transform.TransformPoint(bounds.center);
-                            var worldBoundsHit = newGO.transform.TransformPoint(boundsHit);
-                            outputAdvanceDist = (worldBoundsCenter - worldBoundsHit).magnitude;
-                            return true;
-                        }else{
-                            Debug.LogError("No Hit!");
-                            outputAdvanceDist = 0f;
-                            return false;
+                            var bounds = newGOMF.sharedMesh.bounds;
+                            var localDir = newGO.transform.InverseTransformDirection(inputAdvanceDirection).normalized;
+                            var boundsRO = bounds.center + (localDir * bounds.extents.magnitude * 2f);
+                            if(bounds.IntersectRay(new Ray(boundsRO, -localDir), out float boundsHitDist)){
+                                var boundsHit = boundsRO - localDir * boundsHitDist;
+                                var worldBoundsCenter = newGO.transform.TransformPoint(bounds.center);
+                                var worldBoundsHit = newGO.transform.TransformPoint(boundsHit);
+                                outputAdvanceDist = (worldBoundsCenter - worldBoundsHit).magnitude;
+                                return true;
+                            }else{
+                                Debug.LogError("No Hit!");
+                                outputAdvanceDist = 0f;
+                                return false;
+                            }
                         }
                     }
-                }
 
-                bool TryAdvanceT (float advanceDist, bool allowBackwards = false) {
-                    float newT;
-                    switch(distanceMode){
-                        case DistanceMode.EUCLIDIAN:
-                            newT = NextTFromEuclidianDistance(t, advanceDist);
-                            break;
-                        case DistanceMode.BEZIER:
-                            newT = NextTFromBezierDistance(t, advanceDist);
-                            break;
-                        default:
-                            Debug.LogError($"Unknown {nameof(DistanceMode)} \"{distanceMode}\"!");
+                    bool TryAdvanceT (float advanceDist, bool allowBackwards = false) {
+                        float newT;
+                        switch(distanceMode){
+                            case DistanceMode.EUCLIDIAN:
+                                newT = NextTFromEuclidianDistance(t, advanceDist);
+                                break;
+                            case DistanceMode.BEZIER:
+                                newT = NextTFromBezierDistance(t, advanceDist);
+                                break;
+                            default:
+                                Debug.LogError($"Unknown {nameof(DistanceMode)} \"{distanceMode}\"!");
+                                return false;
+                        }
+                        if(newT <= t && !allowBackwards){
+                            Debug.LogError("No forward advance! Aborting placement...", this.gameObject);
                             return false;
+                        }
+                        t = newT;
+                        return true;
                     }
-                    if(newT <= t && !allowBackwards){
-                        Debug.LogError("No forward advance! Aborting placement...", this.gameObject);
+
+                    bool TryPlaceAndAdvance () {
+                        if(TryFindPlacePointAndNormal(out var tempPlacePoint, out var tempPlaceNormal)){
+                            var tempSplineFwd = BezierDerivative(t);
+                            PlaceAtPointAndNormalWithRotationOffset(tempPlacePoint, tempPlaceNormal, tempSplineFwd, rotationOffset);
+                            if(TryFindAdvanceDistance(Vector3.ProjectOnPlane(tempSplineFwd, tempPlaceNormal), out var tempAdvanceDist)){
+                                if(TryAdvanceT(tempAdvanceDist)){
+                                    return true;
+                                }
+                            }
+                        }
                         return false;
                     }
-                    t = newT;
-                    return true;
-                }
-
-                bool TryPlaceAndAdvance () {
-                    if(TryFindPlacePointAndNormal(out var tempPlacePoint, out var tempPlaceNormal)){
-                        var tempSplineFwd = BezierDerivative(t);
-                        PlaceAtPointAndNormalWithRotationOffset(tempPlacePoint, tempPlaceNormal, tempSplineFwd, rotationOffset);
-                        if(TryFindAdvanceDistance(Vector3.ProjectOnPlane(tempSplineFwd, tempPlaceNormal), out var tempAdvanceDist)){
-                            if(TryAdvanceT(tempAdvanceDist)){
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
                 }
             }
         }
+    
     }
-	
+
+    #if UNITY_EDITOR
+
+    [CustomEditor(typeof(BSplineObjectPlacer))]
+    public class BSplineObjectPlacerEditor : Editor {
+
+        BSplineObjectPlacer bsop;
+
+        void OnEnable () {
+            bsop = target as BSplineObjectPlacer;
+        }
+
+        protected virtual void OnSceneGUI () {
+            bsop.EditorHandles();
+        }
+
+        public override void OnInspectorGUI () {
+            DrawDefaultInspector();
+            GUILayout.Space(10);
+            if(GUILayout.Button("Delete placed objects")){
+                bsop.DeletePlacedObjects();
+            }
+            if(GUILayout.Button("(Re)Place")){
+                bsop.PlaceObjects();
+            }
+            if(GUILayout.Button("Randomize Seed")){
+                bsop.RandomizeSeed();
+            }
+            GUILayout.Space(10);
+            if(GUILayout.Button("Rotate placed objects 90°")){
+                bsop.Rotate90Deg();
+            }
+            if(GUILayout.Button("Reverse direction")){
+                bsop.ReverseDirection();
+            }
+        }
+
+    }
+
+    #endif
+
 }
-
-#if UNITY_EDITOR
-
-[CustomEditor(typeof(BSplineObjectPlacer))]
-public class BSplineObjectPlacerEditor : Editor {
-
-    BSplineObjectPlacer bsop;
-
-    void OnEnable () {
-        bsop = target as BSplineObjectPlacer;
-    }
-
-    protected virtual void OnSceneGUI () {
-        bsop.EditorHandles();
-    }
-
-    public override void OnInspectorGUI () {
-        DrawDefaultInspector();
-        GUILayout.Space(10);
-        if(GUILayout.Button("Delete placed objects")){
-            bsop.DeletePlacedObjects();
-        }
-        if(GUILayout.Button("(Re)Place")){
-            bsop.PlaceObjects();
-        }
-        if(GUILayout.Button("Randomize Seed")){
-            bsop.RandomizeSeed();
-        }
-        GUILayout.Space(10);
-        if(GUILayout.Button("Rotate placed objects 90°")){
-            bsop.Rotate90Deg();
-        }
-        if(GUILayout.Button("Reverse direction")){
-            bsop.ReverseDirection();
-        }
-    }
-
-}
-
-#endif
