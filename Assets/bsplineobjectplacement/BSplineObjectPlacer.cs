@@ -108,6 +108,11 @@ namespace SplineTools {
         }
 
         public void PlaceObjects () {
+            // TODO if localsize != 1
+            // apply world transform to handles, set localsize 1
+            // don't forget to record own scale change in undo
+            // and do a debug warning reminding people not to scale the splines
+            // maybe make the scale applying its own method with a button...
             DeletePlacedObjects();
             if(BezierLengthEstimate() == 0f){
                 Debug.LogWarning("Curve Length is zero!", this.gameObject);
@@ -138,31 +143,21 @@ namespace SplineTools {
             void PlacementLoop () {
                 float t = 0f;
                 int loopCounter = 0;
+                Quaternion initialLocalRotation = Quaternion.Euler(0, universalRotationOffset, 0);
                 while(t < 1f){
                     if(loopCounter > MAX_PLACE_LOOP_COUNT){
                         Debug.LogError("Reached loop limit, aborting!");
                         return;
                     }
                     loopCounter++;
-                    // get new model
-                    var newTemplate = objectPool.Next(poolRNG);
-                    // instantiate new model
-                    var newGO = Instantiate(newTemplate.Prefab, this.transform);
-                    var newGOMR = newGO.GetComponent<MeshRenderer>();
-                    newGOMR.sharedMaterial = newTemplate.Material;
-                    var newGOMF = newGO.GetComponent<MeshFilter>();
-                    // set up placement
-                    Vector3 bPoint;
-                    float rotationOffset;
-                    // advance half the object's length
+                    // get new gameObject
+                    var newSO = objectPool.Next(initialLocalRotation, poolRNG);
+                    var newGO = newSO.SpawnedObject;
+                    newGO.transform.SetParent(this.transform);
+                    var newGOSize = newSO.LinearSize;
+                    // advance half the object's length if needed
                     if((noOvershoot && t == 0f) || t != 0f){
-                        bPoint = BezierPoint(t);
-                        rotationOffset = universalRotationOffset;
-                        bool placePointFound = TryPlaceAndAdvance();
-                        if(!placePointFound || t > 1f){
-                            if(!placePointFound){
-                                Debug.LogWarning("No place point found! Aborting...", this.gameObject);
-                            }
+                        if(!TryAdvanceT(newGOSize / 2f) || t > 1f){
                             #if UNITY_EDITOR
                             DestroyImmediate(newGO);
                             #else
@@ -172,13 +167,13 @@ namespace SplineTools {
                         }
                     }
                     // do the actual placement and advance the other half
-                    var placeOffset = Vector3.Scale(new Vector3(RandDist(), RandDist(), RandDist()), placementRandomness);
+                    var placeOffset = Vector3.Scale(new Vector3(RandomDistribution(), RandomDistribution(), RandomDistribution()), placementRandomness);
                     var hPlaceOffset = new Vector3(placeOffset.x, 0f, placeOffset.z);
                     var vPlaceOffset = new Vector3(0f, placeOffset.y, 0f);
-                    bPoint = BezierPoint(t) + hPlaceOffset;
-                    rotationOffset = universalRotationOffset + RandDist() * rotationRandomness;
-                    bool successfullyPlaced = TryPlaceAndAdvance();
-                    if(!successfullyPlaced || (t > 1f && noOvershoot)){
+                    var bPoint = BezierPoint(t) + hPlaceOffset;
+                    var rotationOffset = universalRotationOffset + RandomDistribution() * rotationRandomness;
+                    bool successfullyPlaced = TryPlace();
+                    if(!successfullyPlaced || !TryAdvanceT(newGOSize / 2f) || (t > 1f && noOvershoot)){
                         if(!successfullyPlaced){
                             Debug.LogWarning("No place point found! Aborting...", this.gameObject);
                         }
@@ -195,8 +190,17 @@ namespace SplineTools {
                     // finally do the last advance
                     TryAdvanceT(spaceBetweenObjects, allowBackwards: true);
 
-                    float RandDist () {
+                    float RandomDistribution () {
                         return 2f * (float)splineRNG.NextDouble() - 1f;
+                    }
+
+                    bool TryPlace () {
+                        if(TryFindPlacePointAndNormal(out var tempPlacePoint, out var tempPlaceNormal)){
+                            var tempSplineFwd = BezierDerivative(t);
+                            PlaceAtPointAndNormalWithRotationOffset(tempPlacePoint, tempPlaceNormal, tempSplineFwd, rotationOffset);
+                            return true;
+                        }
+                        return false;
                     }
 
                     bool TryFindPlacePointAndNormal (out Vector3 outputPlacePoint, out Vector3 outputPlaceNormal) {
@@ -213,6 +217,12 @@ namespace SplineTools {
                             var gcb = groundCollider.bounds;
                             var ro = new Vector3(bPoint.x, gcb.center.y + gcb.extents.y + 1f, bPoint.z);
                             groundCollider.Raycast(new Ray(ro, Vector3.down), out RaycastHit hit, 2f * gcb.extents.y + 2f);
+
+                            // var ASDF = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                            // ASDF.transform.localScale = new Vector3(0.1f, 2f * gcb.extents.y + 2f, 0.1f);
+                            // ASDF.transform.position = ro - 0.5f * ASDF.transform.localScale;
+                            // ASDF.transform.SetParent(this.transform, true);
+
                             if(hit.collider != null){
                                 Debug.DrawLine(ro, hit.point, Color.green, 0f, false);
                                 Debug.DrawRay(hit.point, hit.normal, Color.blue, 0f, false);
@@ -224,7 +234,8 @@ namespace SplineTools {
                                 }
                                 return true;        
                             }else{
-                                Debug.DrawRay(ro, Vector3.down * (gcb.extents.y * 2f + 2f), Color.red, 0f, false);
+                                Debug.DrawRay(ro, Vector3.down * (gcb.extents.y * 2f + 2f), Color.red, 10f, false);
+                                Debug.Log("no hit");
                                 return false;
                             }
                         }
@@ -235,51 +246,6 @@ namespace SplineTools {
                         Vector3 lookFwd = Vector3.ProjectOnPlane(inputSplineForward, inputPlaceNormal);
                         newGO.transform.rotation = Quaternion.LookRotation(lookFwd, inputPlaceNormal);
                         newGO.transform.Rotate(Vector3.up, inputRotationOffset);
-                    }
-
-                    bool TryFindAdvanceDistance (Vector3 inputAdvanceDirection, out float outputAdvanceDist) {
-                        if(newTemplate.UseBoxColliderForSpacing){
-                            var boxColliders = newGO.GetComponents<BoxCollider>();
-                            if(boxColliders == null || boxColliders.Length <= 0){
-                                // Debug.LogError($"No BoxColliders present on \"{newTemplate.name}\" but they are marked to be used!");
-                                Debug.LogError("whack yo");
-                                outputAdvanceDist = 0f;
-                                return false;
-                            }
-                            if(boxColliders.Length > 1){
-                                Debug.LogError("Multiple BoxColliders present!");
-                                outputAdvanceDist = 0f;
-                                return false;
-                            }
-                            var col = boxColliders[0];
-                            var worldColCenter = newGO.transform.TransformPoint(col.center);
-                            var worldColSize = newGO.transform.TransformVector(col.size);
-                            var worldRD = -inputAdvanceDirection.normalized;
-                            var worldRO = worldColCenter - worldRD * worldColSize.magnitude * 2f;
-                            if(col.Raycast(new Ray(worldRO, worldRD), out var colRayHit, 2f * worldColSize.magnitude)){
-                                outputAdvanceDist = (worldColCenter - colRayHit.point).magnitude;
-                                return true;
-                            }else{
-                                Debug.LogError("No Hit!");
-                                outputAdvanceDist = 0f;
-                                return false;
-                            }
-                        }else{
-                            var bounds = newGOMF.sharedMesh.bounds;
-                            var localDir = newGO.transform.InverseTransformDirection(inputAdvanceDirection).normalized;
-                            var boundsRO = bounds.center + (localDir * bounds.extents.magnitude * 2f);
-                            if(bounds.IntersectRay(new Ray(boundsRO, -localDir), out float boundsHitDist)){
-                                var boundsHit = boundsRO - localDir * boundsHitDist;
-                                var worldBoundsCenter = newGO.transform.TransformPoint(bounds.center);
-                                var worldBoundsHit = newGO.transform.TransformPoint(boundsHit);
-                                outputAdvanceDist = (worldBoundsCenter - worldBoundsHit).magnitude;
-                                return true;
-                            }else{
-                                Debug.LogError("No Hit!");
-                                outputAdvanceDist = 0f;
-                                return false;
-                            }
-                        }
                     }
 
                     bool TryAdvanceT (float advanceDist, bool allowBackwards = false) {
@@ -301,19 +267,6 @@ namespace SplineTools {
                         }
                         t = newT;
                         return true;
-                    }
-
-                    bool TryPlaceAndAdvance () {
-                        if(TryFindPlacePointAndNormal(out var tempPlacePoint, out var tempPlaceNormal)){
-                            var tempSplineFwd = BezierDerivative(t);
-                            PlaceAtPointAndNormalWithRotationOffset(tempPlacePoint, tempPlaceNormal, tempSplineFwd, rotationOffset);
-                            if(TryFindAdvanceDistance(Vector3.ProjectOnPlane(tempSplineFwd, tempPlaceNormal), out var tempAdvanceDist)){
-                                if(TryAdvanceT(tempAdvanceDist)){
-                                    return true;
-                                }
-                            }
-                        }
-                        return false;
                     }
                 }
             }

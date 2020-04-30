@@ -29,19 +29,19 @@ namespace SplineTools {
             this.initiated = false;
         }
 
-        public SplineObject Next (System.Random rng = null) {
+        public SplineObject Next (Quaternion localRotation, System.Random rng = null) {
             if(!initiated){
                 Debug.LogError("Not initiated! Aborting...");
                 return null;
             }
-            return GetNext(rng);
+            return GetNext(localRotation, rng);
         }
 
         protected virtual void Init () { }
 
         protected virtual void DeInit () { }    // because "Term" sounds dumb
 
-        protected abstract SplineObject GetNext (System.Random rng);
+        protected abstract SplineObject GetNext (Quaternion localRotation, System.Random rng);
     }
 
 }

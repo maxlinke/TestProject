@@ -41,7 +41,7 @@ namespace SplineTools {
         }
 
         // TODO make all this just return an already spawned gameobject and give spacing instructions...
-        protected override SplineObject GetNext (System.Random rng) {
+        protected override SplineObject GetNext (Quaternion localRotation, System.Random rng) {
             if(objects == null || objects.Length <= 0){
                 return null;
             }
@@ -57,9 +57,6 @@ namespace SplineTools {
                 
                 selectedPO = weightedProbabilityList[selectIndex];
                 selectedMat = selectedPO.RandomMaterial(rng);
-                if(selectedMat == null){
-                    selectedMat = selectedPO.Prefab.GetComponent<MeshRenderer>().sharedMaterial;
-                }
 
                 bool samePO = selectedPO == lastPO;
                 bool sameMat = selectedMat == lastMaterial;
@@ -88,7 +85,9 @@ namespace SplineTools {
             }
             lastPO = selectedPO;
             lastMaterial = selectedMat;
-            return new SplineObject(selectedPO.Prefab, selectedMat, selectedPO.UseBoxColliderForSpacing);
+            // return new SplineObject(selectedPO.Prefab, selectedMat, selectedPO.UseBoxColliderForSpacing);
+            var newGO = selectedPO.CreateSelfAndMeasureSize(selectedMat, localRotation, out var linearSize);
+            return new SplineObject(newGO, linearSize);
         }
 
         public IEnumerator<RandomPoolObject> GetEnumerator () {
@@ -96,13 +95,6 @@ namespace SplineTools {
                 yield return obj;
             }
         }
-
-        // // prevents caching and never releasing...
-        // public void CacheWeightedArrayAndDoAction (System.Action actionToDo) {
-        //     FillWeightedProbabiltyList();
-        //     actionToDo();
-        //     weightedProbabilityList.Clear();
-        // }
 
         private void FillWeightedProbabiltyList () {
             if(weightedProbabilityList != null && weightedProbabilityList.Count > 0){
