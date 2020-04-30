@@ -7,7 +7,7 @@ using UnityEditor;
 
 namespace SplineTools {
 
-    public class BSplineObjectPlacer : QuadraticBezierSpline {
+    public class BSplineObjectPlacer : QuadraticBezierSpline {  // TODO change from inheritance to composition, so i can use other splines as well. a continuous cubic spline for example...
 
         public const string DUPLICATE_TOOLTIP = "This will mess with probabilities and might result in failure to finish!";
         private const int MAX_PLACE_LOOP_COUNT = 1000;
@@ -101,6 +101,24 @@ namespace SplineTools {
             }
         }
 
+        public void ApplyScale () {
+            if(transform.localScale == Vector3.one){
+                return;
+            }
+            #if UNITY_EDITOR
+            Undo.RecordObject(this.transform, "Applying spline localscale");
+            Undo.RecordObject(this, "Applying spline localscale");
+            #endif
+            var h1wPos = this.p1;
+            var h2wPos = this.p2;
+            var chwPos = this.pC;
+            this.transform.localScale = Vector3.one;
+            this.handle1 = transform.InverseTransformPoint(h1wPos);
+            this.handle2 = transform.InverseTransformPoint(h2wPos);
+            this.controlHandle = transform.InverseTransformPoint(chwPos);
+            ConditionalReplace();
+        }
+
         void ConditionalReplace () {
             if(transform.childCount > 0){
                 PlaceObjects();
@@ -108,12 +126,8 @@ namespace SplineTools {
         }
 
         public void PlaceObjects () {
-            // TODO if localsize != 1
-            // apply world transform to handles, set localsize 1
-            // don't forget to record own scale change in undo
-            // and do a debug warning reminding people not to scale the splines
-            // maybe make the scale applying its own method with a button...
             DeletePlacedObjects();
+
             if(BezierLengthEstimate() == 0f){
                 Debug.LogWarning("Curve Length is zero!", this.gameObject);
                 return;
@@ -127,6 +141,7 @@ namespace SplineTools {
                 return;
             }
 
+            ApplyScale();
             System.Random poolRNG = new System.Random(randomSeed);
             System.Random splineRNG = new System.Random(randomSeed);
             bool terminatePool = false;
@@ -139,7 +154,6 @@ namespace SplineTools {
                 objectPool.Terminate();
             }
 
-            // this is one big mess. i know. i don't care.
             void PlacementLoop () {
                 float t = 0f;
                 int loopCounter = 0;
@@ -216,14 +230,7 @@ namespace SplineTools {
                             }
                             var gcb = groundCollider.bounds;
                             var ro = new Vector3(bPoint.x, gcb.center.y + gcb.extents.y + 1f, bPoint.z);
-                            groundCollider.Raycast(new Ray(ro, Vector3.down), out RaycastHit hit, 2f * gcb.extents.y + 2f);
-
-                            // var ASDF = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                            // ASDF.transform.localScale = new Vector3(0.1f, 2f * gcb.extents.y + 2f, 0.1f);
-                            // ASDF.transform.position = ro - 0.5f * ASDF.transform.localScale;
-                            // ASDF.transform.SetParent(this.transform, true);
-
-                            if(hit.collider != null){
+                            if(groundCollider.Raycast(new Ray(ro, Vector3.down), out RaycastHit hit, 2f * gcb.extents.y + 2f)){
                                 Debug.DrawLine(ro, hit.point, Color.green, 0f, false);
                                 Debug.DrawRay(hit.point, hit.normal, Color.blue, 0f, false);
                                 outputPlacePoint = hit.point;
@@ -307,6 +314,11 @@ namespace SplineTools {
             }
             if(GUILayout.Button("Reverse direction")){
                 bsop.ReverseDirection();
+            }
+            if(bsop.transform.localScale != Vector3.one){
+                if(GUILayout.Button("Apply Local Scale")){
+                    bsop.ApplyScale();
+                }
             }
         }
 

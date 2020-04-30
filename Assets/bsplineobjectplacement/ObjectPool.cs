@@ -6,31 +6,29 @@ namespace SplineTools {
 
     public abstract class ObjectPool : ScriptableObject {
 
-        protected bool initiated = false;
-        public bool Initiated => initiated;
-        
+        public bool Initiated { get; protected set; }
         public abstract int ObjectCount { get; }
 
         public void Initiate () {
-            if(initiated){
+            if(Initiated){
                 Debug.LogError("Already initiated! Aborting...");
                 return;
             }
             Init();
-            this.initiated = true;
+            this.Initiated = true;
         }
 
         public void Terminate () {
-            if(!initiated){
+            if(!Initiated){
                 Debug.LogError("Not even initiated! Aborting...");
                 return;
             }
             DeInit();
-            this.initiated = false;
+            this.Initiated = false;
         }
 
         public SplineObject Next (Quaternion localRotation, System.Random rng = null) {
-            if(!initiated){
+            if(!Initiated){
                 Debug.LogError("Not initiated! Aborting...");
                 return null;
             }
