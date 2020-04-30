@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace SplineTools {
 
-    [CreateAssetMenu(menuName = "BSplineObjectPlacer/Random Pool", fileName = "New Random Pool")]
-    public class RandomPool : ObjectPool {
+    [CreateAssetMenu(menuName = "BSplineObjectPlacer/Random Mesh Pool", fileName = "New RandomMeshPool")]
+    public class RandomMeshPool : ObjectPool {
 
         private const int MAX_DUPLICATE_AVOIDANCE_ITERATIONS = 10;
 
@@ -14,11 +14,11 @@ namespace SplineTools {
 
         public RandomPoolObject this[int index] => objects[index];
         public bool gotCachedList => weightedProbabilityList != null && weightedProbabilityList.Count > 0;
-        List<PoolObject> weightedProbabilityList;
+        List<RandomMeshPoolObject> weightedProbabilityList;
 
         public override int ObjectCount => objects.Length;
 
-        private PoolObject lastPO;
+        private RandomMeshPoolObject lastPO;
         private Material lastMaterial;
 
         public enum DuplicateMode {
@@ -40,8 +40,7 @@ namespace SplineTools {
 
         }
 
-        // TODO make all this just return an already spawned gameobject and give spacing instructions...
-        protected override SplineObject GetNext (Quaternion localRotation, System.Random rng) {
+        protected override SplineObject GetNext (Vector3 measureAxis, System.Random rng) {
             if(objects == null || objects.Length <= 0){
                 return null;
             }
@@ -50,7 +49,7 @@ namespace SplineTools {
                 FillWeightedProbabiltyList();
                 clearListAtEnd = true;
             }
-            PoolObject selectedPO = null;
+            RandomMeshPoolObject selectedPO = null;
             Material selectedMat = null;
             for(int i=0; i<MAX_DUPLICATE_AVOIDANCE_ITERATIONS; i++){
                 var selectIndex = (rng == null) ? Random.Range(0, weightedProbabilityList.Count) : rng.Next(0, weightedProbabilityList.Count);
@@ -85,8 +84,7 @@ namespace SplineTools {
             }
             lastPO = selectedPO;
             lastMaterial = selectedMat;
-            // return new SplineObject(selectedPO.Prefab, selectedMat, selectedPO.UseBoxColliderForSpacing);
-            var newGO = selectedPO.CreateSelfAndMeasureSize(selectedMat, localRotation, out var linearSize);
+            var newGO = selectedPO.CreateSelfAndMeasureSize(selectedMat, measureAxis, out var linearSize);
             return new SplineObject(newGO, linearSize);
         }
 
@@ -102,7 +100,7 @@ namespace SplineTools {
                 return;
             }
             if(weightedProbabilityList == null){
-                weightedProbabilityList = new List<PoolObject>();
+                weightedProbabilityList = new List<RandomMeshPoolObject>();
             }
             List<string> nullObjects = new List<string>();
             List<string> nullPrefabs = new List<string>();
@@ -122,7 +120,7 @@ namespace SplineTools {
             if(nullObjects.Count > 0 || nullPrefabs.Count > 0){
                 string problemString = string.Empty;
                 if(nullObjects.Count > 0){
-                    problemString += $"{nullObjects.Count} {nameof(PoolObject)}(s) that were null";
+                    problemString += $"{nullObjects.Count} {nameof(RandomMeshPoolObject)}(s) that were null";
                     for(int i=0; i<nullObjects.Count; i++){
                         problemString += $"\n   - {nullObjects[i]}";
                     }
@@ -143,10 +141,10 @@ namespace SplineTools {
             public const int MIN_PROB = 1;
             public const int MAX_PROB = 10;
 
-            [SerializeField] PoolObject sourceObject;
+            [SerializeField] RandomMeshPoolObject sourceObject;
             [SerializeField, Range(MIN_PROB, MAX_PROB)] int probability = MIN_PROB;
 
-            public PoolObject SourceObject => sourceObject;
+            public RandomMeshPoolObject SourceObject => sourceObject;
             public int Probability => probability;
 
         }

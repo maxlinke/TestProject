@@ -68,7 +68,6 @@ namespace SplineTools {
             Gizmos.color = GetGizmoColor();
             Gizmos.DrawSphere(p1, gizmoSize);
             Gizmos.DrawSphere(p2, gizmoSize);
-            Gizmos.DrawSphere(pC, gizmoSize);
             Vector3 lastPoint = p1;
             GizmoLine(2f * gizmoSize, (newPoint) => {
                 Gizmos.DrawLine(lastPoint, newPoint);
@@ -87,6 +86,9 @@ namespace SplineTools {
             alwaysDrawGizmos = gizmoCache;
             var colorChache = Gizmos.color;
             Gizmos.color = GetGizmoColor();
+            Gizmos.DrawSphere(pC, gizmoSize);
+            Gizmos.DrawLine(p1, pC);
+            Gizmos.DrawLine(p2, pC);
             float stepSize = 3f * gizmoSize;
             float objectSize = 0.33f * gizmoSize;
             GizmoLine(stepSize, (newPoint) => {

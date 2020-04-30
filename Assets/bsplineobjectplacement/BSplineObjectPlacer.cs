@@ -157,7 +157,16 @@ namespace SplineTools {
             void PlacementLoop () {
                 float t = 0f;
                 int loopCounter = 0;
-                Quaternion initialLocalRotation = Quaternion.Euler(0, universalRotationOffset, 0);
+                
+                var tempGO = new GameObject();
+                tempGO.transform.localRotation = Quaternion.Euler(0, universalRotationOffset, 0);
+                Vector3 sizeMeasureAxis = tempGO.transform.InverseTransformDirection(Vector3.forward);
+                #if UNITY_EDITOR
+                DestroyImmediate(tempGO);
+                #else
+                Destroy(tempGO);
+                #endif
+
                 while(t < 1f){
                     if(loopCounter > MAX_PLACE_LOOP_COUNT){
                         Debug.LogError("Reached loop limit, aborting!");
@@ -165,7 +174,7 @@ namespace SplineTools {
                     }
                     loopCounter++;
                     // get new gameObject
-                    var newSO = objectPool.Next(initialLocalRotation, poolRNG);
+                    var newSO = objectPool.Next(sizeMeasureAxis, poolRNG);
                     var newGO = newSO.SpawnedObject;
                     newGO.transform.SetParent(this.transform);
                     var newGOSize = newSO.LinearSize;

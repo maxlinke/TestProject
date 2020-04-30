@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f854c2082ad8c2e45b13b8f8b55233fa, type: 3}
-  m_Name: New Random Pool
+  m_Name: Random House Pool
   m_EditorClassIdentifier: 
   duplicateMode: 2
   objects:
