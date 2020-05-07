@@ -223,6 +223,19 @@ namespace SplineTools {
             qbs.EditorHandles();
         }
 
+        public override void OnInspectorGUI () {
+            DrawDefaultInspector();
+            var bsop = qbs.GetComponent<BSplineObjectPlacer>();
+            if(bsop != null){
+                if(GUILayout.Button("Copy Handles from placer")){
+                    Undo.RecordObject(qbs, "Copy Handles from placer");
+                    qbs.handle1 = bsop.handle1;
+                    qbs.handle2 = bsop.handle2;
+                    qbs.controlHandle = bsop.controlHandle;
+                }
+            }
+        }
+
     }
 
     #endif
