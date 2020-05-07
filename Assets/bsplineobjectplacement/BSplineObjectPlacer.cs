@@ -7,10 +7,12 @@ using UnityEditor;
 
 namespace SplineTools {
 
-    public class BSplineObjectPlacer : QuadraticBezierSpline {  // TODO change from inheritance to composition, so i can use other splines as well. a continuous cubic spline for example...
+    public class BSplineObjectPlacer : MonoBehaviour {
 
-        public const string DUPLICATE_TOOLTIP = "This will mess with probabilities and might result in failure to finish!";
         private const int MAX_PLACE_LOOP_COUNT = 1000;
+
+        [Header("Spline")]
+        [SerializeField] BezierSpline spline;
 
         [Header("Randomness")]
         [SerializeField] int randomSeed;
@@ -37,11 +39,6 @@ namespace SplineTools {
             DISABLED,
             SNAP,
             SNAP_AND_ALIGN
-        }
-
-        protected override void Reset () {
-            base.Reset();
-            randomSeed = 0;
         }
 
         public void RandomizeSeed () {
@@ -79,9 +76,9 @@ namespace SplineTools {
         }
 
         public void ReverseDirection () {
-            var temp = handle2;
-            handle2 = handle1;
-            handle1 = temp;
+            if(spline != null){
+                spline.ReverseDirection();
+            }
             universalRotationOffset = Mathf.Repeat(universalRotationOffset + 180f, 360f);
             ConditionalReplace();
         }
@@ -101,24 +98,6 @@ namespace SplineTools {
             }
         }
 
-        public void ApplyScale () {
-            if(transform.localScale == Vector3.one){
-                return;
-            }
-            #if UNITY_EDITOR
-            Undo.RecordObject(this.transform, "Applying spline localscale");
-            Undo.RecordObject(this, "Applying spline localscale");
-            #endif
-            var h1wPos = this.p1;
-            var h2wPos = this.p2;
-            var chwPos = this.pC;
-            this.transform.localScale = Vector3.one;
-            this.handle1 = transform.InverseTransformPoint(h1wPos);
-            this.handle2 = transform.InverseTransformPoint(h2wPos);
-            this.controlHandle = transform.InverseTransformPoint(chwPos);
-            ConditionalReplace();
-        }
-
         void ConditionalReplace () {
             if(transform.childCount > 0){
                 PlaceObjects();
@@ -127,9 +106,13 @@ namespace SplineTools {
 
         public void PlaceObjects () {
             DeletePlacedObjects();
-
-            if(BezierLengthEstimate() == 0f){
-                Debug.LogWarning("Curve Length is zero!", this.gameObject);
+            
+            if(spline == null){
+                Debug.LogWarning("No spline assigned!", this.gameObject);
+                return;
+            }
+            if(spline.CalculateLength() == 0f){
+                Debug.LogWarning("Spline length is zero!", this.gameObject);
                 return;
             }
             if(objectPool == null){
@@ -141,7 +124,11 @@ namespace SplineTools {
                 return;
             }
 
-            ApplyScale();
+            if(spline.gameObject == this.gameObject){
+                spline.ApplyScale();
+            }
+            transform.localScale = Vector3.one;     // TODO used to be spline applyscale. do i want that back? what if the spline is somewhere completely else?
+
             System.Random poolRNG = new System.Random(randomSeed);
             System.Random splineRNG = new System.Random(randomSeed);
             bool terminatePool = false;
@@ -193,7 +180,7 @@ namespace SplineTools {
                     var placeOffset = Vector3.Scale(new Vector3(RandomDistribution(), RandomDistribution(), RandomDistribution()), placementRandomness);
                     var hPlaceOffset = new Vector3(placeOffset.x, 0f, placeOffset.z);
                     var vPlaceOffset = new Vector3(0f, placeOffset.y, 0f);
-                    var bPoint = BezierPoint(t) + hPlaceOffset;
+                    var bPoint = spline.BezierPoint(t) + hPlaceOffset;
                     var rotationOffset = universalRotationOffset + RandomDistribution() * rotationRandomness;
                     bool successfullyPlaced = TryPlace();
                     if(!successfullyPlaced || !TryAdvanceT(newGOSize / 2f) || (t > 1f && noOvershoot)){
@@ -219,7 +206,7 @@ namespace SplineTools {
 
                     bool TryPlace () {
                         if(TryFindPlacePointAndNormal(out var tempPlacePoint, out var tempPlaceNormal)){
-                            var tempSplineFwd = BezierDerivative(t);
+                            var tempSplineFwd = spline.BezierDerivative(t);
                             PlaceAtPointAndNormalWithRotationOffset(tempPlacePoint, tempPlaceNormal, tempSplineFwd, rotationOffset);
                             return true;
                         }
@@ -268,10 +255,10 @@ namespace SplineTools {
                         float newT;
                         switch(distanceMode){
                             case DistanceMode.EUCLIDIAN:
-                                newT = NextTFromEuclidianDistance(t, advanceDist);
+                                newT = spline.NextTFromEuclidianDistance(t, advanceDist);
                                 break;
                             case DistanceMode.BEZIER:
-                                newT = NextTFromBezierDistance(t, advanceDist);
+                                newT = spline.NextTFromBezierDistance(t, advanceDist);
                                 break;
                             default:
                                 Debug.LogError($"Unknown {nameof(DistanceMode)} \"{distanceMode}\"!");
@@ -301,10 +288,6 @@ namespace SplineTools {
             bsop = target as BSplineObjectPlacer;
         }
 
-        protected virtual void OnSceneGUI () {
-            bsop.EditorHandles();
-        }
-
         public override void OnInspectorGUI () {
             DrawDefaultInspector();
             GUILayout.Space(10);
@@ -323,11 +306,6 @@ namespace SplineTools {
             }
             if(GUILayout.Button("Reverse direction")){
                 bsop.ReverseDirection();
-            }
-            if(bsop.transform.localScale != Vector3.one){
-                if(GUILayout.Button("Apply Local Scale")){
-                    bsop.ApplyScale();
-                }
             }
         }
 
