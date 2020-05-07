@@ -38,6 +38,11 @@ namespace SplineTools {
             return (2f * iT * (pC - p1)) + (2f * t * (p2 - pC));
         }
 
+        public override Vector3 SecondDerivative (float t) {
+            float iT = 1f - t;
+            return 2f * (p2 - (2f * pC) + p1);
+        }
+
         public override void ReverseDirection () {      // TODO is all this editor stuff really necessary?
             // #if UNITY_EDITOR
             //     if(!(EditorApplication.isPlaying || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isPaused)){
@@ -88,11 +93,11 @@ namespace SplineTools {
 
         QuadraticBezierSpline qbs;
 
-        protected virtual void OnEnable () {
+        void OnEnable () {
             qbs = target as QuadraticBezierSpline;
         }
 
-        protected virtual void OnSceneGUI () {
+        void OnSceneGUI () {
             if(!qbs.showHandles){
                 return;
             }

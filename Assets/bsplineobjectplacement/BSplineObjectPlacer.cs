@@ -108,8 +108,11 @@ namespace SplineTools {
             DeletePlacedObjects();
             
             if(spline == null){
-                Debug.LogWarning("No spline assigned!", this.gameObject);
-                return;
+                spline = GetComponent<BezierSpline>();
+                if(spline == null){
+                    Debug.LogWarning("No spline assigned!", this.gameObject);
+                    return;
+                }
             }
             if(spline.CalculateLength() == 0f){
                 Debug.LogWarning("Spline length is zero!", this.gameObject);

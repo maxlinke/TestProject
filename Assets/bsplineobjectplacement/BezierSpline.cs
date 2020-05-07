@@ -29,6 +29,8 @@ namespace SplineTools {
 
         public abstract Vector3 BezierDerivative (float t);
 
+        public abstract Vector3 SecondDerivative (float t);
+
         public abstract void ReverseDirection ();
 
         public abstract void ApplyScale ();

@@ -26,8 +26,8 @@ namespace SplineTools {
         [SerializeField] Collider groundCollider;
         [SerializeField] bool noOvershoot;
 
-        IEnumerable<QuadraticBezierSpline> GetSplineChildren () {
-            var children = GetComponentsInChildren<QuadraticBezierSpline>(true);
+        IEnumerable<BezierSpline> GetSplineChildren () {
+            var children = GetComponentsInChildren<BezierSpline>(true);
             foreach(var child in children){
                 yield return child;
             }
