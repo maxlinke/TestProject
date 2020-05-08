@@ -53,6 +53,7 @@ namespace SplineTools {
         }
 
         public override void ReverseDirection () {
+            Undo.RecordObject(this, "Reverse spline direction");
             var p0Cache = localP0;
             var p1Cache = localP1;
             localP0 = localP3;
@@ -62,6 +63,11 @@ namespace SplineTools {
         }
 
         public override void ApplyScale () {
+            if(transform.localScale.Equals(Vector3.one)){
+                return;
+            }
+            Undo.RecordObject(this.transform, "Apply spline scale");
+            Undo.RecordObject(this, "Apply spline scale");
             var wp0 = p0;
             var wp1 = p1;
             var wp2 = p2;

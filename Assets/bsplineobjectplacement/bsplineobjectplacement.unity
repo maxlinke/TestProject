@@ -761,6 +761,9 @@ MonoBehaviour:
   handle1: {x: -0.82193446, y: 0, z: -17.574675}
   handle2: {x: -4.343734, y: 0, z: 11.28948}
   controlHandle: {x: -11.755314, y: -3.9395294, z: 2.7399502}
+  localP0: {x: 0, y: 0, z: 0}
+  localP1: {x: 0, y: 0, z: 0}
+  localP2: {x: 0, y: 0, z: 0}
 --- !u!1 &50585004
 GameObject:
   m_ObjectHideFlags: 0
@@ -916,6 +919,9 @@ MonoBehaviour:
   handle1: {x: -8.156952, y: 0, z: -3}
   handle2: {x: 15.1993885, y: 0, z: -3}
   controlHandle: {x: 0, y: 0.97924423, z: 2.4692297}
+  localP0: {x: 0, y: 0, z: 0}
+  localP1: {x: 0, y: 0, z: 0}
+  localP2: {x: 0, y: 0, z: 0}
 --- !u!1 &57278679
 GameObject:
   m_ObjectHideFlags: 0
@@ -3399,6 +3405,9 @@ MonoBehaviour:
   handle1: {x: -7.865815, y: 0, z: -2.9999976}
   handle2: {x: 16.00773, y: 0, z: -6.1346188}
   controlHandle: {x: 0, y: 0.58885956, z: 10.925983}
+  localP0: {x: -7.865815, y: 0, z: -2.9999976}
+  localP1: {x: 0, y: 0.58885956, z: 10.925983}
+  localP2: {x: 16.00773, y: 0, z: -6.1346188}
 --- !u!1 &374288650
 GameObject:
   m_ObjectHideFlags: 0
@@ -3556,6 +3565,9 @@ MonoBehaviour:
   handle1: {x: -0.848279, y: 0, z: -16.703482}
   handle2: {x: -7.3441267, y: 0, z: 11.28948}
   controlHandle: {x: -12.844772, y: -3.9395294, z: 2.7399502}
+  localP0: {x: -0.848279, y: 0, z: -16.703482}
+  localP1: {x: -12.844772, y: -3.9395294, z: 2.7399502}
+  localP2: {x: -7.3441267, y: 0, z: 11.28948}
 --- !u!1 &391155318
 GameObject:
   m_ObjectHideFlags: 0
@@ -4326,6 +4338,9 @@ MonoBehaviour:
   handle1: {x: -4.644656, y: 0, z: 11.948217}
   handle2: {x: -4.6173677, y: 0, z: -7.2475758}
   controlHandle: {x: 0.6466236, y: -3.9395294, z: 2.7399502}
+  localP0: {x: -4.644656, y: 0, z: 11.948217}
+  localP1: {x: 0.6466236, y: -3.9395294, z: 2.7399502}
+  localP2: {x: -4.6173677, y: 0, z: -7.2475758}
 --- !u!1 &495414497
 GameObject:
   m_ObjectHideFlags: 0
@@ -4483,6 +4498,9 @@ MonoBehaviour:
   handle1: {x: -0.82193446, y: 0, z: -17.574675}
   handle2: {x: -4.343734, y: 0, z: 11.28948}
   controlHandle: {x: -11.755314, y: -3.9395294, z: 2.7399502}
+  localP0: {x: -0.82193446, y: 0, z: -17.574675}
+  localP1: {x: -11.755314, y: -3.9395294, z: 2.7399502}
+  localP2: {x: -4.343734, y: 0, z: 11.28948}
 --- !u!1 &499640197
 GameObject:
   m_ObjectHideFlags: 0
@@ -5410,6 +5428,9 @@ MonoBehaviour:
   handle1: {x: 14.88158, y: 0, z: 5.6852837}
   handle2: {x: -11.207222, y: 0, z: 3.5755062}
   controlHandle: {x: -1.0944057, y: 0, z: -14.380532}
+  localP0: {x: 14.88158, y: 0, z: 5.6852837}
+  localP1: {x: -1.0944057, y: 0, z: -14.380532}
+  localP2: {x: -11.207222, y: 0, z: 3.5755062}
 --- !u!1 &573042929
 GameObject:
   m_ObjectHideFlags: 0
@@ -6745,6 +6766,9 @@ MonoBehaviour:
   handle1: {x: -7.865815, y: 0, z: -2.9999976}
   handle2: {x: 16.00773, y: 0, z: -6.1346188}
   controlHandle: {x: 0, y: 0.58885956, z: 10.925983}
+  localP0: {x: 0, y: 0, z: 0}
+  localP1: {x: 0, y: 0, z: 0}
+  localP2: {x: 0, y: 0, z: 0}
 --- !u!4 &752024642
 Transform:
   m_ObjectHideFlags: 0
@@ -7068,6 +7092,9 @@ MonoBehaviour:
   handle1: {x: -4.644656, y: 0, z: 11.948217}
   handle2: {x: -4.6173677, y: 0, z: -7.2475758}
   controlHandle: {x: 0.6466236, y: -3.9395294, z: 2.7399502}
+  localP0: {x: 0, y: 0, z: 0}
+  localP1: {x: 0, y: 0, z: 0}
+  localP2: {x: 0, y: 0, z: 0}
 --- !u!1 &782446422
 GameObject:
   m_ObjectHideFlags: 0
@@ -9721,6 +9748,9 @@ MonoBehaviour:
   handle1: {x: -7.309802, y: 0, z: 13.929672}
   handle2: {x: -0.848279, y: 0, z: -7.2475758}
   controlHandle: {x: 3.1382065, y: -3.9395294, z: 2.7399502}
+  localP0: {x: 0, y: 0, z: 0}
+  localP1: {x: 0, y: 0, z: 0}
+  localP2: {x: 0, y: 0, z: 0}
 --- !u!1 &1056733163
 GameObject:
   m_ObjectHideFlags: 0
@@ -12273,6 +12303,9 @@ MonoBehaviour:
   handle1: {x: -7.309802, y: 0, z: 13.929672}
   handle2: {x: -0.848279, y: 0, z: -7.2475758}
   controlHandle: {x: 3.1382065, y: -3.9395294, z: 2.7399502}
+  localP0: {x: -7.309802, y: 0, z: 13.929672}
+  localP1: {x: 3.1382065, y: -3.9395294, z: 2.7399502}
+  localP2: {x: -0.848279, y: 0, z: -7.2475758}
 --- !u!1 &1332244986
 GameObject:
   m_ObjectHideFlags: 0
@@ -12506,6 +12539,9 @@ MonoBehaviour:
   handle1: {x: 11.914474, y: 0, z: 1.0864334}
   handle2: {x: -12.200919, y: 0, z: 15.135229}
   controlHandle: {x: -7.399703, y: -3.9395294, z: -1.7200441}
+  localP0: {x: 0, y: 0, z: 0}
+  localP1: {x: 0, y: 0, z: 0}
+  localP2: {x: 0, y: 0, z: 0}
 --- !u!1 &1347182344
 GameObject:
   m_ObjectHideFlags: 0
@@ -15621,6 +15657,9 @@ MonoBehaviour:
   handle1: {x: -0.848279, y: 0, z: -16.703482}
   handle2: {x: -7.3441267, y: 0, z: 11.28948}
   controlHandle: {x: -12.844772, y: -3.9395294, z: 2.7399502}
+  localP0: {x: 0, y: 0, z: 0}
+  localP1: {x: 0, y: 0, z: 0}
+  localP2: {x: 0, y: 0, z: 0}
 --- !u!1 &1718969936
 GameObject:
   m_ObjectHideFlags: 0
@@ -17683,6 +17722,9 @@ MonoBehaviour:
   handle1: {x: -8.156952, y: 0, z: -3}
   handle2: {x: 15.1993885, y: 0, z: -3}
   controlHandle: {x: 0, y: 0.97924423, z: 2.4692297}
+  localP0: {x: -8.156952, y: 0, z: -3}
+  localP1: {x: 0, y: 0.97924423, z: 2.4692297}
+  localP2: {x: 15.1993885, y: 0, z: -3}
 --- !u!1 &1965659119
 GameObject:
   m_ObjectHideFlags: 0
@@ -18084,6 +18126,9 @@ MonoBehaviour:
   handle1: {x: 11.914474, y: 0, z: 1.0864334}
   handle2: {x: -12.200919, y: 0, z: 15.135229}
   controlHandle: {x: -7.399703, y: -3.9395294, z: -1.7200441}
+  localP0: {x: 11.914474, y: 0, z: 1.0864334}
+  localP1: {x: -7.399703, y: -3.9395294, z: -1.7200441}
+  localP2: {x: -12.200919, y: 0, z: 15.135229}
 --- !u!1 &2039893044
 GameObject:
   m_ObjectHideFlags: 0
@@ -18889,6 +18934,9 @@ MonoBehaviour:
   handle1: {x: -9.451795, y: -4.5045166, z: -2.6151402}
   handle2: {x: -0.31031218, y: 12.60635, z: -7.6157823}
   controlHandle: {x: -3.4469352, y: 1.7107022, z: 5.3736672}
+  localP0: {x: -9.451795, y: -4.5045166, z: -2.6151402}
+  localP1: {x: -3.4469352, y: 1.7107022, z: 5.3736672}
+  localP2: {x: -0.31031218, y: 12.60635, z: -7.6157823}
 --- !u!4 &2098077874
 Transform:
   m_ObjectHideFlags: 0
@@ -19354,3 +19402,6 @@ MonoBehaviour:
   handle1: {x: -113.49063, y: 0, z: 99.86374}
   handle2: {x: 142.7732, y: 0, z: -35.588463}
   controlHandle: {x: -4.525791, y: 0, z: -56.840645}
+  localP0: {x: -113.49063, y: 0, z: 99.86374}
+  localP1: {x: -4.525791, y: 0, z: -56.840645}
+  localP2: {x: 142.7732, y: 0, z: -35.588463}
