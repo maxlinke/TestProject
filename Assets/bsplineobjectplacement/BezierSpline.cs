@@ -19,6 +19,9 @@ namespace SplineTools {
         public abstract int DEFAULT_NEXT_T_ITERATIONS { get; }
         public abstract int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION { get; }
 
+        private float m_length;
+        private Vector3 lastLossyScale;
+
         protected virtual void Reset () {
             showHandles = true;
             alwaysDrawGizmos = true;
@@ -34,6 +37,24 @@ namespace SplineTools {
         public abstract void ReverseDirection ();
 
         public abstract void ApplyScale ();
+
+        public float Length { get {
+            if(NeedToRecalculateLength()){
+                m_length = CalculateLength();
+                OnLengthRecalculated();
+            }
+            return m_length;
+        }}
+
+        private bool NeedToRecalculateLength () {
+            return (transform.localScale != lastLossyScale) || PointsChangedSinceLastRecalculation();
+        }
+
+        protected abstract bool PointsChangedSinceLastRecalculation ();
+
+        protected virtual void OnLengthRecalculated () {
+            lastLossyScale = transform.lossyScale;
+        }
 
 #region Gizmos
 
@@ -58,7 +79,7 @@ namespace SplineTools {
         }
 
         void GizmoLine (float stepSize, System.Action<Vector3> onStep) {
-            float l = CalculateLength();
+            float l = Length;
             if(l > 0){
                 float t = 0f;
                 onStep(BezierPoint(t));
@@ -142,7 +163,7 @@ namespace SplineTools {
         }
 
         public float NextTFromEuclidianDistance (float startT, float desiredDistance, int iterations) {
-            return NextTFromEuclidianDistance(startT, desiredDistance, iterations, CalculateLength());
+            return NextTFromEuclidianDistance(startT, desiredDistance, iterations, Length);
         }
 
         public float NextTFromEuclidianDistance (float startT, float desiredDistance, int iterations, float inputLength) {
@@ -162,7 +183,7 @@ namespace SplineTools {
         }
 
         public float NextTFromBezierDistance (float startT, float desiredDistance, int precision, int iterations) {
-            return NextTFromBezierDistance(startT, desiredDistance, precision, iterations, CalculateLength());
+            return NextTFromBezierDistance(startT, desiredDistance, precision, iterations, Length);
         }
 
         public float NextTFromBezierDistance (float startT, float desiredDistance, int precision, int iterations, float inputLength) {

@@ -114,7 +114,7 @@ namespace SplineTools {
                     return;
                 }
             }
-            if(spline.CalculateLength() == 0f){
+            if(spline.Length == 0f){
                 Debug.LogWarning("Spline length is zero!", this.gameObject);
                 return;
             }

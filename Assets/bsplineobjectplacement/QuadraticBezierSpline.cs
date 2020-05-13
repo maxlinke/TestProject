@@ -21,6 +21,23 @@ namespace SplineTools {
         public override int DEFAULT_NEXT_T_ITERATIONS => 16;
         public override int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION => 16;
 
+        private Vector3 lastLP0;
+        private Vector3 lastLP1;
+        private Vector3 lastLP2;
+
+        protected override bool PointsChangedSinceLastRecalculation () {
+            return lastLP0 != localP0
+                || lastLP1 != localP1
+                || lastLP2 != localP2;
+        }
+
+        protected override void OnLengthRecalculated () {
+            base.OnLengthRecalculated();
+            lastLP0 = localP0;
+            lastLP1 = localP1;
+            lastLP2 = localP2;
+        }
+
         protected override void Reset () {
             base.Reset();
             localP0 = new Vector3(-5f, 0f, -3f);
@@ -28,19 +45,31 @@ namespace SplineTools {
             localP2 = new Vector3(5f, 0f, -3f);
         }
 
-        public override Vector3 BezierPoint (float t) {
+        public static Vector3 BezierPoint (Vector3 p0, Vector3 p1, Vector3 p2, float t) {
             float iT = 1f - t;
             return p1 + (iT * iT * (p0 - p1)) + (t * t * (p2 - p1));
         }
 
-        public override Vector3 BezierDerivative (float t) {
+        public override Vector3 BezierPoint (float t) {
+            return BezierPoint(this.p0, this.p1, this.p2, t);
+        }
+
+        public static Vector3 BezierDerivative (Vector3 p0, Vector3 p1, Vector3 p2, float t) {
             float iT = 1f - t;
             return (2f * iT * (p1 - p0)) + (2f * t * (p2 - p1));
         }
 
-        public override Vector3 SecondDerivative (float t) {
+        public override Vector3 BezierDerivative (float t) {
+            return BezierDerivative(this.p0, this.p1, this.p2, t);
+        }
+
+        public static Vector3 SecondDerivative (Vector3 p0, Vector3 p1, Vector3 p2, float t) {
             float iT = 1f - t;
             return 2f * (p2 - (2f * p1) + p0);
+        }
+
+        public override Vector3 SecondDerivative (float t) {
+            return SecondDerivative(this.p0, this.p1, this.p2, t);
         }
 
         public override void ReverseDirection () {

@@ -23,6 +23,26 @@ namespace SplineTools {
         public override int DEFAULT_NEXT_T_ITERATIONS => 16;
         public override int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION => 16;
 
+        private Vector3 lastLP0;
+        private Vector3 lastLP1;
+        private Vector3 lastLP2;
+        private Vector3 lastLP3;
+
+        protected override bool PointsChangedSinceLastRecalculation () {
+            return lastLP0 != localP0
+                || lastLP1 != localP1
+                || lastLP2 != localP2
+                || lastLP3 != localP3;
+        }
+
+        protected override void OnLengthRecalculated () {
+            base.OnLengthRecalculated();
+            lastLP0 = localP0;
+            lastLP1 = localP1;
+            lastLP2 = localP2;
+            lastLP3 = localP3;
+        }
+
         protected override void Reset () {
             base.Reset();
             localP0 = new Vector3(-7, 0, -4);
@@ -31,7 +51,7 @@ namespace SplineTools {
             localP3 = new Vector3(7, 0, 4);
         }
 
-        public override Vector3 BezierPoint (float t) {
+        public static Vector3 BezierPoint (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
             float iT = 1f - t;
             return (iT * iT * iT) * p0
                 + (3f * iT * iT * t) * p1
@@ -39,17 +59,29 @@ namespace SplineTools {
                 + (t * t * t) * p3;
         }
 
-        public override Vector3 BezierDerivative (float t) {
+        public override Vector3 BezierPoint (float t) {
+            return BezierPoint(this.p0, this.p1, this.p2, this.p3, t);
+        }
+
+        public static Vector3 BezierDerivative (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
             float iT = 1f - t;
             return (3f * iT * iT) * (p1 - p0)
                 + (6f * iT * t) * (p2 - p1)
                 + (3f * t * t) * (p3 - p2);
         }
 
-        public override Vector3 SecondDerivative (float t) {
+        public override Vector3 BezierDerivative (float t) {
+            return BezierDerivative(this.p0, this.p1, this.p2, this.p3, t);
+        }
+
+        public static Vector3 SecondDerivative (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
             float iT = 1f - t;
             return (6f * iT) * (p2 - (2f * p1) + p0)
                 + (6f * t) * (p3 - (2f * p2) + p1);
+        }
+
+        public override Vector3 SecondDerivative (float t) {
+            return SecondDerivative(this.p0, this.p1, this.p2, this.p3, t);
         }
 
         public override void ReverseDirection () {
