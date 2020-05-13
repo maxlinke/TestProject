@@ -69,7 +69,7 @@ namespace SplineTools {
                 ceil = SegmentCount;
                 floor = SegmentCount - 1;
             }
-            outputT = fullT + floor;
+            outputT = fullT - floor;
             outP1 = points[floor];
             outP2 = points[ceil];
         }
