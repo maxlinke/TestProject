@@ -8,12 +8,12 @@ namespace SplineTools {
 
     public abstract class BezierSpline : MonoBehaviour {
 
-        public const float MIN_GIZMO_SIZE = 0.05f;
-        public const float MAX_GIZMO_SIZE = 5f;
+        public const float MIN_GIZMO_SIZE = 0.1f;
+        public const float MAX_GIZMO_SIZE = 10f;
 
         [SerializeField] public bool showHandles;
         [SerializeField] public bool alwaysDrawGizmos;
-        [SerializeField] public float gizmoSize;
+        [SerializeField, Range(MIN_GIZMO_SIZE, MAX_GIZMO_SIZE)] public float gizmoSize;
 
         public abstract int DEFAULT_LENGTH_CALC_ITERATIONS { get; }
         public abstract int DEFAULT_NEXT_T_ITERATIONS { get; }
@@ -83,9 +83,11 @@ namespace SplineTools {
             if(l > 0){
                 float t = 0f;
                 onStep(BezierPoint(t));
-                while(t < 1f){
+                int i = 0;                      // crash prevention.
+                while(t < 1f && i < 9000){
                     t = Mathf.Clamp01(NextTFromEuclidianDistance(t, stepSize, 10, l));
                     onStep(BezierPoint(t));
+                    i++;
                 }
             }
         }
@@ -101,7 +103,7 @@ namespace SplineTools {
                 Gizmos.DrawSphere(p, gizmoSize);
             }
             Vector3 lastPoint = BezierPoint(0);
-            GizmoLine(2f * gizmoSize, (newPoint) => {
+            GizmoLine(gizmoSize, (newPoint) => {
                 Gizmos.DrawLine(lastPoint, newPoint);
                 lastPoint = newPoint;
             });
@@ -119,13 +121,13 @@ namespace SplineTools {
             var colorChache = Gizmos.color;
             Gizmos.color = GetGizmoColor();
             foreach(var p in GetWorldSpaceControlPoints()){
-                Gizmos.DrawSphere(p, gizmoSize);
+                Gizmos.DrawSphere(p, 0.5f * gizmoSize);
             }
             foreach(var l in GetWorldSpaceHandleLines()){
                 Gizmos.DrawLine(l.Item1, l.Item2);
             }
-            float stepSize = 3f * gizmoSize;
-            float objectSize = 0.33f * gizmoSize;
+            float stepSize = 2f * gizmoSize;
+            float objectSize = 0.25f * gizmoSize;
             GizmoLine(stepSize, (newPoint) => {
                 Gizmos.DrawSphere(newPoint, objectSize);
             });

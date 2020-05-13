@@ -758,9 +758,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 1
   gizmoSize: 0.5
-  handle1: {x: -0.82193446, y: 0, z: -17.574675}
-  handle2: {x: -4.343734, y: 0, z: 11.28948}
-  controlHandle: {x: -11.755314, y: -3.9395294, z: 2.7399502}
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
   localP2: {x: 0, y: 0, z: 0}
@@ -916,9 +913,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 1
   gizmoSize: 0.5
-  handle1: {x: -8.156952, y: 0, z: -3}
-  handle2: {x: 15.1993885, y: 0, z: -3}
-  controlHandle: {x: 0, y: 0.97924423, z: 2.4692297}
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
   localP2: {x: 0, y: 0, z: 0}
@@ -2786,6 +2780,56 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 252557713}
   m_Mesh: {fileID: 4300000, guid: 55244d29aeaace64d95862d0c3e8a973, type: 3}
+--- !u!1 &277987357
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 277987359}
+  - component: {fileID: 277987358}
+  m_Layer: 0
+  m_Name: Reference Cubic Spline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &277987358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277987357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd4b4475f73f5344fbf6d8830b3c43f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showHandles: 1
+  alwaysDrawGizmos: 1
+  gizmoSize: 0.5
+  localP0: {x: -7, y: 0, z: -4}
+  localP1: {x: -2, y: 0, z: 6}
+  localP2: {x: 2, y: 0, z: -6}
+  localP3: {x: 7, y: 0, z: 4}
+--- !u!4 &277987359
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277987357}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 312.8377, y: 49.29107, z: 164.24303}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &279252397
 GameObject:
   m_ObjectHideFlags: 0
@@ -3402,9 +3446,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: -7.865815, y: 0, z: -2.9999976}
-  handle2: {x: 16.00773, y: 0, z: -6.1346188}
-  controlHandle: {x: 0, y: 0.58885956, z: 10.925983}
   localP0: {x: -7.865815, y: 0, z: -2.9999976}
   localP1: {x: 0, y: 0.58885956, z: 10.925983}
   localP2: {x: 16.00773, y: 0, z: -6.1346188}
@@ -3562,9 +3603,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: -0.848279, y: 0, z: -16.703482}
-  handle2: {x: -7.3441267, y: 0, z: 11.28948}
-  controlHandle: {x: -12.844772, y: -3.9395294, z: 2.7399502}
   localP0: {x: -0.848279, y: 0, z: -16.703482}
   localP1: {x: -12.844772, y: -3.9395294, z: 2.7399502}
   localP2: {x: -7.3441267, y: 0, z: 11.28948}
@@ -4335,9 +4373,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: -4.644656, y: 0, z: 11.948217}
-  handle2: {x: -4.6173677, y: 0, z: -7.2475758}
-  controlHandle: {x: 0.6466236, y: -3.9395294, z: 2.7399502}
   localP0: {x: -4.644656, y: 0, z: 11.948217}
   localP1: {x: 0.6466236, y: -3.9395294, z: 2.7399502}
   localP2: {x: -4.6173677, y: 0, z: -7.2475758}
@@ -4495,9 +4530,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: -0.82193446, y: 0, z: -17.574675}
-  handle2: {x: -4.343734, y: 0, z: 11.28948}
-  controlHandle: {x: -11.755314, y: -3.9395294, z: 2.7399502}
   localP0: {x: -0.82193446, y: 0, z: -17.574675}
   localP1: {x: -11.755314, y: -3.9395294, z: 2.7399502}
   localP2: {x: -4.343734, y: 0, z: 11.28948}
@@ -5425,9 +5457,6 @@ MonoBehaviour:
   showHandles: 1
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: 14.88158, y: 0, z: 5.6852837}
-  handle2: {x: -11.207222, y: 0, z: 3.5755062}
-  controlHandle: {x: -1.0944057, y: 0, z: -14.380532}
   localP0: {x: 14.88158, y: 0, z: 5.6852837}
   localP1: {x: -1.0944057, y: 0, z: -14.380532}
   localP2: {x: -11.207222, y: 0, z: 3.5755062}
@@ -6763,9 +6792,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 1
   gizmoSize: 0.5
-  handle1: {x: -7.865815, y: 0, z: -2.9999976}
-  handle2: {x: 16.00773, y: 0, z: -6.1346188}
-  controlHandle: {x: 0, y: 0.58885956, z: 10.925983}
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
   localP2: {x: 0, y: 0, z: 0}
@@ -6861,6 +6887,62 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1 &759616067
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 759616069}
+  - component: {fileID: 759616068}
+  m_Layer: 0
+  m_Name: Test Continuous Spline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &759616068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 759616067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e6ceb0089af0034a946d4c6d2ecdae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showHandles: 1
+  alwaysDrawGizmos: 1
+  gizmoSize: 0.5
+  selectedPoint: 0
+  points:
+  - m_type: 0
+    m_pos: {x: -7, y: 0, z: -4}
+    m_handleFwd: {x: 5, y: 0, z: 10}
+    m_handleBwd: {x: -5, y: -0, z: -10}
+  - m_type: 0
+    m_pos: {x: 7, y: -0, z: 4}
+    m_handleFwd: {x: 5, y: 0, z: 10}
+    m_handleBwd: {x: -5, y: -0, z: -10}
+--- !u!4 &759616069
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 759616067}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 312.31, y: 47.286087, z: 168.2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &760509065
 GameObject:
   m_ObjectHideFlags: 0
@@ -7089,9 +7171,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 1
   gizmoSize: 0.5
-  handle1: {x: -4.644656, y: 0, z: 11.948217}
-  handle2: {x: -4.6173677, y: 0, z: -7.2475758}
-  controlHandle: {x: 0.6466236, y: -3.9395294, z: 2.7399502}
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
   localP2: {x: 0, y: 0, z: 0}
@@ -9745,9 +9824,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 1
   gizmoSize: 0.5
-  handle1: {x: -7.309802, y: 0, z: 13.929672}
-  handle2: {x: -0.848279, y: 0, z: -7.2475758}
-  controlHandle: {x: 3.1382065, y: -3.9395294, z: 2.7399502}
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
   localP2: {x: 0, y: 0, z: 0}
@@ -12300,9 +12376,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: -7.309802, y: 0, z: 13.929672}
-  handle2: {x: -0.848279, y: 0, z: -7.2475758}
-  controlHandle: {x: 3.1382065, y: -3.9395294, z: 2.7399502}
   localP0: {x: -7.309802, y: 0, z: 13.929672}
   localP1: {x: 3.1382065, y: -3.9395294, z: 2.7399502}
   localP2: {x: -0.848279, y: 0, z: -7.2475758}
@@ -12536,9 +12609,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 1
   gizmoSize: 0.5
-  handle1: {x: 11.914474, y: 0, z: 1.0864334}
-  handle2: {x: -12.200919, y: 0, z: 15.135229}
-  controlHandle: {x: -7.399703, y: -3.9395294, z: -1.7200441}
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
   localP2: {x: 0, y: 0, z: 0}
@@ -15654,9 +15724,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 1
   gizmoSize: 0.5
-  handle1: {x: -0.848279, y: 0, z: -16.703482}
-  handle2: {x: -7.3441267, y: 0, z: 11.28948}
-  controlHandle: {x: -12.844772, y: -3.9395294, z: 2.7399502}
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
   localP2: {x: 0, y: 0, z: 0}
@@ -17719,9 +17786,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: -8.156952, y: 0, z: -3}
-  handle2: {x: 15.1993885, y: 0, z: -3}
-  controlHandle: {x: 0, y: 0.97924423, z: 2.4692297}
   localP0: {x: -8.156952, y: 0, z: -3}
   localP1: {x: 0, y: 0.97924423, z: 2.4692297}
   localP2: {x: 15.1993885, y: 0, z: -3}
@@ -18123,9 +18187,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: 11.914474, y: 0, z: 1.0864334}
-  handle2: {x: -12.200919, y: 0, z: 15.135229}
-  controlHandle: {x: -7.399703, y: -3.9395294, z: -1.7200441}
   localP0: {x: 11.914474, y: 0, z: 1.0864334}
   localP1: {x: -7.399703, y: -3.9395294, z: -1.7200441}
   localP2: {x: -12.200919, y: 0, z: 15.135229}
@@ -18931,9 +18992,6 @@ MonoBehaviour:
   showHandles: 1
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: -9.451795, y: -4.5045166, z: -2.6151402}
-  handle2: {x: -0.31031218, y: 12.60635, z: -7.6157823}
-  controlHandle: {x: -3.4469352, y: 1.7107022, z: 5.3736672}
   localP0: {x: -9.451795, y: -4.5045166, z: -2.6151402}
   localP1: {x: -3.4469352, y: 1.7107022, z: 5.3736672}
   localP2: {x: -0.31031218, y: 12.60635, z: -7.6157823}
@@ -19399,9 +19457,6 @@ MonoBehaviour:
   showHandles: 0
   alwaysDrawGizmos: 0
   gizmoSize: 1.76
-  handle1: {x: -113.49063, y: 0, z: 99.86374}
-  handle2: {x: 142.7732, y: 0, z: -35.588463}
-  controlHandle: {x: -4.525791, y: 0, z: -56.840645}
   localP0: {x: -113.49063, y: 0, z: 99.86374}
   localP1: {x: -4.525791, y: 0, z: -56.840645}
   localP2: {x: 142.7732, y: 0, z: -35.588463}
