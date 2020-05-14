@@ -23,6 +23,7 @@ namespace SplineTools {
         [SerializeField] ObjectPool objectPool;
         [SerializeField] float spaceBetweenObjects;
         [SerializeField] float universalRotationOffset;
+        [SerializeField] Vector3 universalPositionOffset;
 
         [Header("Placement Settings")]
         [SerializeField] DistanceMode distanceMode;
@@ -51,23 +52,27 @@ namespace SplineTools {
         }
 
         public void UpdateSeed (int newSeed) {
+            Undo.RecordObject(this, "Update random seed");
             this.randomSeed = newSeed;
             ConditionalReplace();
         }
 
         public void UpdateRandomizationSettings (Vector3 newPlacementRandomness,  float newRotationRandomness) {
+            Undo.RecordObject(this, "Update randomization settings");
             this.placementRandomness = newPlacementRandomness;
             this.rotationRandomness = newRotationRandomness;
             ConditionalReplace();
         }
 
         public void UpdateObjectSettings (ObjectPool newPool, float newSpaceBetweenObjects) {
+            Undo.RecordObject(this, "Update object settings");
             this.objectPool = newPool;
             this.spaceBetweenObjects = newSpaceBetweenObjects;
             ConditionalReplace();
         }
 
         public void UpdatePlacementSettings (DistanceMode newDistanceMode, GroundMode newGroundMode, Collider newGroundCollider, bool newOvershootMode) {
+            Undo.RecordObject(this, "Update placement settings");
             this.distanceMode = newDistanceMode;
             this.groundMode = newGroundMode;
             this.groundCollider = newGroundCollider;
@@ -76,14 +81,17 @@ namespace SplineTools {
         }
 
         public void ReverseDirection () {
+            Undo.RecordObject(this, "Reverse Direction");
             if(spline != null){
                 spline.ReverseDirection();
             }
             universalRotationOffset = Mathf.Repeat(universalRotationOffset + 180f, 360f);
+            universalPositionOffset = new Vector3(-universalPositionOffset.x, universalPositionOffset.y, -universalPositionOffset.z);
             ConditionalReplace();
         }
 
         public void Rotate90Deg () {
+            Undo.RecordObject(this, "Rotate 90 deg");
             universalRotationOffset = Mathf.Repeat(universalRotationOffset + 90f, 360f);
             ConditionalReplace();
         }
@@ -130,7 +138,7 @@ namespace SplineTools {
             if(spline.gameObject == this.gameObject){
                 spline.ApplyScale();
             }
-            transform.localScale = Vector3.one;     // TODO used to be spline applyscale. do i want that back? what if the spline is somewhere completely else?
+            transform.localScale = Vector3.one;
 
             System.Random poolRNG = new System.Random(randomSeed);
             System.Random splineRNG = new System.Random(randomSeed);
@@ -180,7 +188,10 @@ namespace SplineTools {
                         }
                     }
                     // do the actual placement and advance the other half
-                    var placeOffset = Vector3.Scale(new Vector3(RandomDistribution(), RandomDistribution(), RandomDistribution()), placementRandomness);
+                    var rpo = Vector3.Scale(new Vector3(RandomDistribution(), RandomDistribution(), RandomDistribution()), placementRandomness);
+                    var rot = Matrix4x4.Rotate(Quaternion.LookRotation(Vector3.ProjectOnPlane(spline.BezierDerivative(t), Vector3.up), Vector3.up));
+                    var fpo = rot.MultiplyVector(universalPositionOffset);
+                    var placeOffset = rpo + fpo;
                     var hPlaceOffset = new Vector3(placeOffset.x, 0f, placeOffset.z);
                     var vPlaceOffset = new Vector3(0f, placeOffset.y, 0f);
                     var bPoint = spline.BezierPoint(t) + hPlaceOffset;

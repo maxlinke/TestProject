@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b630516b7d8ed1344a7c8938b1e66d7b, type: 3}
+  m_Name: Wall and Tower Pool
+  m_EditorClassIdentifier: 
+  objects:
+  - prefab: {fileID: 5575301443482430368, guid: 19a0712ed4f8bb24d86c7a4f524705f3,
+      type: 3}
+    material: {fileID: 0}
+    useBoxColliderForSpacing: 1
+  - prefab: {fileID: 1747480826351851798, guid: 7d2d2ab8e93e47b4bac184ca1855e893,
+      type: 3}
+    material: {fileID: 0}
+    useBoxColliderForSpacing: 1
+  - prefab: {fileID: 8489493026214054109, guid: 57fc5d179e7b8bc4c85edada19d1b87d,
+      type: 3}
+    material: {fileID: 2100000, guid: 6c4f4a68ee594264d84882f9f29b57a1, type: 2}
+    useBoxColliderForSpacing: 0
+  - prefab: {fileID: 8489493026214054109, guid: 57fc5d179e7b8bc4c85edada19d1b87d,
+      type: 3}
+    material: {fileID: 2100000, guid: 69193c5351a802e47bbd3bf996f43281, type: 2}
+    useBoxColliderForSpacing: 0

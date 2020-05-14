@@ -5,7 +5,7 @@ using UnityEngine;
 namespace SplineTools {
 
     [CreateAssetMenu(menuName = "BSplineObjectPlacer/Random Mesh Pool", fileName = "New RandomMeshPool")]
-    public class RandomMeshPool : ObjectPool {
+    public class RandomMeshPool : MeshPool {
 
         private const int MAX_DUPLICATE_AVOIDANCE_ITERATIONS = 10;
 
@@ -84,8 +84,7 @@ namespace SplineTools {
             }
             lastPO = selectedPO;
             lastMaterial = selectedMat;
-            var newGO = selectedPO.CreateSelfAndMeasureSize(selectedMat, measureAxis, out var linearSize);
-            return new SplineObject(newGO, linearSize);
+            return InstantiatePrefabAndMeasureSize(selectedPO.Prefab, selectedMat, measureAxis, selectedPO.UseBoxColliderForSpacing);
         }
 
         public IEnumerator<RandomPoolObject> GetEnumerator () {

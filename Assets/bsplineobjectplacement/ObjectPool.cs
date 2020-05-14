@@ -40,6 +40,7 @@ namespace SplineTools {
         protected virtual void DeInit () { }    // because "Term" sounds dumb
 
         protected abstract SplineObject GetNext (Vector3 measureAxis, System.Random rng);
+
     }
 
 }
