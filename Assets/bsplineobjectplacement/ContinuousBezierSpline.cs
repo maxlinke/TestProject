@@ -268,7 +268,6 @@ namespace SplineTools {
                         handleFwd = handleFwd;  // recalc handleback
                         break;
                     case Type.BROKEN:
-                        // nothing to do here
                         break;
                     default: 
                         Debug.LogError($"Unknown {typeof(Point.Type)} \"{value}\"");
@@ -288,7 +287,6 @@ namespace SplineTools {
                         m_handleBwd = -bwdMag * value.normalized;
                         break;
                     case Type.BROKEN:
-                        // nothing to do here
                         break;
                     default: 
                         Debug.LogError($"Unknown {typeof(Point.Type)} \"{value}\"");
@@ -304,7 +302,6 @@ namespace SplineTools {
                         m_handleFwd = -fwdMag * value.normalized;
                         break;
                     case Type.BROKEN:
-                        // nothing to do here
                         break;
                     default: 
                         Debug.LogError($"Unknown {typeof(Point.Type)} \"{value}\"");
@@ -322,7 +319,6 @@ namespace SplineTools {
             public Point (Type type, Vector3 pos, Vector3 handleFwd, Vector3 handleBwd) {
                 m_type = type;
                 m_pos = pos;
-                // m_handleFwd = handleFwd;
                 m_handleBwd = handleBwd;
                 this.handleFwd = handleFwd;
             }
@@ -418,47 +414,77 @@ namespace SplineTools {
             int removeIndex = DESELECTED_INDEX;
             for(int i=0; i<pointListSP.arraySize; i++){
                 var bgCache = GUI.backgroundColor;
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(i.ToString(), GUILayout.Width(24));
-                
+                Header();
                 if(i == selectionIndex){
-                    GUI.backgroundColor = (0.5f * Color.green) + (0.5f * bgCache);
-                    if(GUILayout.Button("Deselect", GUILayout.Width(70))){
-                        newSelectionIndex = DESELECTED_INDEX;
+                    Body();
+                }
+                
+                void Header () {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(i.ToString(), GUILayout.Width(24));
+                    if(i == selectionIndex){
+                        GUI.backgroundColor = (0.25f * Color.green) + (0.75f * bgCache);
+                        if(GUILayout.Button("Deselect", GUILayout.Width(70))){
+                            newSelectionIndex = DESELECTED_INDEX;
+                        }
+                        GUI.backgroundColor = bgCache;
+                    }else{
+                        if(GUILayout.Button("Select", GUILayout.Width(70))){
+                            newSelectionIndex = i;
+                        }
+                    }
+                    if(GUILayout.Button("<", GUILayout.Width(20))){
+                        cbs.MovePointIndex(i, -1);
+                        newSelectionIndex = Mathf.Clamp(newSelectionIndex - 1, 0, cbs.PointCount - 1);
+                    }
+                    if(GUILayout.Button(">", GUILayout.Width(20))){
+                        cbs.MovePointIndex(i, 1);
+                        newSelectionIndex = Mathf.Clamp(newSelectionIndex + 1, 0, cbs.PointCount - 1);
+                    }
+                    if(GUILayout.Button("Insert", GUILayout.Width(50))){
+                        addIndex = i;
+                    }
+                    GUILayout.FlexibleSpace();
+                    GUI.backgroundColor = (0.25f * Color.red) + (0.75f * bgCache);
+                    if(GUILayout.Button("Delete", GUILayout.Width(50))){
+                        removeIndex = i;
                     }
                     GUI.backgroundColor = bgCache;
-                }else{
-                    if(GUILayout.Button("Select", GUILayout.Width(70))){
-                        newSelectionIndex = i;
+                    GUILayout.EndHorizontal();
+                }
+
+                void Body () {
+                    var pointSP = pointListSP.GetArrayElementAtIndex(i);
+                    EditorGUI.BeginChangeCheck();
+                    var typeProp = pointSP.FindPropertyRelative("m_type");
+                    var posProp = pointSP.FindPropertyRelative("m_pos");
+                    var hFwdProp = pointSP.FindPropertyRelative("m_handleFwd");
+                    var hBwdProp = pointSP.FindPropertyRelative("m_handleBwd");
+                    InsetPropField(20, typeProp);   // TODO won't properly update the handles
+                    InsetPropField(20, posProp);    // i.e., going from broken to smooth won't align the handles
+                    InsetPropField(20, hFwdProp);   // and modifying one handle in smooth mode won't adjust the other one
+                    InsetPropField(20, hBwdProp);   // until one does the modifications in the scene view
+
+                    void InsetPropField (float inset, SerializedProperty prop) {
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label(string.Empty, GUILayout.Width(inset));
+                        EditorGUILayout.PropertyField(prop);
+                        GUILayout.EndHorizontal();
                     }
                 }
-                if(GUILayout.Button("<", GUILayout.Width(20))){
-                    cbs.MovePointIndex(i, -1);
-                    newSelectionIndex = Mathf.Clamp(newSelectionIndex - 1, 0, cbs.PointCount - 1);
-                }
-                if(GUILayout.Button(">", GUILayout.Width(20))){
-                    cbs.MovePointIndex(i, 1);
-                    newSelectionIndex = Mathf.Clamp(newSelectionIndex + 1, 0, cbs.PointCount - 1);
-                }
-                if(GUILayout.Button("Insert", GUILayout.Width(50))){
-                    addIndex = i;
-                }
-
-                GUI.backgroundColor = (0.5f * Color.red) + (0.5f * bgCache);
-                if(GUILayout.Button("X", GUILayout.Width(20))){
-                    removeIndex = i;
-                }
-                GUI.backgroundColor = bgCache;
-
-                GUILayout.EndHorizontal();
-                
             }
             selectionIndex = newSelectionIndex;
             if(addIndex != DESELECTED_INDEX){
                 cbs.AddPointAfter(addIndex);
+                if(selectionIndex != DESELECTED_INDEX){
+                    selectionIndex = addIndex + 1;
+                }
             }
             if(removeIndex != DESELECTED_INDEX){
                 cbs.DeletePoint(removeIndex);
+                if(selectionIndex != DESELECTED_INDEX){
+                    selectionIndex = Mathf.Max(0, removeIndex - 1);
+                }
             }
 
             serializedObject.ApplyModifiedProperties();
