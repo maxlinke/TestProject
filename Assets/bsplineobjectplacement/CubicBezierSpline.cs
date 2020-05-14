@@ -111,14 +111,14 @@ namespace SplineTools {
             localP3 = transform.InverseTransformPoint(wp3);
         }
 
-        protected override IEnumerable<Vector3> GetWorldSpaceEndPoints () {
-            yield return p0;
-            yield return p3;
+        protected override IEnumerable<(Vector3, float)> GetWorldSpaceEndPoints () {
+            yield return (p0, 0);
+            yield return (p3, 1);
         }
 
-        protected override IEnumerable<Vector3> GetWorldSpaceControlPoints () {
-            yield return p1;
-            yield return p2;
+        protected override IEnumerable<(Vector3, float)> GetWorldSpaceControlPoints () {
+            yield return (p1, 1f / 3f);
+            yield return (p2, 2f / 3f);
         }
 
         protected override IEnumerable<(Vector3, Vector3)> GetWorldSpaceHandleLines  () {

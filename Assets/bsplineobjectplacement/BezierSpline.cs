@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace SplineTools {
 
@@ -15,7 +18,8 @@ namespace SplineTools {
 
         [SerializeField] public bool showLabels = true;
         [SerializeField] public bool showHandles = true;
-        [SerializeField] public bool alwaysDrawGizmos;
+        [SerializeField] public bool showDirection = true;
+        [SerializeField] public bool alwaysDrawGizmos = true;
         [SerializeField, Range(MIN_GIZMO_SIZE, MAX_GIZMO_SIZE)] public float gizmoSize;
 
         public abstract int DEFAULT_LENGTH_CALC_ITERATIONS { get; }
@@ -24,10 +28,13 @@ namespace SplineTools {
 
         private float m_length;
         private Vector3 lastLossyScale;
+        private Color m_gizmoColor;
+        private Color m_inverseGizmoColor;
+        private string lastName;
+
+        private bool m_drawingGizmosSelected = false;
 
         protected virtual void Reset () {
-            showHandles = true;
-            alwaysDrawGizmos = true;
             gizmoSize = 0.5f;
         }
 
@@ -49,6 +56,25 @@ namespace SplineTools {
             return m_length;
         }}
 
+        public Color GizmoColor { get {
+            if(gameObject.name != lastName){
+                m_gizmoColor = GetGizmoColor();
+                Color.RGBToHSV(m_gizmoColor, out var h, out var s, out var v);
+                m_inverseGizmoColor = Color.HSVToRGB(
+                    H: Mathf.Repeat(h + 0.5f, 1), 
+                    S: 0, 
+                    V: Mathf.Repeat(v + 0.5f, 1)
+                );
+                lastName = gameObject.name;
+            }
+            return m_gizmoColor;
+        }}
+
+        public Color InverseGizmoColor { get {
+            var temp = GizmoColor;  // for the recalc
+            return m_inverseGizmoColor;
+        }}
+
         private bool NeedToRecalculateLength () {
             return (transform.localScale != lastLossyScale) || PointsChangedSinceLastRecalculation();
         }
@@ -61,11 +87,11 @@ namespace SplineTools {
 
 #region Gizmos
 
-        protected abstract IEnumerable<Vector3> GetWorldSpaceEndPoints ();
+        protected abstract IEnumerable<(Vector3 pos, float t)> GetWorldSpaceEndPoints ();
 
-        protected abstract IEnumerable<Vector3> GetWorldSpaceControlPoints ();
+        protected abstract IEnumerable<(Vector3 pos, float t)> GetWorldSpaceControlPoints ();
 
-        protected abstract IEnumerable<(Vector3, Vector3)> GetWorldSpaceHandleLines ();
+        protected abstract IEnumerable<(Vector3 start, Vector3 end)> GetWorldSpaceHandleLines ();
 
         public Color GetGizmoColor () {
             int hash = 0;
@@ -79,6 +105,19 @@ namespace SplineTools {
             float value = (float)(hash % 70) / 70;
             value = 0.667f + 0.333f * value;
             return Color.HSVToRGB(hue, saturation, value);
+        }
+
+        Color MovingThingyGizmoColor (float inputTime, float inputT) {
+            if(!showDirection){
+                return GizmoColor;
+            }
+            float lrp = 1f - Mathf.Clamp01(Mathf.Abs((inputT - inputTime) / 0.2f));
+            lrp *= (1f - inputTime);
+            return Color.Lerp(GizmoColor, InverseGizmoColor, lrp);
+        }
+
+        float MovingThingyInputTime () {
+            return ((float)(System.DateTime.Now.Millisecond)) / 1000f;
         }
 
         public static GUIStyle GetHandlesTextStyle () {
@@ -109,11 +148,11 @@ namespace SplineTools {
             return output;
         }
 
-        void GizmoLine (float stepSize, System.Action<Vector3> onStep) {
+        void GizmoLine (float stepSize, System.Action<Vector3, float> onStep) {
             float l = Length;
             if(l > 0){
                 float t = 0f;
-                onStep(BezierPoint(t));
+                onStep(BezierPoint(t), t);
                 int i = 0;                      // crash prevention.
                 while(t < 1f){
                     if(i > 9000){
@@ -121,7 +160,7 @@ namespace SplineTools {
                         break;
                     }
                     t = Mathf.Clamp01(NextTFromEuclidianDistance(t, stepSize, 10, l));
-                    onStep(BezierPoint(t));
+                    onStep(BezierPoint(t), t);
                     i++;
                 }
             }
@@ -132,13 +171,20 @@ namespace SplineTools {
             if(!alwaysDrawGizmos){
                 return;
             }
+            var highlightT = MovingThingyInputTime();
             var colorChache = Gizmos.color;
-            Gizmos.color = GetGizmoColor();
-            foreach(var p in GetWorldSpaceEndPoints()){
+            Gizmos.color = GizmoColor;
+            foreach(var (p, t) in GetWorldSpaceEndPoints()){
+                if(m_drawingGizmosSelected){
+                    Gizmos.color = MovingThingyGizmoColor(highlightT, t);
+                }
                 Gizmos.DrawSphere(p, gizmoSize);
             }
             Vector3 lastPoint = BezierPoint(0);
-            GizmoLine(gizmoSize, (newPoint) => {
+            GizmoLine(gizmoSize, (newPoint, newT) => {
+                if(m_drawingGizmosSelected){
+                    Gizmos.color = MovingThingyGizmoColor(highlightT, newT);
+                }
                 Gizmos.DrawLine(lastPoint, newPoint);
                 lastPoint = newPoint;
             });
@@ -151,19 +197,25 @@ namespace SplineTools {
             }
             var gizmoCache = alwaysDrawGizmos;
             alwaysDrawGizmos = true;
+            m_drawingGizmosSelected = true;
             OnDrawGizmos();
             alwaysDrawGizmos = gizmoCache;
+            m_drawingGizmosSelected = false;
+
+            float highlightT = MovingThingyInputTime();
             var colorChache = Gizmos.color;
-            Gizmos.color = GetGizmoColor();
-            foreach(var p in GetWorldSpaceControlPoints()){
+            var gizCol = GizmoColor;
+            Gizmos.color = gizCol;
+            foreach(var (p, t) in GetWorldSpaceControlPoints()){
                 Gizmos.DrawSphere(p, 0.5f * gizmoSize);
             }
-            foreach(var l in GetWorldSpaceHandleLines()){
-                Gizmos.DrawLine(l.Item1, l.Item2);
+            foreach(var (start, end) in GetWorldSpaceHandleLines()){
+                Gizmos.DrawLine(start, end);
             }
             float stepSize = 2f * gizmoSize;
             float objectSize = 0.25f * gizmoSize;
-            GizmoLine(stepSize, (newPoint) => {
+            GizmoLine(stepSize, (newPoint, newT) => {
+                Gizmos.color = MovingThingyGizmoColor(highlightT, newT);
                 Gizmos.DrawSphere(newPoint, objectSize);
             });
             Gizmos.color = colorChache;
@@ -270,6 +322,34 @@ namespace SplineTools {
 
             return closestT;
         }
+
+        #if UNITY_EDITOR
+
+        public static void GenericSplineInspector (SerializedObject serializedObject, MonoScript callingScript, System.Type callingType) {
+            GUI.enabled = false;
+            EditorGUILayout.ObjectField("Script", callingScript, callingType, false);
+            GUI.enabled = true;
+
+            // GUILayout.BeginHorizontal();
+            // GUILayout.Label("Labels:", GUILayout.Width(44));
+            // EditorGUILayout.PropertyField(serializedObject.FindProperty("showLabels"), GUIContent.none, GUILayout.Width(10));
+            // GUILayout.Space(20);
+            // GUILayout.Label("Handles:", GUILayout.Width(52));
+            // EditorGUILayout.PropertyField(serializedObject.FindProperty("showHandles"), GUIContent.none, GUILayout.Width(10));
+            // GUILayout.Space(20);
+            // GUILayout.Label("Direction:", GUILayout.Width(58));
+            // EditorGUILayout.PropertyField(serializedObject.FindProperty("showDirection"), GUIContent.none, GUILayout.Width(10));
+            // GUILayout.EndHorizontal();
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("showLabels"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("showHandles"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("showDirection"));
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("alwaysDrawGizmos"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("gizmoSize"));
+        }
+
+        #endif
     
     }
 

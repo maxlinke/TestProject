@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -9,16 +8,18 @@ namespace SplineTools {
 
     public class ContinuousBezierSpline : BezierSpline {
 
-        public override int DEFAULT_LENGTH_CALC_ITERATIONS => 100;
-        public override int DEFAULT_NEXT_T_ITERATIONS => 16;
-        public override int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION => 16;
-
         [SerializeField] public bool cyclic;
         [SerializeField] List<Point> points;
 
         public int PointCount => points.Count;
         public int SegmentCount => PointCount - (cyclic ? 0 : 1);
         public Point this[int index] => points[index];
+        
+        public override int DEFAULT_LENGTH_CALC_ITERATIONS => 100;
+        public override int DEFAULT_NEXT_T_ITERATIONS => 16;
+        public override int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION => 16;
+
+        List<Point> lastRecalcPoints;
 
         private Point DefaultPoint () {
             var pos = new Vector3(-7,0,-4);
@@ -51,10 +52,32 @@ namespace SplineTools {
             ValidatePointsList();
         }
 
-        protected override bool PointsChangedSinceLastRecalculation()
-        {
-            // throw new System.NotImplementedException();  // TODO
-            return true;
+        protected override bool PointsChangedSinceLastRecalculation () {
+            ValidatePointsList();
+            if(lastRecalcPoints == null){
+                lastRecalcPoints = new List<Point>();
+            }
+            if(lastRecalcPoints.Count != points.Count){
+                return true;
+            }
+            for(int i=0; i<PointCount; i++){
+                if(!points[i].Equals(lastRecalcPoints[i])){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        protected override void OnLengthRecalculated () {
+            base.OnLengthRecalculated();
+            ValidatePointsList();
+            if(lastRecalcPoints == null){
+                lastRecalcPoints = new List<Point>();
+            }
+            lastRecalcPoints.Clear();
+            foreach(var point in points){
+                lastRecalcPoints.Add(new Point(point));
+            }
         }
 
         private void GetProperTAndPoints (float inputT, out float outputT, out Point outP1, out Point outP2) {
@@ -64,7 +87,13 @@ namespace SplineTools {
             int p1, p2;
             if(cyclic){
                 p1 = floor % SegmentCount;
+                if(p1 < 0){
+                    p1 += SegmentCount;
+                }
                 p2 = ceil % SegmentCount;
+                if(p2 < 0){
+                    p2 += SegmentCount;
+                }
             }else{
                 if(floor < 0){
                     floor = 0;
@@ -104,18 +133,22 @@ namespace SplineTools {
 
 #region Gizmos
 
-        protected override IEnumerable<Vector3> GetWorldSpaceEndPoints () {
-            foreach(var point in points){
+        protected override IEnumerable<(Vector3, float)> GetWorldSpaceEndPoints () {
+            // foreach(var point in points){
+            for(int i=0; i<PointCount; i++){
+                var point = points[i];
                 WorldPoints(point, out var p, out _, out _);
-                yield return p;
+                yield return (p, ((float)i) / SegmentCount);
             }
         }
 
-        protected override IEnumerable<Vector3> GetWorldSpaceControlPoints () {
-            foreach(var point in points){
+        protected override IEnumerable<(Vector3, float)> GetWorldSpaceControlPoints () {
+            // foreach(var point in points){
+            for(int i=0; i<PointCount; i++){
+                var point = points[i];
                 WorldPoints(point, out _, out var h1, out var h2);
-                yield return h1;
-                yield return h2;
+                yield return (h1, ((float)i) / SegmentCount);
+                yield return (h2, ((float)i) / SegmentCount);
             }
         }
 
@@ -322,6 +355,13 @@ namespace SplineTools {
                 this.handleFwd = handleFwd;
             }
 
+            public Point (Point other) {
+                m_type = other.type;
+                m_pos = other.pos;
+                m_handleFwd = other.handleFwd;
+                m_handleBwd = other.handleBwd;
+            }
+
             public override bool Equals (object obj) {
                 if(obj is Point other){
                     if(other.pos == this.pos){
@@ -394,22 +434,10 @@ namespace SplineTools {
         }
 
         public override void OnInspectorGUI () {
-            // DrawDefaultInspector();
-
             serializedObject.Update();
-
-            GUI.enabled = false;
-            EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(cbs), typeof(ContinuousBezierSpline), false);
-            GUI.enabled = true;
-
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("showLabels"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("showHandles"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("alwaysDrawGizmos"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("gizmoSize"));
+            BezierSpline.GenericSplineInspector(serializedObject, MonoScript.FromMonoBehaviour(cbs), typeof(ContinuousBezierSpline));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("cyclic"));
-
             var pointListSP = serializedObject.FindProperty("points");
-            // EditorGUILayout.PropertyField(pointListSP, true);
 
             GUILayout.Space(10);
             GUILayout.BeginHorizontal();
