@@ -13,8 +13,8 @@ namespace SplineTools {
         public override int DEFAULT_NEXT_T_ITERATIONS => 16;
         public override int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION => 16;
 
-        [SerializeField] int selectedPoint; // TEMP TEMP TEMP
         [SerializeField] List<Point> points;
+        public int selectionIndex;
 
         public int PointCount => points.Count;
         public int SegmentCount => PointCount - 1;
@@ -38,6 +38,50 @@ namespace SplineTools {
                 var pos = p0.pos;
                 var h1 = p0.handleFwd;
                 points.Add(new Point(Point.Type.SMOOTH, -pos, h1, -h1));
+            }
+        }
+
+        [ContextMenu("DEBUGINSERT")]
+        public void DEBUGINSERT () {
+            InsertAfter(selectionIndex);
+        }
+
+        public void InsertAfter (int insertIndex) {
+            if(insertIndex < 0){
+                Debug.LogError("Negative indices are not allowed!");
+                return;
+            }
+            if(insertIndex >= PointCount){
+                Debug.LogError("Index out of bounds!");
+                return;
+            }
+            Undo.RecordObject(this, "Insert new point");
+            Point prev = points[insertIndex];
+            if((insertIndex + 1) < PointCount){
+                var next = points[insertIndex+1];
+                WorldPoints(prev, out var p0, out var p1, out _);
+                WorldPoints(next, out var p3, out _, out var p2);
+                var bPoint = CubicBezierSpline.BezierPoint(p0, p1, p2, p3, 0.5f);
+                var bFwd = CubicBezierSpline.BezierDerivative(p0, p1, p2, p3, 0.5f);
+                var newPoint = new Point(
+                    type: Point.Type.SMOOTH, 
+                    pos: LocalPointPos(bPoint),
+                    handleFwd: Vector3.one,
+                    handleBwd: -Vector3.one
+                );
+                var newHandle = PointSpaceHandlePos(newPoint, bPoint + bFwd);
+                newHandle = newHandle.normalized * Mathf.Min(prev.handleFwd.magnitude, next.handleBwd.magnitude) * 0.2f;
+                newPoint.handleBwd = -newHandle;
+                newPoint.handleFwd = newHandle;
+                points.Insert(insertIndex + 1, newPoint);
+            }else{
+                WorldPoints(prev, out var wPrevPos, out var wPrevHFwd, out _);
+                points.Insert(insertIndex + 1, new Point(
+                    type: Point.Type.SMOOTH,
+                    pos: LocalPointPos(wPrevPos + 3f * (wPrevHFwd - wPrevPos)),
+                    handleFwd: prev.handleFwd,
+                    handleBwd: -prev.handleFwd
+                ));
             }
         }
 
@@ -74,10 +118,18 @@ namespace SplineTools {
             outP2 = points[ceil];
         }
 
-        private void WorldPoints (Point point, out Vector3 wPos, out Vector3 wHFwd, out Vector3 wHBwd) {
+        public void WorldPoints (Point point, out Vector3 wPos, out Vector3 wHFwd, out Vector3 wHBwd) {
             wPos = transform.TransformPoint(point.pos);
             wHFwd = wPos + transform.TransformVector(point.handleFwd);
             wHBwd = wPos + transform.TransformVector(point.handleBwd);
+        }
+
+        public Vector3 LocalPointPos (Vector3 wPos) {
+            return transform.InverseTransformPoint(wPos);
+        }
+
+        public Vector3 PointSpaceHandlePos (Point point, Vector3 wHandlePos) {
+            return transform.InverseTransformVector(wHandlePos - transform.TransformPoint(point.pos));
         }
 
         public override Vector3 BezierPoint (float t) {
@@ -134,21 +186,18 @@ namespace SplineTools {
             yield return p1;
         }
 
-        private bool SelectionIndexIsValid () {
-            return !(selectedPoint < 0 || selectedPoint >= PointCount);
-        }
-
         protected override IEnumerable<Vector3> GetWorldSpaceControlPoints () {
-            if(SelectionIndexIsValid()){
-                WorldPoints(points[selectedPoint], out var _, out var h1, out var h2);
+            foreach(var point in points){
+                WorldPoints(point, out var p, out var h1, out var h2);
+                yield return p;
                 yield return h1;
                 yield return h2;
             }
         }
 
         protected override IEnumerable<(Vector3, Vector3)> GetWorldSpaceHandleLines () {
-            if(SelectionIndexIsValid()){
-                WorldPoints(points[selectedPoint], out var p, out var h1, out var h2);
+            foreach(var point in points){
+                WorldPoints(point, out var p, out var h1, out var h2);
                 yield return (p, h1);
                 yield return (p, h2);
             }
@@ -183,7 +232,7 @@ namespace SplineTools {
             }}
 
             public Vector3 pos { get => m_pos; set {
-                pos = value;
+                m_pos = value;
             }}
 
             public Vector3 handleFwd { get => m_handleFwd; set {
@@ -261,13 +310,40 @@ namespace SplineTools {
 
         ContinuousBezierSpline cbs;
 
+        int selectionIndex => cbs.selectionIndex;
+
         void OnEnable () {
             cbs = target as ContinuousBezierSpline;
+            // selectionIndex = -1;
         }
 
-        // void OnSceneGUI () {
+        bool SelectionIndexIsValid () {
+            return !(selectionIndex < 0 || selectionIndex >= cbs.PointCount);
+        }
 
-        // }
+        void OnSceneGUI () {
+            if(!SelectionIndexIsValid() || !cbs.showHandles){
+                return;
+            }
+            var point = cbs[selectionIndex];
+            cbs.WorldPoints(point, out var wPos, out var wHFwd, out var wHBwd);
+            EditorGUI.BeginChangeCheck();
+            Vector3 newWPos = Handles.PositionHandle(wPos, Quaternion.identity);
+            Vector3 newWHandleFwd = Handles.PositionHandle(wHFwd, Quaternion.identity);
+            Vector3 newWHandleBwd = Handles.PositionHandle(wHBwd, Quaternion.identity);
+            if(EditorGUI.EndChangeCheck()){
+                Undo.RecordObject(cbs, "Change Bezier Point");
+                if(newWPos != wPos){
+                    point.pos = cbs.LocalPointPos(newWPos);
+                }else if(newWHandleFwd != wHFwd){
+                    point.handleFwd = cbs.PointSpaceHandlePos(point, newWHandleFwd);
+                }else if(newWHandleBwd != wHBwd){
+                    point.handleBwd = cbs.PointSpaceHandlePos(point, newWHandleBwd);
+                }else{
+                    Debug.Log("wat`?");
+                }
+            }
+        }
 
         public override void OnInspectorGUI () {
             // GUI.enabled = false;

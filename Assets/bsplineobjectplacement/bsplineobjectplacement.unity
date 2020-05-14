@@ -6919,7 +6919,6 @@ MonoBehaviour:
   showHandles: 1
   alwaysDrawGizmos: 1
   gizmoSize: 0.5
-  selectedPoint: 0
   points:
   - m_type: 0
     m_pos: {x: -7, y: 0, z: -4}
@@ -6929,6 +6928,7 @@ MonoBehaviour:
     m_pos: {x: 7, y: -0, z: 4}
     m_handleFwd: {x: 5, y: 0, z: 10}
     m_handleBwd: {x: -5, y: -0, z: -10}
+  selectionIndex: 0
 --- !u!4 &759616069
 Transform:
   m_ObjectHideFlags: 0
