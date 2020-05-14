@@ -14,7 +14,6 @@ namespace SplineTools {
         public override int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION => 16;
 
         [SerializeField] List<Point> points;
-        public int selectionIndex;
 
         public int PointCount => points.Count;
         public int SegmentCount => PointCount - 1;
@@ -41,18 +40,116 @@ namespace SplineTools {
             }
         }
 
-        [ContextMenu("DEBUGINSERT")]
-        public void DEBUGINSERT () {
-            InsertAfter(selectionIndex);
+        protected override void Reset () {
+            base.Reset();
+            points.Clear();
+            ValidatePointsList();
         }
 
-        public void InsertAfter (int insertIndex) {
-            if(insertIndex < 0){
-                Debug.LogError("Negative indices are not allowed!");
-                return;
+        void OnValidate () {
+            ValidatePointsList();
+        }
+
+        protected override bool PointsChangedSinceLastRecalculation()
+        {
+            // throw new System.NotImplementedException();  // TODO
+            return true;
+        }
+
+        private void GetProperTAndPoints (float inputT, out float outputT, out Point outP1, out Point outP2) {
+            var fullT = inputT * SegmentCount;
+            var floor = Mathf.FloorToInt(fullT);
+            var ceil = floor + 1;
+            if(floor < 0){
+                floor = 0;
+                ceil = 1;
             }
-            if(insertIndex >= PointCount){
+            if(ceil > SegmentCount){
+                ceil = SegmentCount;
+                floor = SegmentCount - 1;
+            }
+            outputT = fullT - floor;
+            outP1 = points[floor];
+            outP2 = points[ceil];
+        }
+
+        public override Vector3 BezierPoint (float t) {
+            GetProperTAndPoints(t, out var localT, out var point1, out var point2);
+            WorldPoints(point1, out var p0, out var p1, out _);
+            WorldPoints(point2, out var p3, out _, out var p2);
+            return CubicBezierSpline.BezierPoint(p0, p1, p2, p3, localT);
+        }
+
+        public override Vector3 BezierDerivative (float t) {
+            GetProperTAndPoints(t, out var localT, out var point1, out var point2);
+            WorldPoints(point1, out var p0, out var p1, out _);
+            WorldPoints(point2, out var p3, out _, out var p2);
+            return CubicBezierSpline.BezierDerivative(p0, p1, p2, p3, localT);
+        }
+
+        public override Vector3 SecondDerivative (float t) {
+            GetProperTAndPoints(t, out var localT, out var point1, out var point2);
+            WorldPoints(point1, out var p0, out var p1, out _);
+            WorldPoints(point2, out var p3, out _, out var p2);
+            return CubicBezierSpline.SecondDerivative(p0, p1, p2, p3, localT);
+        }
+
+#region Gizmos
+
+        protected override IEnumerable<Vector3> GetWorldSpaceEndPoints () {
+            foreach(var point in points){
+                WorldPoints(point, out var p, out _, out _);
+                yield return p;
+            }
+        }
+
+        protected override IEnumerable<Vector3> GetWorldSpaceControlPoints () {
+            foreach(var point in points){
+                WorldPoints(point, out _, out var h1, out var h2);
+                yield return h1;
+                yield return h2;
+            }
+        }
+
+        protected override IEnumerable<(Vector3, Vector3)> GetWorldSpaceHandleLines () {
+            foreach(var point in points){
+                WorldPoints(point, out var p, out var h1, out var h2);
+                yield return (p, h1);
+                yield return (p, h2);
+            }
+        }
+
+#endregion
+
+        public void WorldPoints (Point point, out Vector3 wPos, out Vector3 wHFwd, out Vector3 wHBwd) {
+            wPos = transform.TransformPoint(point.pos);
+            wHFwd = wPos + transform.TransformVector(point.handleFwd);
+            wHBwd = wPos + transform.TransformVector(point.handleBwd);
+        }
+
+        public Vector3 LocalPointPos (Vector3 wPos) {
+            return transform.InverseTransformPoint(wPos);
+        }
+
+        public Vector3 PointSpaceHandlePos (Point point, Vector3 wHandlePos) {
+            return transform.InverseTransformVector(wHandlePos - transform.TransformPoint(point.pos));
+        }
+
+        private bool IndexCheckAndComplain (int inputIndex) {
+            if(inputIndex < 0){
+                Debug.LogError("Negative indices are not allowed!");
+                return false;
+            }
+            if(inputIndex >= PointCount){
                 Debug.LogError("Index out of bounds!");
+                return false;
+            }
+            return true;
+        }
+
+    // TODO better point interpolation (quadratic spline -> cubic spline -> points) ?
+        public void AddPointAfter (int insertIndex) {
+            if(!IndexCheckAndComplain(insertIndex)){
                 return;
             }
             Undo.RecordObject(this, "Insert new point");
@@ -85,78 +182,45 @@ namespace SplineTools {
             }
         }
 
-        protected override void Reset () {
-            base.Reset();
-            points.Clear();
+    // TODO untested
+        public void DeletePoint (int deleteIndex) {
+            if(!IndexCheckAndComplain(deleteIndex)){
+                return;
+            }
+            Undo.RecordObject(this, "Delete point");
+            points.RemoveAt(deleteIndex);
             ValidatePointsList();
         }
 
-        void OnValidate () {
-            ValidatePointsList();
-        }
-
-        protected override bool PointsChangedSinceLastRecalculation()
-        {
-            // throw new System.NotImplementedException();
-            return true;
-        }
-
-        private void GetProperTAndPoints (float inputT, out float outputT, out Point outP1, out Point outP2) {
-            var fullT = inputT * SegmentCount;
-            var floor = Mathf.FloorToInt(fullT);
-            var ceil = floor + 1;
-            if(floor < 0){
-                floor = 0;
-                ceil = 1;
+    // TODO untested
+        public void MovePointIndex (int startIndex, int delta) {
+            if(!IndexCheckAndComplain(startIndex)){
+                return;
             }
-            if(ceil > SegmentCount){
-                ceil = SegmentCount;
-                floor = SegmentCount - 1;
-            }
-            outputT = fullT - floor;
-            outP1 = points[floor];
-            outP2 = points[ceil];
+            Undo.RecordObject(this, "Move point index");
+            int endIndex = Mathf.Min(PointCount - 1, Mathf.Max(0, startIndex + delta));
+            var movePoint = points[startIndex];
+            points.RemoveAt(startIndex);
+            points.Insert(endIndex, movePoint);
         }
 
-        public void WorldPoints (Point point, out Vector3 wPos, out Vector3 wHFwd, out Vector3 wHBwd) {
-            wPos = transform.TransformPoint(point.pos);
-            wHFwd = wPos + transform.TransformVector(point.handleFwd);
-            wHBwd = wPos + transform.TransformVector(point.handleBwd);
-        }
-
-        public Vector3 LocalPointPos (Vector3 wPos) {
-            return transform.InverseTransformPoint(wPos);
-        }
-
-        public Vector3 PointSpaceHandlePos (Point point, Vector3 wHandlePos) {
-            return transform.InverseTransformVector(wHandlePos - transform.TransformPoint(point.pos));
-        }
-
-        public override Vector3 BezierPoint (float t) {
-            GetProperTAndPoints(t, out var localT, out var point1, out var point2);
-            WorldPoints(point1, out var p0, out var p1, out _);
-            WorldPoints(point2, out var p3, out _, out var p2);
-            return CubicBezierSpline.BezierPoint(p0, p1, p2, p3, localT);
-        }
-
-        public override Vector3 BezierDerivative (float t) {
-            GetProperTAndPoints(t, out var localT, out var point1, out var point2);
-            WorldPoints(point1, out var p0, out var p1, out _);
-            WorldPoints(point2, out var p3, out _, out var p2);
-            return CubicBezierSpline.BezierDerivative(p0, p1, p2, p3, localT);
-        }
-
-        public override Vector3 SecondDerivative (float t) {
-            GetProperTAndPoints(t, out var localT, out var point1, out var point2);
-            WorldPoints(point1, out var p0, out var p1, out _);
-            WorldPoints(point2, out var p3, out _, out var p2);
-            return CubicBezierSpline.SecondDerivative(p0, p1, p2, p3, localT);
-        }
-
+    // TODO untested
         public override void ReverseDirection () {
-            // throw new System.NotImplementedException();
+            Undo.RecordObject(this, "Reverse spline direction");
+            var newPoints = new List<Point>();
+            for(int i=PointCount-1; i>=0; i--){
+                var origPoint = points[i];
+                var newPoint = new Point(
+                    type: origPoint.type,
+                    pos: origPoint.pos,
+                    handleFwd: origPoint.handleBwd,
+                    handleBwd: origPoint.handleFwd
+                );
+                newPoints.Add(newPoint);
+            }
         }
 
+    // TODO untested
         public override void ApplyScale () {
             if(transform.localScale.Equals(Vector3.one)){
                 return;
@@ -176,30 +240,6 @@ namespace SplineTools {
                 point.pos = transform.InverseTransformPoint(wPoints[i].Item1);
                 point.handleFwd = transform.InverseTransformPoint(wPoints[i].Item2);
                 point.handleBwd = transform.InverseTransformPoint(wPoints[i].Item3);
-            }
-        }
-
-        protected override IEnumerable<Vector3> GetWorldSpaceEndPoints () {
-            WorldPoints(points[0], out var p0, out _, out _);
-            WorldPoints(points[PointCount-1], out var p1, out _, out _);
-            yield return p0;
-            yield return p1;
-        }
-
-        protected override IEnumerable<Vector3> GetWorldSpaceControlPoints () {
-            foreach(var point in points){
-                WorldPoints(point, out var p, out var h1, out var h2);
-                yield return p;
-                yield return h1;
-                yield return h2;
-            }
-        }
-
-        protected override IEnumerable<(Vector3, Vector3)> GetWorldSpaceHandleLines () {
-            foreach(var point in points){
-                WorldPoints(point, out var p, out var h1, out var h2);
-                yield return (p, h1);
-                yield return (p, h2);
             }
         }
 
@@ -310,11 +350,11 @@ namespace SplineTools {
 
         ContinuousBezierSpline cbs;
 
-        int selectionIndex => cbs.selectionIndex;
+        int selectionIndex;
 
         void OnEnable () {
             cbs = target as ContinuousBezierSpline;
-            // selectionIndex = -1;
+            selectionIndex = -1;
         }
 
         bool SelectionIndexIsValid () {
@@ -346,10 +386,19 @@ namespace SplineTools {
         }
 
         public override void OnInspectorGUI () {
-            // GUI.enabled = false;
-            // EditorGUILayout.ObjectField("Script:", MonoScript.FromMonoBehaviour(cbs), typeof(ContinuousBezierSpline), false);
-            // GUI.enabled = true;
-            DrawDefaultInspector();
+            // DrawDefaultInspector();
+
+            serializedObject.Update();
+
+            GUI.enabled = false;
+            EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(cbs), typeof(ContinuousBezierSpline), false);
+            GUI.enabled = true;
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("showHandles"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("alwaysDrawGizmos"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("gizmoSize"));
+
+            serializedObject.ApplyModifiedProperties();
         }
 
     }
