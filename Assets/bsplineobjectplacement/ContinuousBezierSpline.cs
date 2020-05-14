@@ -13,10 +13,11 @@ namespace SplineTools {
         public override int DEFAULT_NEXT_T_ITERATIONS => 16;
         public override int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION => 16;
 
+        [SerializeField] public bool cyclic;
         [SerializeField] List<Point> points;
 
         public int PointCount => points.Count;
-        public int SegmentCount => PointCount - 1;
+        public int SegmentCount => PointCount - (cyclic ? 0 : 1);
         public Point this[int index] => points[index];
 
         private Point DefaultPoint () {
@@ -60,17 +61,24 @@ namespace SplineTools {
             var fullT = inputT * SegmentCount;
             var floor = Mathf.FloorToInt(fullT);
             var ceil = floor + 1;
-            if(floor < 0){
-                floor = 0;
-                ceil = 1;
-            }
-            if(ceil > SegmentCount){
-                ceil = SegmentCount;
-                floor = SegmentCount - 1;
+            int p1, p2;
+            if(cyclic){
+                p1 = floor % SegmentCount;
+                p2 = ceil % SegmentCount;
+            }else{
+                if(floor < 0){
+                    floor = 0;
+                    ceil = 1;
+                }else if(ceil > SegmentCount){
+                    ceil = SegmentCount;
+                    floor = SegmentCount - 1;
+                }
+                p1 = floor;
+                p2 = ceil;
             }
             outputT = fullT - floor;
-            outP1 = points[floor];
-            outP2 = points[ceil];
+            outP1 = points[p1];
+            outP2 = points[p2];
         }
 
         public override Vector3 BezierPoint (float t) {
@@ -147,7 +155,6 @@ namespace SplineTools {
             return true;
         }
 
-    // TODO better point interpolation (quadratic spline -> cubic spline -> points) ?
         public void AddPointAfter (int insertIndex) {
             if(!IndexCheckAndComplain(insertIndex)){
                 return;
@@ -182,7 +189,6 @@ namespace SplineTools {
             }
         }
 
-    // TODO untested
         public void DeletePoint (int deleteIndex) {
             if(!IndexCheckAndComplain(deleteIndex)){
                 return;
@@ -192,7 +198,6 @@ namespace SplineTools {
             ValidatePointsList();
         }
 
-    // TODO untested
         public void MovePointIndex (int startIndex, int delta) {
             if(!IndexCheckAndComplain(startIndex)){
                 return;
@@ -348,13 +353,14 @@ namespace SplineTools {
     [CustomEditor(typeof(ContinuousBezierSpline))]
     public class ContinuousBezierSplineEditor : Editor {
 
-        ContinuousBezierSpline cbs;
+        private const int DESELECTED_INDEX = -1;
 
+        ContinuousBezierSpline cbs;
         int selectionIndex;
 
         void OnEnable () {
             cbs = target as ContinuousBezierSpline;
-            selectionIndex = -1;
+            selectionIndex = DESELECTED_INDEX;
         }
 
         bool SelectionIndexIsValid () {
@@ -379,8 +385,6 @@ namespace SplineTools {
                     point.handleFwd = cbs.PointSpaceHandlePos(point, newWHandleFwd);
                 }else if(newWHandleBwd != wHBwd){
                     point.handleBwd = cbs.PointSpaceHandlePos(point, newWHandleBwd);
-                }else{
-                    Debug.Log("wat`?");
                 }
             }
         }
@@ -397,6 +401,65 @@ namespace SplineTools {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("showHandles"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("alwaysDrawGizmos"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("gizmoSize"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("cyclic"));
+
+            var pointListSP = serializedObject.FindProperty("points");
+            // EditorGUILayout.PropertyField(pointListSP, true);
+
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label(pointListSP.displayName);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
+            int newSelectionIndex = selectionIndex;
+            int addIndex = DESELECTED_INDEX;
+            int removeIndex = DESELECTED_INDEX;
+            for(int i=0; i<pointListSP.arraySize; i++){
+                var bgCache = GUI.backgroundColor;
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(i.ToString(), GUILayout.Width(24));
+                
+                if(i == selectionIndex){
+                    GUI.backgroundColor = (0.5f * Color.green) + (0.5f * bgCache);
+                    if(GUILayout.Button("Deselect", GUILayout.Width(70))){
+                        newSelectionIndex = DESELECTED_INDEX;
+                    }
+                    GUI.backgroundColor = bgCache;
+                }else{
+                    if(GUILayout.Button("Select", GUILayout.Width(70))){
+                        newSelectionIndex = i;
+                    }
+                }
+                if(GUILayout.Button("<", GUILayout.Width(20))){
+                    cbs.MovePointIndex(i, -1);
+                    newSelectionIndex = Mathf.Clamp(newSelectionIndex - 1, 0, cbs.PointCount - 1);
+                }
+                if(GUILayout.Button(">", GUILayout.Width(20))){
+                    cbs.MovePointIndex(i, 1);
+                    newSelectionIndex = Mathf.Clamp(newSelectionIndex + 1, 0, cbs.PointCount - 1);
+                }
+                if(GUILayout.Button("Insert", GUILayout.Width(50))){
+                    addIndex = i;
+                }
+
+                GUI.backgroundColor = (0.5f * Color.red) + (0.5f * bgCache);
+                if(GUILayout.Button("X", GUILayout.Width(20))){
+                    removeIndex = i;
+                }
+                GUI.backgroundColor = bgCache;
+
+                GUILayout.EndHorizontal();
+                
+            }
+            selectionIndex = newSelectionIndex;
+            if(addIndex != DESELECTED_INDEX){
+                cbs.AddPointAfter(addIndex);
+            }
+            if(removeIndex != DESELECTED_INDEX){
+                cbs.DeletePoint(removeIndex);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }

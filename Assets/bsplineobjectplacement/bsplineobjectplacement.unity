@@ -6918,16 +6918,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showHandles: 1
   alwaysDrawGizmos: 1
-  gizmoSize: 0.45
+  gizmoSize: 0.5
+  cyclic: 0
   points:
   - m_type: 0
     m_pos: {x: -7, y: 0, z: -4}
     m_handleFwd: {x: 5, y: 0, z: 10}
     m_handleBwd: {x: -5, y: -0, z: -10}
-  - m_type: 0
-    m_pos: {x: 0, y: 0, z: -0.000015258789}
-    m_handleFwd: {x: 2.1828206, y: 0, z: -0.48507124}
-    m_handleBwd: {x: -2.1828206, y: -0, z: 0.48507124}
   - m_type: 0
     m_pos: {x: 7, y: -0, z: 4}
     m_handleFwd: {x: 5, y: 0, z: 10}

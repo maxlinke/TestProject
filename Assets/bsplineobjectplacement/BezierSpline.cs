@@ -84,7 +84,11 @@ namespace SplineTools {
                 float t = 0f;
                 onStep(BezierPoint(t));
                 int i = 0;                      // crash prevention.
-                while(t < 1f && i < 9000){
+                while(t < 1f){
+                    if(i > 9000){
+                        Debug.LogWarning("Spline draw loop limit reached, what's going on?");
+                        break;
+                    }
                     t = Mathf.Clamp01(NextTFromEuclidianDistance(t, stepSize, 10, l));
                     onStep(BezierPoint(t));
                     i++;
