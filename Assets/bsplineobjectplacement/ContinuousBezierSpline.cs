@@ -209,7 +209,6 @@ namespace SplineTools {
             points.Insert(endIndex, movePoint);
         }
 
-    // TODO untested
         public override void ReverseDirection () {
             Undo.RecordObject(this, "Reverse spline direction");
             var newPoints = new List<Point>();
@@ -223,9 +222,9 @@ namespace SplineTools {
                 );
                 newPoints.Add(newPoint);
             }
+            this.points = newPoints;
         }
 
-    // TODO untested
         public override void ApplyScale () {
             if(transform.localScale.Equals(Vector3.one)){
                 return;
@@ -352,10 +351,12 @@ namespace SplineTools {
         private const int DESELECTED_INDEX = -1;
 
         ContinuousBezierSpline cbs;
+        GUIStyle textStyle;
         int selectionIndex;
 
         void OnEnable () {
             cbs = target as ContinuousBezierSpline;
+            textStyle = BezierSpline.GetHandlesTextStyle();
             selectionIndex = DESELECTED_INDEX;
         }
 
@@ -364,24 +365,31 @@ namespace SplineTools {
         }
 
         void OnSceneGUI () {
-            if(!SelectionIndexIsValid() || !cbs.showHandles){
+            if(!SelectionIndexIsValid() || !(cbs.showHandles || cbs.showLabels)){
                 return;
             }
             var point = cbs[selectionIndex];
             cbs.WorldPoints(point, out var wPos, out var wHFwd, out var wHBwd);
-            EditorGUI.BeginChangeCheck();
-            Vector3 newWPos = Handles.PositionHandle(wPos, Quaternion.identity);
-            Vector3 newWHandleFwd = Handles.PositionHandle(wHFwd, Quaternion.identity);
-            Vector3 newWHandleBwd = Handles.PositionHandle(wHBwd, Quaternion.identity);
-            if(EditorGUI.EndChangeCheck()){
-                Undo.RecordObject(cbs, "Change Bezier Point");
-                if(newWPos != wPos){
-                    point.pos = cbs.LocalPointPos(newWPos);
-                }else if(newWHandleFwd != wHFwd){
-                    point.handleFwd = cbs.PointSpaceHandlePos(point, newWHandleFwd);
-                }else if(newWHandleBwd != wHBwd){
-                    point.handleBwd = cbs.PointSpaceHandlePos(point, newWHandleBwd);
+            if(cbs.showHandles){
+                EditorGUI.BeginChangeCheck();
+                Vector3 newWPos = Handles.PositionHandle(wPos, Quaternion.identity);
+                Vector3 newWHandleFwd = Handles.PositionHandle(wHFwd, Quaternion.identity);
+                Vector3 newWHandleBwd = Handles.PositionHandle(wHBwd, Quaternion.identity);
+                if(EditorGUI.EndChangeCheck()){
+                    Undo.RecordObject(cbs, "Change Bezier Point");
+                    if(newWPos != wPos){
+                        point.pos = cbs.LocalPointPos(newWPos);
+                    }else if(newWHandleFwd != wHFwd){
+                        point.handleFwd = cbs.PointSpaceHandlePos(point, newWHandleFwd);
+                    }else if(newWHandleBwd != wHBwd){
+                        point.handleBwd = cbs.PointSpaceHandlePos(point, newWHandleBwd);
+                    }
                 }
+            }
+            if(cbs.showLabels){
+                Handles.Label(wPos, $"P{selectionIndex}", textStyle);
+                Handles.Label(wHFwd, $"P{selectionIndex}fwd", textStyle);
+                Handles.Label(wHBwd, $"P{selectionIndex}bwd", textStyle);
             }
         }
 
@@ -394,6 +402,7 @@ namespace SplineTools {
             EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(cbs), typeof(ContinuousBezierSpline), false);
             GUI.enabled = true;
 
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("showLabels"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("showHandles"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("alwaysDrawGizmos"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("gizmoSize"));
@@ -443,11 +452,17 @@ namespace SplineTools {
                     }
                     if(GUILayout.Button("Insert", GUILayout.Width(50))){
                         addIndex = i;
+                        if(selectionIndex != DESELECTED_INDEX){
+                            newSelectionIndex = addIndex + 1;
+                        }
                     }
                     GUILayout.FlexibleSpace();
                     GUI.backgroundColor = (0.25f * Color.red) + (0.75f * bgCache);
                     if(GUILayout.Button("Delete", GUILayout.Width(50))){
                         removeIndex = i;
+                        if(selectionIndex != DESELECTED_INDEX){
+                            newSelectionIndex = Mathf.Max(0, removeIndex - 1);
+                        }
                     }
                     GUI.backgroundColor = bgCache;
                     GUILayout.EndHorizontal();
@@ -476,15 +491,9 @@ namespace SplineTools {
             selectionIndex = newSelectionIndex;
             if(addIndex != DESELECTED_INDEX){
                 cbs.AddPointAfter(addIndex);
-                if(selectionIndex != DESELECTED_INDEX){
-                    selectionIndex = addIndex + 1;
-                }
             }
             if(removeIndex != DESELECTED_INDEX){
                 cbs.DeletePoint(removeIndex);
-                if(selectionIndex != DESELECTED_INDEX){
-                    selectionIndex = Mathf.Max(0, removeIndex - 1);
-                }
             }
 
             serializedObject.ApplyModifiedProperties();

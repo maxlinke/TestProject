@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace SplineTools {
 
@@ -11,7 +8,13 @@ namespace SplineTools {
         public const float MIN_GIZMO_SIZE = 0.1f;
         public const float MAX_GIZMO_SIZE = 10f;
 
-        [SerializeField] public bool showHandles;
+        private const int GUI_HANDLES_FONT_SIZE = 12;
+        private static Color GUI_HANDLES_TEXT_BACKGROUND => new Color(1, 1, 1, 0.5f);
+        private static Color GUI_HANDLES_TEXT => Color.black;
+        private static Texture2D GUI_HANDLES_BACKGROUND_TEX;
+
+        [SerializeField] public bool showLabels = true;
+        [SerializeField] public bool showHandles = true;
         [SerializeField] public bool alwaysDrawGizmos;
         [SerializeField, Range(MIN_GIZMO_SIZE, MAX_GIZMO_SIZE)] public float gizmoSize;
 
@@ -64,7 +67,7 @@ namespace SplineTools {
 
         protected abstract IEnumerable<(Vector3, Vector3)> GetWorldSpaceHandleLines ();
 
-        protected Color GetGizmoColor () {
+        public Color GetGizmoColor () {
             int hash = 0;
             foreach(var ch in gameObject.name){
                 hash += 17 * ch;
@@ -76,6 +79,34 @@ namespace SplineTools {
             float value = (float)(hash % 70) / 70;
             value = 0.667f + 0.333f * value;
             return Color.HSVToRGB(hue, saturation, value);
+        }
+
+        public static GUIStyle GetHandlesTextStyle () {
+            var output = new GUIStyle();
+            output.fontSize = GUI_HANDLES_FONT_SIZE;
+            if(GUI_HANDLES_BACKGROUND_TEX == null){ 
+                var bgTex = new Texture2D(4, 4);
+                var cols = new Color[bgTex.width * bgTex.height];
+                for(int j=0; j<bgTex.height; j++){
+                    for(int i=0; i<bgTex.width; i++){
+                        int pos = j * bgTex.height + i;
+                        cols[pos] = GUI_HANDLES_TEXT_BACKGROUND;
+                        if(i == 0 || j == 0 || i == bgTex.width-1 || j == bgTex.height-1){
+                            cols[pos].a = 0;
+                        }
+                    }
+                }
+                bgTex.SetPixels(cols);
+                bgTex.Apply();
+                GUI_HANDLES_BACKGROUND_TEX = bgTex;
+            }
+            output.normal.background = GUI_HANDLES_BACKGROUND_TEX;
+            output.normal.textColor = GUI_HANDLES_TEXT;
+            var off = new RectOffset();
+            off.bottom = off.left = off.right = off.top = 5;
+            output.padding = off;
+            output.alignment = TextAnchor.MiddleCenter;
+            return output;
         }
 
         void GizmoLine (float stepSize, System.Action<Vector3> onStep) {
