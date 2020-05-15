@@ -55,7 +55,7 @@ namespace SplineTools{
             Material mat;
             switch(outputType){
                 case OutputType.ORDERED:
-                    po = objects[nextIndex];
+                    po = occurenceList[nextIndex];
                     mat = po.RandomMaterial(rng);
                     break;
                 case OutputType.RANDOM:
@@ -93,7 +93,7 @@ namespace SplineTools{
                     return null;
             }
             var output = InstantiatePrefabAndMeasureSize(po.Prefab, mat, measureAxis, po.UseBoxColliderForSpacing);
-            nextIndex = (nextIndex + 1) % ObjectCount;
+            nextIndex = (nextIndex + 1) % occurenceList.Count;
             lastPO = po;
             lastMat = mat;
             return output;
