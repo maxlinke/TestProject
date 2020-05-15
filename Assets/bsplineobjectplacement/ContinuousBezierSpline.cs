@@ -498,21 +498,41 @@ namespace SplineTools {
 
                 void Body () {
                     var pointSP = pointListSP.GetArrayElementAtIndex(i);
-                    EditorGUI.BeginChangeCheck();
                     var typeProp = pointSP.FindPropertyRelative("m_type");
                     var posProp = pointSP.FindPropertyRelative("m_pos");
                     var hFwdProp = pointSP.FindPropertyRelative("m_handleFwd");
                     var hBwdProp = pointSP.FindPropertyRelative("m_handleBwd");
-                    InsetPropField(20, typeProp);   // TODO won't properly update the handles
-                    InsetPropField(20, posProp);    // i.e., going from broken to smooth won't align the handles
-                    InsetPropField(20, hFwdProp);   // and modifying one handle in smooth mode won't adjust the other one
-                    InsetPropField(20, hBwdProp);   // until one does the modifications in the scene view
 
-                    void InsetPropField (float inset, SerializedProperty prop) {
+                    InsetPropField(typeProp, () => {
+                        EditorGUI.BeginChangeCheck();
+                        var origType = (ContinuousBezierSpline.Point.Type)(typeProp.enumValueIndex);
+                        var newType = (ContinuousBezierSpline.Point.Type)EditorGUILayout.EnumPopup(typeProp.displayName, origType);
+                        if(EditorGUI.EndChangeCheck()){
+                            Undo.RecordObject(cbs, "Changed point type");
+                            cbs[i].type = newType;
+                        }
+                    });
+
+                    InsetVector3Field(posProp, posProp.vector3Value, (newPos) => {cbs[i].pos = newPos;});
+                    InsetVector3Field(hFwdProp, hFwdProp.vector3Value, (newFwd) => {cbs[i].handleFwd = newFwd;});
+                    InsetVector3Field(hBwdProp, hBwdProp.vector3Value, (newBwd) => {cbs[i].handleBwd = newBwd;});
+
+                    void InsetPropField (SerializedProperty prop, System.Action drawContent) {
                         GUILayout.BeginHorizontal();
-                        GUILayout.Label(string.Empty, GUILayout.Width(inset));
-                        EditorGUILayout.PropertyField(prop);
+                        GUILayout.Label(string.Empty, GUILayout.Width(20));
+                        drawContent();
                         GUILayout.EndHorizontal();
+                    }
+
+                    void InsetVector3Field (SerializedProperty prop, Vector3 origValue, System.Action<Vector3> applyNewValue) {
+                        InsetPropField(prop, () => {
+                            EditorGUI.BeginChangeCheck();
+                            var newValue = EditorGUILayout.Vector3Field(prop.displayName, origValue);
+                            if(EditorGUI.EndChangeCheck()){
+                                Undo.RecordObject(cbs, "Changed point vector");
+                                applyNewValue(newValue);
+                            }
+                        });
                     }
                 }
             }
