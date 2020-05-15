@@ -8,5 +8,7 @@ public class BirdBoidSettings : ScriptableObject {
     [SerializeField] TerrainCollider ground;
     [SerializeField] float upperFlightCeiling;
 
+    
+
 	
 }
