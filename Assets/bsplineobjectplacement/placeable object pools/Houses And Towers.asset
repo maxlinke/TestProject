@@ -18,36 +18,36 @@ MonoBehaviour:
   - prefab: {fileID: 4446828546740407144, guid: d53d7927d17aa8b4f8d5ca7632814990,
       type: 3}
     occurences: 7
+    useBoxColliderForSpacing: 0
     materials:
     - {fileID: 2100000, guid: badbc2e3bd3e325449f36fb605dc1924, type: 2}
     - {fileID: 2100000, guid: 4ba6fd1103a4cfd4d918a30e3d9a1111, type: 2}
     - {fileID: 2100000, guid: e27eebddd4e2fa04b98b457fcd5f5b5c, type: 2}
     - {fileID: 2100000, guid: 4b3f1479a7f4bf84e80ee2242ba26b05, type: 2}
     - {fileID: 2100000, guid: 67853cdab5ad2cb4ba32d83c0dec4d7c, type: 2}
-    useBoxColliderForSpacing: 0
   - prefab: {fileID: 7762986431524703118, guid: 56639b458cbb3094d97ef857aafef8e2,
       type: 3}
     occurences: 7
+    useBoxColliderForSpacing: 0
     materials:
     - {fileID: 2100000, guid: 1d721299359bdaf4cbfcd5ba94891827, type: 2}
     - {fileID: 2100000, guid: e27eebddd4e2fa04b98b457fcd5f5b5c, type: 2}
     - {fileID: 2100000, guid: badbc2e3bd3e325449f36fb605dc1924, type: 2}
-    useBoxColliderForSpacing: 0
   - prefab: {fileID: 234873939955978475, guid: fee3d7176e3884c4b989fd452748afdc, type: 3}
     occurences: 3
-    materials: []
     useBoxColliderForSpacing: 0
+    materials: []
   - prefab: {fileID: 847374953927684765, guid: 21cfaad44a4252e4dafb2ec26b3631e4, type: 3}
     occurences: 4
+    useBoxColliderForSpacing: 0
     materials:
     - {fileID: 2100000, guid: 1772881f9dc32c04da43428de1871507, type: 2}
     - {fileID: 2100000, guid: e27eebddd4e2fa04b98b457fcd5f5b5c, type: 2}
     - {fileID: 2100000, guid: 1d721299359bdaf4cbfcd5ba94891827, type: 2}
     - {fileID: 2100000, guid: 0c7d3b930ecd7434c92155e741b7bc78, type: 2}
-    useBoxColliderForSpacing: 0
   - prefab: {fileID: 5575301443482430368, guid: 19a0712ed4f8bb24d86c7a4f524705f3,
       type: 3}
     occurences: 1
+    useBoxColliderForSpacing: 1
     materials:
     - {fileID: 2100000, guid: f0aa44db06ecdd647958ed4ab380c8fc, type: 2}
-    useBoxColliderForSpacing: 1

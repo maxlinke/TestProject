@@ -17,23 +17,23 @@ MonoBehaviour:
   objects:
   - prefab: {fileID: 5575301443482430368, guid: 19a0712ed4f8bb24d86c7a4f524705f3,
       type: 3}
-    occurences: 0
-    materials: []
+    occurences: 1
     useBoxColliderForSpacing: 1
+    materials: []
   - prefab: {fileID: 1747480826351851798, guid: 7d2d2ab8e93e47b4bac184ca1855e893,
       type: 3}
-    occurences: 0
-    materials: []
+    occurences: 1
     useBoxColliderForSpacing: 0
+    materials: []
   - prefab: {fileID: 8489493026214054109, guid: 57fc5d179e7b8bc4c85edada19d1b87d,
       type: 3}
-    occurences: 0
+    occurences: 1
+    useBoxColliderForSpacing: 0
     materials:
     - {fileID: 2100000, guid: 6c4f4a68ee594264d84882f9f29b57a1, type: 2}
-    useBoxColliderForSpacing: 0
   - prefab: {fileID: 8489493026214054109, guid: 57fc5d179e7b8bc4c85edada19d1b87d,
       type: 3}
-    occurences: 0
+    occurences: 1
+    useBoxColliderForSpacing: 0
     materials:
     - {fileID: 2100000, guid: 69193c5351a802e47bbd3bf996f43281, type: 2}
-    useBoxColliderForSpacing: 0
