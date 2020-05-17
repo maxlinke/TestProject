@@ -245,7 +245,22 @@ namespace SplineTools {
         public override void ReverseDirection () {
             Undo.RecordObject(this, "Reverse spline direction");
             var newPoints = new List<Point>();
-            for(int i=PointCount-1; i>=0; i--){
+            int loopStart, loopEnd;
+            if(cyclic){
+                var startPoint = points[0];
+                newPoints.Add(new Point(
+                    type: startPoint.type,
+                    pos: startPoint.pos,
+                    handleFwd: startPoint.handleBwd,
+                    handleBwd: startPoint.handleFwd
+                ));
+                loopStart = PointCount-1;
+                loopEnd = 1;
+            }else{
+                loopStart = PointCount-1;
+                loopEnd = 0;
+            }
+            for(int i=loopStart; i>=loopEnd; i--){
                 var origPoint = points[i];
                 var newPoint = new Point(
                     type: origPoint.type,
