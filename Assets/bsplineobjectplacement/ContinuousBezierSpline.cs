@@ -273,26 +273,36 @@ namespace SplineTools {
             this.points = newPoints;
         }
 
+        void ChangeTransformButKeepPoints (System.Action<Vector3> changeTransform) {
+            var wPoints = new List<(Vector3, Vector3, Vector3)>();
+            var pointSum = Vector3.zero;
+            foreach(var point in points){
+                WorldPoints(point, out var wPos, out var wHFwd, out var wHBwd);
+                wPoints.Add((wPos, wHFwd, wHBwd));
+                pointSum += wPos;
+            }
+            changeTransform(pointSum);
+            for(int i=0; i<PointCount; i++){
+                var point = points[i];
+                point.pos = LocalPointPos(wPoints[i].Item1);
+                point.handleFwd = PointSpaceHandlePos(point, wPoints[i].Item2);
+                point.handleBwd = PointSpaceHandlePos(point, wPoints[i].Item3);
+            }
+        }
+
         public override void ApplyScale () {
             if(transform.localScale.Equals(Vector3.one)){
                 return;
             }
             Undo.RecordObject(this.transform, "Apply spline scale");
             Undo.RecordObject(this, "Apply spline scale");
-            var wPoints = new List<(Vector3, Vector3, Vector3)>();
-            foreach(var point in points){
-                var wPos = transform.TransformPoint(point.pos);
-                var wFwd = transform.TransformPoint(point.handleFwd);
-                var wBwd = transform.TransformPoint(point.handleBwd);
-                wPoints.Add((wPos, wFwd, wBwd));
-            }
-            this.transform.localScale = Vector3.one;
-            for(int i=0; i<PointCount; i++){
-                var point = points[i];
-                point.pos = transform.InverseTransformPoint(wPoints[i].Item1);
-                point.handleFwd = transform.InverseTransformPoint(wPoints[i].Item2);
-                point.handleBwd = transform.InverseTransformPoint(wPoints[i].Item3);
-            }
+            ChangeTransformButKeepPoints((ps) => {this.transform.localScale = Vector3.one;});
+        }
+
+        public override void MovePositionToAveragePoint () {
+            Undo.RecordObject(this.transform, "Move position to average point");
+            Undo.RecordObject(this, "Move position to average point");
+            ChangeTransformButKeepPoints((ps) => {this.transform.position = ps / PointCount;});
         }
 
         [System.Serializable]

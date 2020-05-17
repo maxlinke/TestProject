@@ -46,16 +46,23 @@ namespace SplineTools {
 
         public abstract void ReverseDirection ();
 
-        [ContextMenu("Reverse Direction")]
+        [ContextMenu("Reverse direction")]
         void CMReverseDirection () {
             ReverseDirection();
         }
 
         public abstract void ApplyScale ();
 
-        [ContextMenu("Apply Scale")]
+        [ContextMenu("Apply scale")]
         void CMApplyScale () {
             ApplyScale();
+        }
+
+        public abstract void MovePositionToAveragePoint ();
+
+        [ContextMenu("Move position to average point")]
+        void CMMovePositionToAveragePoint () {
+            MovePositionToAveragePoint();
         }
 
         public float Length { get {

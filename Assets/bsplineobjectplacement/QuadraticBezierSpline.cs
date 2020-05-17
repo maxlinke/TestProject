@@ -79,19 +79,29 @@ namespace SplineTools {
             localP2 = h1Cache;
         }
 
+        void ChangeTransformButKeepPoints (System.Action<Vector3> changeTransform) {
+            var wp0 = p0;
+            var wp1 = p1;
+            var wp2 = p2;
+            changeTransform(wp0 + wp1 + wp2);
+            localP0 = transform.InverseTransformPoint(wp0);
+            localP1 = transform.InverseTransformPoint(wp1);
+            localP2 = transform.InverseTransformPoint(wp2);
+        }
+
         public override void ApplyScale () {
             if(transform.localScale == Vector3.one){
                 return;
             }
             Undo.RecordObject(this.transform, "Apply spline scale");
             Undo.RecordObject(this, "Apply spline scale");
-            var h1wPos = this.p0;
-            var h2wPos = this.p2;
-            var chwPos = this.p1;
-            this.transform.localScale = Vector3.one;
-            this.localP0 = transform.InverseTransformPoint(h1wPos);
-            this.localP2 = transform.InverseTransformPoint(h2wPos);
-            this.localP1 = transform.InverseTransformPoint(chwPos);
+            ChangeTransformButKeepPoints((ps) => {this.transform.localScale = Vector3.one;});
+        }
+
+        public override void MovePositionToAveragePoint () {
+            Undo.RecordObject(this.transform, "Move position to average point");
+            Undo.RecordObject(this, "Move position to average point");
+            ChangeTransformButKeepPoints((ps) => {this.transform.position = ps / 3f;});
         }
 
         protected override IEnumerable<(Vector3, float)> GetWorldSpaceEndPoints () {
