@@ -44,6 +44,7 @@ namespace SplineTools {
             bool gotValueToUse = false;
             bool valueToUse = false;
             foreach(var child in GetSplineChildren()){
+                Undo.RecordObject(child, "Change whether to draw gizmos");
                 if(!gotValueToUse){
                     valueToUse = !child.alwaysDrawGizmos;
                     gotValueToUse = true;
@@ -54,6 +55,7 @@ namespace SplineTools {
 
         public void UpdateGizmoSettings () {
             foreach(var child in GetSplineChildren()){
+                Undo.RecordObject(child, "Change gizmo size");
                 child.gizmoSize = gizmoSize;
             }
         }

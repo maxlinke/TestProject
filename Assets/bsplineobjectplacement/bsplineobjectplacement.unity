@@ -7359,7 +7359,7 @@ MonoBehaviour:
   showHandles: 1
   showDirection: 1
   alwaysDrawGizmos: 1
-  gizmoSize: 2.99
+  gizmoSize: 1.76
   localP0: {x: -93.643974, y: -0.0000019073486, z: -72.00418}
   localP1: {x: -48.286034, y: -0.0000019073486, z: 9.486938}
   localP2: {x: -3.9730759, y: -0.0000019073486, z: -50.24402}
