@@ -15,7 +15,7 @@ namespace SplineTools {
         public int SegmentCount => PointCount - (cyclic ? 0 : 1);
         public Point this[int index] => points[index];
         
-        public override int DEFAULT_LENGTH_CALC_ITERATIONS => 100;
+        public override int DEFAULT_LENGTH_CALC_ITERATIONS => 64 * SegmentCount;
         public override int DEFAULT_NEXT_T_ITERATIONS => 16;
         public override int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION => 16;
 

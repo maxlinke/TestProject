@@ -19,7 +19,7 @@ namespace SplineTools {
         public Vector3 p2 => transform.TransformPoint(localP2);
         public Vector3 p3 => transform.TransformPoint(localP3);
 
-        public override int DEFAULT_LENGTH_CALC_ITERATIONS => 100;
+        public override int DEFAULT_LENGTH_CALC_ITERATIONS => 64;
         public override int DEFAULT_NEXT_T_ITERATIONS => 16;
         public override int DEFAULT_NEXT_T_BEZIER_DIST_PRECISION => 16;
 

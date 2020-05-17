@@ -268,7 +268,7 @@ namespace SplineTools {
         }
 
         public float NextTFromBezierDistance (float startT, float desiredDistance) {
-            return NextTFromBezierDistance(startT, desiredDistance);
+            return NextTFromBezierDistance(startT, desiredDistance, DEFAULT_NEXT_T_BEZIER_DIST_PRECISION, DEFAULT_NEXT_T_ITERATIONS);
         }
 
         public float NextTFromBezierDistance (float startT, float desiredDistance, int precision, int iterations) {
