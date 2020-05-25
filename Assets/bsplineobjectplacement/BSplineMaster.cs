@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -10,21 +9,21 @@ namespace SplineTools {
     public class BSplineMaster : MonoBehaviour {
 
         [Header("Gizmo Settings")]
-        [SerializeField, Range(QuadraticBezierSpline.MIN_GIZMO_SIZE, QuadraticBezierSpline.MAX_GIZMO_SIZE)] float gizmoSize;
+        [SerializeField, Range(BezierSpline.MIN_GIZMO_SIZE, BezierSpline.MAX_GIZMO_SIZE)] float gizmoSize = BezierSpline.DEFAULT_GIZMO_SIZE;
 
         [Header("Randomness")]
-        [SerializeField] Vector3 placementRandomness;
-        [SerializeField] float rotationRandomness;
+        [SerializeField] Vector3 placementRandomness = Vector3.zero;
+        [SerializeField] float rotationRandomness = 0f;
 
         [Header("Object Settings")]
-        [SerializeField] ObjectPool objectPool;
-        [SerializeField] float spaceBetweenObjects;
+        [SerializeField] ObjectPool objectPool = default;
+        [SerializeField] float spaceBetweenObjects = 0f;
 
         [Header("Placement Settings")]
-        [SerializeField] BSplineObjectPlacer.DistanceMode distanceMode;
-        [SerializeField] BSplineObjectPlacer.GroundMode groundMode;
-        [SerializeField] Collider groundCollider;
-        [SerializeField] bool noOvershoot;
+        [SerializeField] BSplineObjectPlacer.DistanceMode distanceMode = default;
+        [SerializeField] BSplineObjectPlacer.GroundMode groundMode = default;
+        [SerializeField] Collider groundCollider = default;
+        [SerializeField] bool noOvershoot = true;
 
         IEnumerable<BezierSpline> GetSplineChildren () {
             var children = GetComponentsInChildren<BezierSpline>(true);

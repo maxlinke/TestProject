@@ -10,6 +10,7 @@ namespace SplineTools {
 
         public const float MIN_GIZMO_SIZE = 0.1f;
         public const float MAX_GIZMO_SIZE = 10f;
+        public const float DEFAULT_GIZMO_SIZE = 0.5f;        
 
         private const int GUI_HANDLES_FONT_SIZE = 12;
         private static Color GUI_HANDLES_TEXT_BACKGROUND => new Color(1, 1, 1, 0.5f);
@@ -20,7 +21,7 @@ namespace SplineTools {
         [SerializeField] public bool showHandles = true;
         [SerializeField] public bool showDirection = true;
         [SerializeField] public bool alwaysDrawGizmos = true;
-        [SerializeField, Range(MIN_GIZMO_SIZE, MAX_GIZMO_SIZE)] public float gizmoSize;
+        [SerializeField, Range(MIN_GIZMO_SIZE, MAX_GIZMO_SIZE)] public float gizmoSize = DEFAULT_GIZMO_SIZE;
 
         public abstract int DEFAULT_LENGTH_CALC_ITERATIONS { get; }
         public abstract int DEFAULT_NEXT_T_ITERATIONS { get; }
@@ -34,9 +35,7 @@ namespace SplineTools {
 
         private bool m_drawingGizmosSelected = false;
 
-        protected virtual void Reset () {
-            gizmoSize = 0.5f;
-        }
+        protected virtual void Reset () { }
 
         public abstract Vector3 BezierPoint (float t);
 

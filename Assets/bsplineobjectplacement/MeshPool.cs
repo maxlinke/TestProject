@@ -11,9 +11,9 @@ namespace SplineTools{
 
         private const int MAX_DUPLICATE_AVOIDANCE_ITERATIONS = 32;
 
-        [SerializeField] OutputType outputType;
-        [SerializeField] RandomRepetitionType randomRepetitionType;
-        [SerializeField] MeshPoolObject[] objects;
+        [SerializeField] OutputType outputType = OutputType.ORDERED;
+        [SerializeField] RandomRepetitionType randomRepetitionType = RandomRepetitionType.ALLOW;
+        [SerializeField] MeshPoolObject[] objects = default;
 
         public override int ObjectCount => (objects == null) ? 0 : objects.Length;
         public MeshPoolObject this[int index] => objects[index];
