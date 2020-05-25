@@ -1,16 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.Networking;
 
 public class BoomboxFileLoader : MonoBehaviour {
 
-	[SerializeField]
-	BoomboxControllerScript controllerScript;
-
-	void Start () {
-		
-	}
+	[SerializeField] BoomboxControllerScript controllerScript;
 	
 	void Update () {
 		if(controllerScript.IsInitialized()){
@@ -24,30 +19,58 @@ public class BoomboxFileLoader : MonoBehaviour {
 		FileInfo[] files = new DirectoryInfo(path).GetFiles();
 		foreach(FileInfo info in files){
 			string fileName = info.FullName;
-			if(!IsMetaFile(fileName)){
-				if(IsOggFile(fileName)){
-					StartCoroutine("FileLoader", info);
+			if(!IsFileType(fileName, ".meta")){
+				if(TryGetAudioType(fileName, out var audioType)){
+					StartCoroutine(FileLoader(info, audioType));
 				}
 			}
 		}
 	}
 
-	IEnumerator FileLoader(FileInfo info){
+	IEnumerator FileLoader(FileInfo info, AudioType audioType){
 		string fullFileName = info.FullName;
 		string wwwFileName = "file://" + fullFileName;
-		WWW www = new WWW(wwwFileName);
-		yield return www;
-		AudioClip clip = www.GetAudioClip();
-		clip.name = info.Name;
-		controllerScript.AddAudioClip(clip);
+        var www = UnityWebRequestMultimedia.GetAudioClip(wwwFileName, audioType);
+        yield return www.SendWebRequest();
+        if(www.isNetworkError){
+            Debug.LogError(www.error);
+            yield break;
+        }
+        var clip = DownloadHandlerAudioClip.GetContent(www);
+        if(clip != null){
+            clip.name = info.Name;
+            controllerScript.AddAudioClip(clip);
+        }
 	}
 
-	bool IsMetaFile(string fileName){
-		return fileName.Contains(".meta");
-	}
+    bool IsFileType (string fullFileName, string fileExtension) {
+        try{
+            for(int i=0; i<fileExtension.Length; i++){
+                var fileChar = fullFileName[fullFileName.Length - 1 - i];
+                var extensionChar = fileExtension[fileExtension.Length - 1 - i];
+                if(fileChar != extensionChar){
+                    return false;
+                }
+            }
+        }catch(System.Exception e){
+            Debug.LogError(e);
+            return false;
+        }
+        return true;
+    }
 
-	bool IsOggFile(string fileName){
-		return fileName.Contains(".ogg");
-	}
+    bool TryGetAudioType (string fileName, out AudioType outputAudioType) {
+        outputAudioType = default;
+        if(IsFileType(fileName, ".ogg")){
+            outputAudioType = AudioType.OGGVORBIS;
+        }else if(IsFileType(fileName, ".wav")){
+            outputAudioType = AudioType.WAV;
+        }else if(IsFileType(fileName, ".mp3")){
+            outputAudioType = AudioType.MPEG;
+        }else{
+            return false;
+        }
+        return true;
+    }
 
 }
