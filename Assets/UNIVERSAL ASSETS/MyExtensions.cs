@@ -77,4 +77,8 @@ public static class MyExtensions {
         return Mathf.Min(vec.x, vec.y, vec.z);
     }
 
+    public static Vector3 Abs (this Vector3 vec) {
+        return new Vector3(Mathf.Abs(vec.x), Mathf.Abs(vec.y), Mathf.Abs(vec.z));
+    }
+
 }

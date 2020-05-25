@@ -3,10 +3,14 @@
 using UnityEditor;
 #endif
 
-public class FrameRateSetter : MonoBehaviour {
+public class FrameRateAndTimeScaleSetter : MonoBehaviour {
 
+    [Header("Frame Rate")]
     [SerializeField] int targetFrameRate = 60;
     [SerializeField] bool vSync = false;
+
+    [Header("Time Scale")]
+    [SerializeField] float targetTimeScale = 1;
 
     [RuntimeMethodButton]
     public void SetFrameRate () {
@@ -22,9 +26,19 @@ public class FrameRateSetter : MonoBehaviour {
         QualitySettings.vSyncCount = 0;
     }
 
+    [RuntimeMethodButton]
+    public void SetTimeScale () {
+        Time.timeScale = targetTimeScale;
+    }
+
+    [RuntimeMethodButton]
+    public void NormalizeTimeScale () {
+        Time.timeScale = 1f;
+    }
+
 }
 
 #if UNITY_EDITOR
-[CustomEditor(typeof(FrameRateSetter))]
+[CustomEditor(typeof(FrameRateAndTimeScaleSetter))]
 public class FrameRateSetterEditor : RuntimeMethodButtonEditor {}
 #endif
