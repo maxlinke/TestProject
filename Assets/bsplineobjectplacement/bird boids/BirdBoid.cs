@@ -2,33 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BirdBoid : MonoBehaviour {
+namespace Boids {
 
-    static List<BirdBoid> allBirdBoids;
+    public class BirdBoid : MonoBehaviour {
 
-    void OnEnable () {
-        if(allBirdBoids == null){
-            allBirdBoids = new List<BirdBoid>();
+        static List<BirdBoid> allBirdBoids;
+
+        void OnEnable () {
+            if(allBirdBoids == null){
+                allBirdBoids = new List<BirdBoid>();
+            }
         }
-    }
 
-    // settings for this boird
-    // placer
-    // init with list of ALL others (including this one)
-    // static list of all boirds
+        // settings for this boird
+        // placer
+        // init with list of ALL others (including this one)
+        // static list of all boirds
 
-    // collision avoidance? select colliders only... and only occasionally
+        // collision avoidance? select colliders only... and only occasionally
 
-    // singleton boird util thingy
+        // singleton boird util thingy
 
-    // terrain for ground, height above for lower flight ceiling
+        // terrain for ground, height above for lower flight ceiling
 
-    void Start () {
+        void Start () {
+            
+        }
+
+        void Update () {
+            
+        }
         
     }
 
-    void Update () {
-        
-    }
-	
 }

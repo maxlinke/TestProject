@@ -24113,17 +24113,17 @@ PrefabInstance:
     - target: {fileID: 2672264119880649052, guid: 803fea6116cf1404cbb92745e6a2ed96,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 351.51
+      value: 362.893
       objectReference: {fileID: 0}
     - target: {fileID: 2672264119880649052, guid: 803fea6116cf1404cbb92745e6a2ed96,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 11.54
+      value: 18.51
       objectReference: {fileID: 0}
     - target: {fileID: 2672264119880649052, guid: 803fea6116cf1404cbb92745e6a2ed96,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 254.73
+      value: 268.243
       objectReference: {fileID: 0}
     - target: {fileID: 2672264119880649052, guid: 803fea6116cf1404cbb92745e6a2ed96,
         type: 3}
@@ -24167,14 +24167,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
         type: 3}
-      propertyPath: colliders.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
       propertyPath: boundingVolume
       value: 
       objectReference: {fileID: 1454650130}
+    - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
+        type: 3}
+      propertyPath: groundCollider
+      value: 
+      objectReference: {fileID: 159697811}
     - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
         type: 3}
       propertyPath: colliders.Array.data[0]
@@ -24190,50 +24190,5 @@ PrefabInstance:
       propertyPath: colliders.Array.data[2]
       value: 
       objectReference: {fileID: 1611420236}
-    - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
-      propertyPath: groundCollider
-      value: 
-      objectReference: {fileID: 159697811}
-    - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
-      propertyPath: colAvoidance.minDist
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
-      propertyPath: colAvoidance.maxDist
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
-      propertyPath: groundAvoidance.minDist
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
-      propertyPath: groundAvoidance.maxDist
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 307989438000206928, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
-      propertyPath: groundAvoidance.power
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8225106141642281445, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 8225106141642281445, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8225106141642281445, guid: 803fea6116cf1404cbb92745e6a2ed96,
-        type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.4
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 803fea6116cf1404cbb92745e6a2ed96, type: 3}
