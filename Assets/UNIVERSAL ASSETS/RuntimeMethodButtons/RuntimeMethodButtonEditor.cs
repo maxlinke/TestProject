@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
-using UnityEditor;
 using System.Reflection;
 using System.Collections.Generic;
+
+#if UNITY_EDITOR
+using UnityEditor;
 
 public abstract class RuntimeMethodButtonEditor : Editor {
 
@@ -40,5 +42,7 @@ public abstract class RuntimeMethodButtonEditor : Editor {
             methods = methodList.ToArray();
         }
     }
-	
 }
+#else
+public abstract class RuntimeMethodButtonEditor { }
+#endif

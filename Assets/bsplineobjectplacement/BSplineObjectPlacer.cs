@@ -52,27 +52,27 @@ namespace SplineTools {
         }
 
         public void UpdateSeed (int newSeed) {
-            Undo.RecordObject(this, "Update random seed");
+            BuildSafeUndo.RecordObject(this, "Update random seed");
             this.randomSeed = newSeed;
             ConditionalReplace();
         }
 
         public void UpdateRandomizationSettings (Vector3 newPlacementRandomness,  float newRotationRandomness) {
-            Undo.RecordObject(this, "Update randomization settings");
+            BuildSafeUndo.RecordObject(this, "Update randomization settings");
             this.placementRandomness = newPlacementRandomness;
             this.rotationRandomness = newRotationRandomness;
             ConditionalReplace();
         }
 
         public void UpdateObjectSettings (ObjectPool newPool, float newSpaceBetweenObjects) {
-            Undo.RecordObject(this, "Update object settings");
+            BuildSafeUndo.RecordObject(this, "Update object settings");
             this.objectPool = newPool;
             this.spaceBetweenObjects = newSpaceBetweenObjects;
             ConditionalReplace();
         }
 
         public void UpdatePlacementSettings (DistanceMode newDistanceMode, GroundMode newGroundMode, Collider newGroundCollider, bool newOvershootMode) {
-            Undo.RecordObject(this, "Update placement settings");
+            BuildSafeUndo.RecordObject(this, "Update placement settings");
             this.distanceMode = newDistanceMode;
             this.groundMode = newGroundMode;
             this.groundCollider = newGroundCollider;
@@ -81,7 +81,7 @@ namespace SplineTools {
         }
 
         public void ReverseDirection () {
-            Undo.RecordObject(this, "Reverse Direction");
+            BuildSafeUndo.RecordObject(this, "Reverse Direction");
             if(spline != null){
                 spline.ReverseDirection();
             }
@@ -91,7 +91,7 @@ namespace SplineTools {
         }
 
         public void Rotate90Deg () {
-            Undo.RecordObject(this, "Rotate 90 deg");
+            BuildSafeUndo.RecordObject(this, "Rotate 90 deg");
             universalRotationOffset = Mathf.Repeat(universalRotationOffset + 90f, 360f);
             ConditionalReplace();
         }
@@ -210,7 +210,7 @@ namespace SplineTools {
                     }
                     newGO.transform.position += vPlaceOffset;
                     // save the creation
-                    Undo.RegisterCreatedObjectUndo(newGO, "Placed object from spline");
+                    BuildSafeUndo.RegisterCreatedObjectUndo(newGO, "Placed object from spline");
                     // finally do the last advance
                     TryAdvanceT(spaceBetweenObjects, allowBackwards: true);
 

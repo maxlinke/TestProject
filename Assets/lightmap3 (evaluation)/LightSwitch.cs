@@ -21,9 +21,11 @@ public class LightSwitch : MonoBehaviour {
 	public Light[] GetRealtimeLights () {
 		List<Light> realtimeLights = new List<Light>();
 		foreach(Light l in lights){
+            #if UNITY_EDITOR
 			if(l.lightmapBakeType != LightmapBakeType.Baked){
 				realtimeLights.Add(l);
 			}
+            #endif
 		}
 		return realtimeLights.ToArray();
 	}
@@ -43,8 +45,10 @@ public class LightSwitch : MonoBehaviour {
 	}
 
 	void ToggleShadows () {
+        Debug.LogWarning("this only works in the editor!");
 		foreach(Light l in lights){
 			if(l.renderMode != LightRenderMode.ForcePixel){			//if light "not important"
+                #if UNITY_EDITOR
 				if(l.lightmapBakeType != LightmapBakeType.Baked){	//if light not baked
 					if(l.shadows == LightShadows.None){
 						l.shadows = LightShadows.Soft;
@@ -52,6 +56,7 @@ public class LightSwitch : MonoBehaviour {
 						l.shadows = LightShadows.None;
 					}
 				}
+                #endif
 			}
 		}
 	}

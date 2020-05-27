@@ -11,6 +11,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/depth hologram/depthhologram.unity
     guid: 9b8744404c6724a429337fd5dfd50c9d
-  - enabled: 1
+  - enabled: 0
     path: Assets/commandline/commandlinescene.unity
     guid: dcbadb3ee023d9a4ab7fcfe02c1e9a7c
+  - enabled: 1
+    path: Assets/bsplineobjectplacement/bsplineobjectplacement.unity
+    guid: f1f8fdd4d6d6e46449eb3ecc4de1d9fc
+  m_configObjects: {}

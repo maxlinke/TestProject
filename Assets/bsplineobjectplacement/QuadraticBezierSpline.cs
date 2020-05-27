@@ -73,7 +73,7 @@ namespace SplineTools {
         }
 
         public override void ReverseDirection () {
-            Undo.RecordObject(this, "Reverse spline direction");
+            BuildSafeUndo.RecordObject(this, "Reverse spline direction");
             var h1Cache = localP0;
             localP0 = localP2;
             localP2 = h1Cache;
@@ -93,14 +93,14 @@ namespace SplineTools {
             if(transform.localScale == Vector3.one){
                 return;
             }
-            Undo.RecordObject(this.transform, "Apply spline scale");
-            Undo.RecordObject(this, "Apply spline scale");
+            BuildSafeUndo.RecordObject(this.transform, "Apply spline scale");
+            BuildSafeUndo.RecordObject(this, "Apply spline scale");
             ChangeTransformButKeepPoints((ps) => {this.transform.localScale = Vector3.one;});
         }
 
         public override void MovePositionToAveragePoint () {
-            Undo.RecordObject(this.transform, "Move position to average point");
-            Undo.RecordObject(this, "Move position to average point");
+            BuildSafeUndo.RecordObject(this.transform, "Move position to average point");
+            BuildSafeUndo.RecordObject(this, "Move position to average point");
             ChangeTransformButKeepPoints((ps) => {this.transform.position = ps / 3f;});
         }
 

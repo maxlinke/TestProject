@@ -208,9 +208,11 @@ namespace SplineTools {
         }
 
         void OnDrawGizmosSelected () {
+            #if UNITY_EDITOR
             if(UnityEditor.Selection.activeGameObject != this.gameObject){
                 return;
             }
+            #endif
             var gizmoCache = alwaysDrawGizmos;
             alwaysDrawGizmos = true;
             m_drawingGizmosSelected = true;

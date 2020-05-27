@@ -192,7 +192,7 @@ namespace SplineTools {
             if(!IndexCheckAndComplain(insertIndex)){
                 return;
             }
-            Undo.RecordObject(this, "Insert new point");
+            BuildSafeUndo.RecordObject(this, "Insert new point");
             Point prev = points[insertIndex];
             if((insertIndex + 1) < PointCount){
                 var next = points[insertIndex+1];
@@ -226,7 +226,7 @@ namespace SplineTools {
             if(!IndexCheckAndComplain(deleteIndex)){
                 return;
             }
-            Undo.RecordObject(this, "Delete point");
+            BuildSafeUndo.RecordObject(this, "Delete point");
             points.RemoveAt(deleteIndex);
             ValidatePointsList();
         }
@@ -235,7 +235,7 @@ namespace SplineTools {
             if(!IndexCheckAndComplain(startIndex)){
                 return;
             }
-            Undo.RecordObject(this, "Move point index");
+            BuildSafeUndo.RecordObject(this, "Move point index");
             int endIndex = Mathf.Min(PointCount - 1, Mathf.Max(0, startIndex + delta));
             var movePoint = points[startIndex];
             points.RemoveAt(startIndex);
@@ -243,7 +243,7 @@ namespace SplineTools {
         }
 
         public override void ReverseDirection () {
-            Undo.RecordObject(this, "Reverse spline direction");
+            BuildSafeUndo.RecordObject(this, "Reverse spline direction");
             var newPoints = new List<Point>();
             int loopStart, loopEnd;
             if(cyclic){
@@ -294,14 +294,14 @@ namespace SplineTools {
             if(transform.localScale.Equals(Vector3.one)){
                 return;
             }
-            Undo.RecordObject(this.transform, "Apply spline scale");
-            Undo.RecordObject(this, "Apply spline scale");
+            BuildSafeUndo.RecordObject(this.transform, "Apply spline scale");
+            BuildSafeUndo.RecordObject(this, "Apply spline scale");
             ChangeTransformButKeepPoints((ps) => {this.transform.localScale = Vector3.one;});
         }
 
         public override void MovePositionToAveragePoint () {
-            Undo.RecordObject(this.transform, "Move position to average point");
-            Undo.RecordObject(this, "Move position to average point");
+            BuildSafeUndo.RecordObject(this.transform, "Move position to average point");
+            BuildSafeUndo.RecordObject(this, "Move position to average point");
             ChangeTransformButKeepPoints((ps) => {this.transform.position = ps / PointCount;});
         }
 
