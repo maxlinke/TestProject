@@ -1,6 +1,5 @@
-﻿using System.Collections;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -10,20 +9,24 @@ namespace Boids {
     [System.Serializable]
     public struct BoidRange {
 
-        public static BoidRange Default => new BoidRange(BoidRangeInfluenceMode.POSITIVE, 0, 1, 1);
+        public static BoidRange Default => new BoidRange(InfluenceMode.DISTANCE, AttractionMode.ATTRACT, 0, 1, 1);
 
-        [SerializeField] BoidRangeInfluenceMode m_mode;
+        [SerializeField] InfluenceMode m_influenceMode;
+        [SerializeField] AttractionMode m_attractionMode;
         [SerializeField] float m_a;
         [SerializeField] float m_b;
         [SerializeField] float m_pow;
 
-        public BoidRangeInfluenceMode mode => m_mode;
+        public InfluenceMode influenceMode => m_influenceMode;
+        public AttractionMode attractionMode => m_attractionMode;
         public float min => Mathf.Min(m_a, m_b);
         public float max => Mathf.Max(m_a, m_b);
         public float pow => m_pow;
+        public float sign => (attractionMode == AttractionMode.ATTRACT ? 1f : attractionMode == AttractionMode.REPULSE ? -1f : float.NaN);
 
-        public BoidRange (BoidRangeInfluenceMode mode, float a, float b, float pow) {
-            this.m_mode = mode;
+        public BoidRange (InfluenceMode iMode, AttractionMode aMode, float a, float b, float pow) {
+            this.m_influenceMode = iMode;
+            this.m_attractionMode = aMode;
             this.m_a = a;
             this.m_b = b;
             this.m_pow = pow;
@@ -31,25 +34,30 @@ namespace Boids {
 
         public float Evaluate (float input) {
             var x = (input - min) / (max - min);
-            switch(mode){
-                case BoidRangeInfluenceMode.POSITIVE:
+            switch(influenceMode){
+                case InfluenceMode.DISTANCE:
                     x = Mathf.Clamp01(x);
                     break;
-                case BoidRangeInfluenceMode.NEGATIVE:
+                case InfluenceMode.INVERTED_DISTANCE:
                     x = Mathf.Clamp01(1f - x);
                     break;
                 default:
-                    Debug.LogError($"Unknown {nameof(BoidRangeInfluenceMode)} \"{mode}\"!");
+                    Debug.LogError($"Unknown {nameof(InfluenceMode)} \"{influenceMode}\"!");
                     break;
             }
             return Mathf.Pow(x, pow);
         }
-        
-    }
 
-    public enum BoidRangeInfluenceMode {
-        POSITIVE,
-        NEGATIVE
+        public enum InfluenceMode {
+            DISTANCE,
+            INVERTED_DISTANCE
+        }
+
+        public enum AttractionMode {
+            ATTRACT,
+            REPULSE
+        }
+        
     }
 
     #if UNITY_EDITOR
@@ -57,7 +65,7 @@ namespace Boids {
     public class BoidRangePropertyDrawer : PropertyDrawer {
 
         const float margin = 5f;
-        const float preferredLabelFieldWidth = 50f;
+        const float preferredLabelFieldWidth = 40f;
 
         public override float GetPropertyHeight (SerializedProperty property, GUIContent label) {
             return 2f * EditorGUIUtility.singleLineHeight;
@@ -66,12 +74,8 @@ namespace Boids {
         public override void OnGUI (Rect position, SerializedProperty property, GUIContent label) {
             EditorGUI.BeginProperty(position, label, property);
             position = EditorGUI.PrefixLabel(position, label);
-            var remainingWidth = position.width;
-            var remainingMinusMargins = remainingWidth - (3f * margin);
-            var remainingQuartered = remainingMinusMargins / 4f;
-            var labelFieldWidth = (remainingQuartered > preferredLabelFieldWidth) ? preferredLabelFieldWidth : remainingQuartered;
-            var propFieldWidth = 2f * remainingQuartered - labelFieldWidth;
-            var modeProp = property.FindPropertyRelative("m_mode");
+            var iModeProp = property.FindPropertyRelative("m_influenceMode");
+            var aModeProp = property.FindPropertyRelative("m_attractionMode");
             var powProp = property.FindPropertyRelative("m_pow");
             var aProp = property.FindPropertyRelative("m_a");
             var bProp = property.FindPropertyRelative("m_b");
@@ -83,47 +87,56 @@ namespace Boids {
                 minProp = bProp;
                 maxProp = aProp;
             }
-            PropLine(
-                rectY: position.y,
-                firstLabel: "Mode", 
-                firstProp: (rect) => {
-                    var origModeIndex = modeProp.enumValueIndex;
-                    modeProp.enumValueIndex = (int)(BoidRangeInfluenceMode)(EditorGUI.EnumPopup(rect, (BoidRangeInfluenceMode)origModeIndex));
-                },
-                secondLabel: "Power",
-                secondProp: (rect) => {
-                    var origPow = powProp.floatValue;
-                    powProp.floatValue = EditorGUI.FloatField(rect, origPow);
-                }
-            );
-            PropLine(
-                rectY: position.y + EditorGUIUtility.singleLineHeight,
-                firstLabel: "Min", 
-                firstProp: (rect) => {
-                    var origMin = minProp.floatValue;
-                    minProp.floatValue = EditorGUI.FloatField(rect, origMin);
-                },
-                secondLabel: "Max",
-                secondProp: (rect) => {
-                    var origMax = maxProp.floatValue;
-                    maxProp.floatValue = EditorGUI.FloatField(rect, origMax);
-                }
-            );
+            var firstLineLabels = new List<string>(){
+                "Infl.", "Attr."
+            };
+            var firstLineProps = new List<System.Action<Rect>>(){(rect) => {
+                var origInflMode = (BoidRange.InfluenceMode)(iModeProp.enumValueIndex);
+                iModeProp.enumValueIndex = (int)(BoidRange.InfluenceMode)(EditorGUI.EnumPopup(rect, origInflMode));
+            }, (rect) => {
+                var origAttrMode = (BoidRange.AttractionMode)(aModeProp.enumValueIndex);
+                aModeProp.enumValueIndex = (int)(BoidRange.AttractionMode)(EditorGUI.EnumPopup(rect, origAttrMode));
+            }};
+            var secondLineLabels = new List<string>(){
+                "Min", "Max", "Pow"
+            };
+            var secondLineProps = new List<System.Action<Rect>>(){(rect) => {
+                var origMin = minProp.floatValue;
+                minProp.floatValue = EditorGUI.FloatField(rect, origMin);
+            }, (rect) => {
+                var origMax = maxProp.floatValue;
+                maxProp.floatValue = EditorGUI.FloatField(rect, origMax);
+            }, (rect) => {
+                var origPow = powProp.floatValue;
+                powProp.floatValue = EditorGUI.FloatField(rect, origPow);
+            }};
+            PropLine(position.y, firstLineLabels, firstLineProps);
+            PropLine(position.y + EditorGUIUtility.singleLineHeight, secondLineLabels, secondLineProps);
+
             EditorGUI.EndProperty();
 
-            void PropLine (float rectY, string firstLabel, System.Action<Rect> firstProp, string secondLabel, System.Action<Rect> secondProp) {
-                var rect = new Rect(position.x, rectY, labelFieldWidth, EditorGUIUtility.singleLineHeight);
-                EditorGUI.LabelField(rect, firstLabel);
-                NextRect(propFieldWidth);
-                firstProp(rect);
-                NextRect(labelFieldWidth);
-                EditorGUI.LabelField(rect, secondLabel);
-                NextRect(propFieldWidth);
-                secondProp(rect);
+            void PropLine (float rectY, List<string> labels, List<System.Action<Rect>> propDrawers) {
+                if(labels.Count != propDrawers.Count){
+                    Debug.LogError("Unequal input list lengths! Fix it!");
+                }
+                var p = labels.Count;
+                var remainingWidth = position.width;
+                var remainingMinusMargins = remainingWidth - ((2 * p - 1) * margin);
+                var remainingFractioned = remainingMinusMargins / (2 * p);
+                var labelFieldWidth = (remainingFractioned > preferredLabelFieldWidth) ? preferredLabelFieldWidth : remainingFractioned;
+                var propFieldWidth = 2f * remainingFractioned - labelFieldWidth;
 
-                void NextRect (float newWidth) {
-                    rect.x += rect.width + margin;
-                    rect.width = newWidth;
+                var rect = new Rect(position.x, rectY, labelFieldWidth, EditorGUIUtility.singleLineHeight);
+                for(int i=0; i<p; i++){
+                    EditorGUI.LabelField(rect, labels[i]);
+                    NextRect(propFieldWidth);
+                    propDrawers[i](rect);
+                    NextRect(labelFieldWidth);
+
+                    void NextRect (float newWidth) {
+                        rect.x += rect.width + margin;
+                        rect.width = newWidth;
+                    }
                 }
             }
         }

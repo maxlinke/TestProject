@@ -4,15 +4,7 @@ using UnityEngine;
 
 namespace Boids {
 
-    public class BirdBoid : MonoBehaviour {
-
-        static List<BirdBoid> allBirdBoids;
-
-        void OnEnable () {
-            if(allBirdBoids == null){
-                allBirdBoids = new List<BirdBoid>();
-            }
-        }
+    public class BirdBoid : Boid {
 
         // settings for this boird
         // placer
@@ -25,9 +17,17 @@ namespace Boids {
 
         // terrain for ground, height above for lower flight ceiling
 
-        void Start () {
-            
-        }
+        [Header("Visuals")]
+        [SerializeField] Animator animator;
+
+        [Header("Traditional Boid Stuff")]
+        [SerializeField] BoidRange boidSeparationRange;
+        [SerializeField] BoidRange boidAlignmentRange;
+        [SerializeField] BoidRange boidCohesionRange;
+
+        // void Ini () {
+        //     velocity = transform.forward * 
+        // }
 
         void Update () {
             

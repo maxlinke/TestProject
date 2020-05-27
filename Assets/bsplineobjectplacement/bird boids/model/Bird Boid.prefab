@@ -450,6 +450,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d22c0e328e38b14681d6e992a6b217b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boundingVolume: {fileID: 0}
+  boundingVolumeRange:
+    m_influenceMode: 1
+    m_attractionMode: 1
+    m_a: 2
+    m_b: 4
+    m_pow: 0.1
+  colliderRange:
+    m_influenceMode: 0
+    m_attractionMode: 0
+    m_a: 0
+    m_b: 0
+    m_pow: 0
+  groundHeightRange:
+    m_influenceMode: 0
+    m_attractionMode: 0
+    m_a: 0
+    m_b: 0
+    m_pow: 0
+  animator: {fileID: 338524532631876814}
+  boidSeparationRange:
+    m_influenceMode: 1
+    m_attractionMode: 1
+    m_a: 1
+    m_b: 3
+    m_pow: 2
+  boidAlignmentRange:
+    m_influenceMode: 1
+    m_attractionMode: 0
+    m_a: 0
+    m_b: 0
+    m_pow: 0
+  boidCohesionRange:
+    m_influenceMode: 1
+    m_attractionMode: 0
+    m_a: 10
+    m_b: 20
+    m_pow: 1
 --- !u!95 &338524532631876814
 Animator:
   serializedVersion: 3

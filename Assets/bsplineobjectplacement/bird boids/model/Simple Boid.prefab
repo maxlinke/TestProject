@@ -44,15 +44,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fb606f1c959273448b6ee1232ef198a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minSpeed: 5
-  maxSpeed: 8
-  maxAccel: 10
-  boundingVolume: {fileID: 0}
-  bvAvoidance:
+  bv: {fileID: 0}
+  bvRange:
     m_mode: 1
     m_a: 2
     m_b: 4
     m_pow: 0.1
+  minSpeed: 5
+  maxSpeed: 8
+  maxAccel: 10
   groundCollider: {fileID: 0}
   groundAvoidance:
     m_mode: 1
