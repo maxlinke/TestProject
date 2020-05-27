@@ -71,10 +71,18 @@ namespace Boids {
             var remainingQuartered = remainingMinusMargins / 4f;
             var labelFieldWidth = (remainingQuartered > preferredLabelFieldWidth) ? preferredLabelFieldWidth : remainingQuartered;
             var propFieldWidth = 2f * remainingQuartered - labelFieldWidth;
-
             var modeProp = property.FindPropertyRelative("m_mode");
             var powProp = property.FindPropertyRelative("m_pow");
-
+            var aProp = property.FindPropertyRelative("m_a");
+            var bProp = property.FindPropertyRelative("m_b");
+            SerializedProperty minProp, maxProp;
+            if(aProp.floatValue <= bProp.floatValue){
+                minProp = aProp;
+                maxProp = bProp;
+            }else{
+                minProp = bProp;
+                maxProp = aProp;
+            }
             PropLine(
                 rectY: position.y,
                 firstLabel: "Mode", 
@@ -88,18 +96,6 @@ namespace Boids {
                     powProp.floatValue = EditorGUI.FloatField(rect, origPow);
                 }
             );
-            
-            var aProp = property.FindPropertyRelative("m_a");
-            var bProp = property.FindPropertyRelative("m_b");
-            SerializedProperty minProp, maxProp;
-            if(aProp.floatValue <= bProp.floatValue){
-                minProp = aProp;
-                maxProp = bProp;
-            }else{
-                minProp = bProp;
-                maxProp = aProp;
-            }
-
             PropLine(
                 rectY: position.y + EditorGUIUtility.singleLineHeight,
                 firstLabel: "Min", 
@@ -113,7 +109,6 @@ namespace Boids {
                     maxProp.floatValue = EditorGUI.FloatField(rect, origMax);
                 }
             );
-            
             EditorGUI.EndProperty();
 
             void PropLine (float rectY, string firstLabel, System.Action<Rect> firstProp, string secondLabel, System.Action<Rect> secondProp) {
