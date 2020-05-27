@@ -24,13 +24,9 @@ namespace Boids {
 
         void Start () {
             velocity = transform.forward * minSpeed;
-            Initialize(null, debugColliders, debugGroundCollider);
         }
 
         void Update () {
-            if(!BoundingVolumeValid()){
-                return;
-            }
             influenceDebugString = string.Empty;
             GetBoundingVolumeAvoidance(out var bvInfluence, out var bvAvoidDir);
             GetColliderAvoidance(out var colInfluence, out var colAvoidDir);

@@ -22,7 +22,17 @@ namespace Boids {
         public float min => Mathf.Min(m_a, m_b);
         public float max => Mathf.Max(m_a, m_b);
         public float pow => m_pow;
-        public float sign => (attractionMode == AttractionMode.ATTRACT ? 1f : attractionMode == AttractionMode.REPULSE ? -1f : float.NaN);
+        public float sign { get {
+            switch(attractionMode){
+                case AttractionMode.ATTRACT:
+                    return 1f;
+                case AttractionMode.REPULSE:
+                    return -1f;
+                default:
+                    Debug.LogError($"Unknown {nameof(AttractionMode)} \"{attractionMode}\"!");
+                    return float.NaN;
+            }
+        }}
 
         public BoidRange (InfluenceMode iMode, AttractionMode aMode, float a, float b, float pow) {
             this.m_influenceMode = iMode;

@@ -1,16 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Boids {
 
     public abstract class Boid : MonoBehaviour {
 
-        [Header("Bounding Volume / Movement Space")]
-        [SerializeField] protected BoxCollider boundingVolume;
+        [Header("ALL THIS SHIT IS TEMPORARY!!!")]
         [SerializeField] protected BoidRange boundingVolumeRange;
-
-        [Header("Collision Avoidance")]
         [SerializeField] protected BoidRange colliderRange;
         [SerializeField] protected BoidRange groundHeightRange;
 
@@ -18,28 +14,27 @@ namespace Boids {
         public Vector3 velocity { get; protected set; }
         // public float speed => velocity.magnitude;
 
+        protected Bounds boundingVolume;
         protected List<Boid> boids;
         protected List<Collider> colliders;
         protected TerrainCollider groundCollider;
 
-        public virtual void Initialize (List<Boid> boids, List<Collider> colliders, TerrainCollider groundCollider) {
+        public virtual void Initialize (List<Boid> boids, Bounds boundingVolume, List<Collider> colliders, TerrainCollider groundCollider) {
             this.boids = boids;
+            this.boundingVolume = boundingVolume;
             this.colliders = colliders;
             this.groundCollider = groundCollider;
         }
 
         protected virtual void OnDrawGizmosSelected () {
-            if(!BoundingVolumeValid()){
-                return;
-            }
-            var localBVPos = transform.position - boundingVolume.transform.position;
-            var worldBVExt = boundingVolume.bounds.extents;
-            var xy0 = boundingVolume.transform.position + Vector3.Scale(localBVPos, new Vector3(1, 1, 0)) - new Vector3(0, 0, worldBVExt.z);
-            var xy1 = xy0 + new Vector3(0, 0, 2f * worldBVExt.z);
-            var xz0 = boundingVolume.transform.position + Vector3.Scale(localBVPos, new Vector3(1, 0, 1)) - new Vector3(0, worldBVExt.y, 0);
-            var xz1 = xz0 + new Vector3(0, 2f * worldBVExt.y, 0);
-            var yz0 = boundingVolume.transform.position + Vector3.Scale(localBVPos, new Vector3(0, 1, 1)) - new Vector3(worldBVExt.x, 0, 0);
-            var yz1 = yz0 + new Vector3(2f * worldBVExt.x, 0, 0);
+            var localPos = transform.position - boundingVolume.center;
+            var bvExt = boundingVolume.extents;
+            var xy0 = boundingVolume.center + Vector3.Scale(localPos, new Vector3(1, 1, 0)) - new Vector3(0, 0, bvExt.z);
+            var xy1 = xy0 + new Vector3(0, 0, 2f * bvExt.z);
+            var xz0 = boundingVolume.center + Vector3.Scale(localPos, new Vector3(1, 0, 1)) - new Vector3(0, bvExt.y, 0);
+            var xz1 = xz0 + new Vector3(0, 2f * bvExt.y, 0);
+            var yz0 = boundingVolume.center + Vector3.Scale(localPos, new Vector3(0, 1, 1)) - new Vector3(bvExt.x, 0, 0);
+            var yz1 = yz0 + new Vector3(2f * bvExt.x, 0, 0);
             var gizmoColorCache = Gizmos.color;
             Gizmos.color = Color.green;
             LineWithCubeAtEnd(xy0);
@@ -58,25 +53,14 @@ namespace Boids {
             }
         }
 
-        protected bool BoundingVolumeValid () {
-            if(boundingVolume == null){
-                return false;
-            }
-            if(boundingVolume.transform.rotation != Quaternion.identity){
-                boundingVolume.transform.rotation = Quaternion.identity;
-                Debug.LogWarning("bounding volume must be axis-aligned! fixed it for ya...");
-            }
-            return true;
-        }
-
         protected void GetBoundingVolumeAvoidance (out float outputInfluence, out Vector3 outputDirection) {
-            var localBVPos = transform.position - boundingVolume.bounds.center;
+            var localBVPos = transform.position - boundingVolume.center;
             var absLocalBVPos = localBVPos.Abs();
-            var absExtents = boundingVolume.bounds.extents;
+            var absExtents = boundingVolume.extents;
             var absDelta = absExtents - absLocalBVPos;
             var edgeDist = Mathf.Min(Mathf.Min(absDelta.x, absDelta.y), absDelta.z);
             outputInfluence = boundingVolumeRange.Evaluate(edgeDist);
-            outputDirection = boundingVolumeRange.sign * outputInfluence * (transform.position - boundingVolume.bounds.center).normalized;
+            outputDirection = boundingVolumeRange.sign * outputInfluence * (transform.position - boundingVolume.center).normalized;
         }
 
         protected void GetColliderAvoidance (out float outputInfluence, out Vector3 outputDirection) {

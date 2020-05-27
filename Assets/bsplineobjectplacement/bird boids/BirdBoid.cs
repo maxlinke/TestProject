@@ -15,8 +15,6 @@ namespace Boids {
 
         // singleton boird util thingy
 
-        // terrain for ground, height above for lower flight ceiling
-
         [Header("Visuals")]
         [SerializeField] Animator animator;
 
@@ -25,12 +23,20 @@ namespace Boids {
         [SerializeField] BoidRange boidAlignmentRange;
         [SerializeField] BoidRange boidCohesionRange;
 
-        // void Ini () {
-        //     velocity = transform.forward * 
-        // }
+        bool initialized => boids != null;
+
+        public override void Initialize (List<Boid> boids, Bounds boundingVolume, List<Collider> colliders, TerrainCollider groundCollider) {
+            base.Initialize(boids, boundingVolume, colliders, groundCollider);
+            animator.Play("bird_boid_flap_medium", 0, Random.value);
+            // velocity = transform.forward * 
+        }
 
         void Update () {
-            
+            if(!initialized){
+                return;
+            }
+
+            animator.SetInteger("flapSpeed", 1);
         }
         
     }
