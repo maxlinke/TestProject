@@ -91,20 +91,19 @@ namespace Boids {
             int spawned = 0;
             while(iteration < SPAWN_ITERATION_COUNT_LIMIT && spawned < spawnNumber){
                 iteration++;
-                Vector3 tempPoint;
-                // switch(shape){
-                //     case Shape.BOX:
-                        tempPoint = new Vector3((float)(rng.NextDouble()), (float)(rng.NextDouble()), (float)(rng.NextDouble()));
-                        tempPoint *= 2f;
-                        tempPoint -= Vector3.one;
-                        // break;
-                //     case Shape.SPHERE:
-                //         tempPoint = 
-                //         break;
-                //     default:
-                //         Debug.LogError($"Unknown {nameof(Shape)} \"{shape}\"!");
-                //         yield break;
-                // }
+                Vector3 tempPoint = 2f * new Vector3((float)(rng.NextDouble()), (float)(rng.NextDouble()), (float)(rng.NextDouble())) - Vector3.one;
+                switch(shape){
+                    case Shape.BOX:
+                        break;
+                    case Shape.SPHERE:
+                        if(tempPoint.sqrMagnitude > 1f){
+                            continue;
+                        }
+                        break;
+                    default:
+                        Debug.LogError($"Unknown {nameof(Shape)} \"{shape}\"!");
+                        yield break;
+                }
                 tempPoint *= 0.5f * size;
                 tempPoint = transform.TransformPoint(tempPoint);
                 spawned++;
