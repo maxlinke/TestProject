@@ -5155,7 +5155,7 @@ GameObject:
   - component: {fileID: 436487516}
   - component: {fileID: 436487515}
   m_Layer: 0
-  m_Name: New Very Specific Boids
+  m_Name: Boids
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

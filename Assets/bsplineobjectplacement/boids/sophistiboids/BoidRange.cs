@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-namespace Boids {
+namespace SophistiBoids {
 
     [System.Serializable]
     public struct BoidRange {

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Boids {
+namespace SophistiBoids {
 
     [CreateAssetMenu(menuName = "Boids/BoidSettings", fileName = "New Boid Settings")]
     public class BoidSettings : ScriptableObject {

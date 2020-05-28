@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class VerySpecificBoids : MonoBehaviour {
+public class Boids : MonoBehaviour {
 
     const int SPAWN_ITERATION_COUNT_LIMIT = 9001;
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Boids {
+namespace SophistiBoids {
 
     public abstract class Boid : MonoBehaviour {
 
