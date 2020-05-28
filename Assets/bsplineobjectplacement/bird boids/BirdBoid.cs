@@ -23,19 +23,29 @@ namespace Boids {
         [SerializeField] BoidRange boidAlignmentRange;
         [SerializeField] BoidRange boidCohesionRange;
 
-        bool initialized => boids != null;
+        bool initialized => settings != null;
 
-        public override void Initialize (List<Boid> boids, Bounds boundingVolume, List<Collider> colliders, TerrainCollider groundCollider) {
-            base.Initialize(boids, boundingVolume, colliders, groundCollider);
+        public override void Initialize (List<Boid> boids, BoidSettings settings, Bounds boundingVolume, List<Collider> colliders, TerrainCollider groundCollider) {
+            base.Initialize(boids, settings, boundingVolume, colliders, groundCollider);
             animator.Play("bird_boid_flap_medium", 0, Random.value);
-            // velocity = transform.forward * 
+            animator.SetBool("isFlying", true);
+            velocity = transform.forward * settings.MaxSpeed;
+            // initialized = true;
         }
 
         void Update () {
             if(!initialized){
                 return;
             }
+            GetTraditionalBoidsBehavior(out var boidsInfluence, out var boidsDirection);
+            GetBoundingVolumeAvoidance(out var boundsInfluence, out var boundsDirection);
 
+            velocity += boundsInfluence * settings.MaxAccel * Time.deltaTime * boundsDirection;
+            velocity += (1f - boundsInfluence) * settings.MaxAccel * Time.deltaTime * boidsDirection;
+            velocity = velocity.normalized * settings.MaxSpeed;
+
+            transform.position += velocity * Time.deltaTime;
+            transform.rotation = Quaternion.LookRotation(velocity, Vector3.up);
             animator.SetInteger("flapSpeed", 1);
         }
         

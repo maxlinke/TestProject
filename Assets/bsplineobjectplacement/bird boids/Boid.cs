@@ -14,13 +14,15 @@ namespace Boids {
         public Vector3 velocity { get; protected set; }
         // public float speed => velocity.magnitude;
 
+        protected BoidSettings settings;
         protected Bounds boundingVolume;
         protected List<Boid> boids;
         protected List<Collider> colliders;
         protected TerrainCollider groundCollider;
 
-        public virtual void Initialize (List<Boid> boids, Bounds boundingVolume, List<Collider> colliders, TerrainCollider groundCollider) {
+        public virtual void Initialize (List<Boid> boids, BoidSettings settings, Bounds boundingVolume, List<Collider> colliders, TerrainCollider groundCollider) {
             this.boids = boids;
+            this.settings = settings;
             this.boundingVolume = boundingVolume;
             this.colliders = colliders;
             this.groundCollider = groundCollider;
@@ -51,6 +53,51 @@ namespace Boids {
                 Gizmos.DrawLine(transform.position, endPoint);
                 Gizmos.DrawCube(endPoint, Vector3.one * 0.1f);
             }
+        }
+
+        // TODO extremely hacky and it doesn't even work all that well... aaaaaaaaaaahhhh
+        // and it's laggy as shite
+        protected void GetTraditionalBoidsBehavior (out float outputInfluence, out Vector3 outputDirection) {
+            outputInfluence = 0f;
+            outputDirection = Vector3.zero;
+            float sqCohDist = settings.BoidCohesionRange.max * settings.BoidCohesionRange.max;
+            float sqAliDist = settings.BoidAlignmentRange.max * settings.BoidAlignmentRange.max;
+            float sqSepDist = settings.BoidSeparationRange.max * settings.BoidSeparationRange.max;
+            float maxSqDist = Mathf.Max(sqSepDist, Mathf.Max(sqCohDist, sqAliDist));
+            Vector3 cohesionPointSum = Vector3.zero;
+            int cohesionPointCount = 0;
+            Vector3 alignmentVectorSum = Vector3.zero;
+            int alignmentVectorCount = 0;
+            Vector3 separationVectorSum = Vector3.zero;
+            int separationVectorCount = 0;
+            foreach(var other in boids){
+                Vector3 toOther = other.position - this.position;
+                float otherSqDist = toOther.sqrMagnitude;
+                if(otherSqDist > maxSqDist){
+                    continue;
+                }
+                if(otherSqDist <= sqCohDist){
+                    cohesionPointSum += other.position;
+                    cohesionPointCount++;
+                }
+                if(otherSqDist <= sqAliDist){
+                    alignmentVectorSum += other.velocity;
+                    alignmentVectorCount++;
+                }
+                if(otherSqDist <= sqSepDist){
+                    separationVectorSum -= toOther;
+                    separationVectorCount++;
+                }
+            }
+            cohesionPointSum /= cohesionPointCount;
+            alignmentVectorSum /= alignmentVectorCount;
+            separationVectorSum /= separationVectorCount;
+            
+            var toCenterOfGroup = cohesionPointSum - this.position;
+            var awayFromOthers = separationVectorSum * 4f;
+            var align = alignmentVectorSum - this.velocity;
+            outputInfluence = 1f;
+            outputDirection = toCenterOfGroup + awayFromOthers + align;
         }
 
         protected void GetBoundingVolumeAvoidance (out float outputInfluence, out Vector3 outputDirection) {

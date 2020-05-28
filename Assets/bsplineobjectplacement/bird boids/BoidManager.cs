@@ -57,7 +57,7 @@ namespace Boids {
             #endif
         }
 
-        public void RegisterAndInitializeBoid (Boid newBoid) {
+        public void RegisterAndInitializeBoid (Boid newBoid, BoidSettings settings) {
             if(!initialized){
                 Initialize();
             }
@@ -66,7 +66,7 @@ namespace Boids {
                 return;
             }
             boids.Add(newBoid);
-            newBoid.Initialize(boids, boundingVolume, colliders, ground);
+            newBoid.Initialize(boids, settings, boundingVolume, colliders, ground);
         }
         
     }

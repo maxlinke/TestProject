@@ -29,8 +29,9 @@ namespace Boids {
         [SerializeField] Color gizmoColor;
 
         [Header("Boids")]
+        [SerializeField] BoidManager boidManager;
         [SerializeField] Boid boidPrefab;
-        // TODO settings externalized as a scriptable object
+        [SerializeField] BoidSettings boidSettings;
         // TODO also type and relations between types... (just use the scriptable object itself as a type?)
         // separation is general, alignment only for same "species" and cohesion can be negative for "predators"
 
@@ -43,9 +44,11 @@ namespace Boids {
         [SerializeField] float size;
         [SerializeField] Shape shape;
 
+        // TODO direction etc
+
         void Start () {
             if(spawnOnStart){
-
+                SpawnBoids();
             }
         }
 
@@ -112,6 +115,41 @@ namespace Boids {
             if(iteration >= SPAWN_ITERATION_COUNT_LIMIT){
                 Debug.LogWarning("Exceeded spawn iteration limit!");
             }
+        }
+
+        void SpawnBoids () {
+            if(!CanSpawnBoids()){
+                return;
+            }
+            foreach(var point in GetSpawnPoints()){
+                var newBoid = Instantiate(boidPrefab, point, Quaternion.LookRotation(this.transform.forward, Vector3.up));      // TODO other orientations. maybe get them from the getspawnpoints function?
+                boidManager.RegisterAndInitializeBoid(newBoid, boidSettings);
+            }
+        }
+
+        bool CanSpawnBoids () {
+            int errorCount = 0;
+            string errorText = string.Empty;
+            if(boidManager == null){
+                errorText += "No Boid Manager assigned!\n";
+                errorCount++;
+            }
+            if(boidPrefab == null){
+                errorText += "No Boid Prefab assigned!\n";
+                errorCount++;
+            }
+            if(boidSettings == null){
+                errorText += "No Boid Settings assigned!\n";
+                errorCount++;
+            }
+            if(errorCount > 0){
+                if(errorCount > 1){
+                    errorText = "Multiple errors:\n" + errorText;
+                }
+                Debug.LogError(errorText);
+                return false;
+            }
+            return true;
         }
         
         

@@ -8675,6 +8675,60 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 684489345}
   m_Mesh: {fileID: 4300000, guid: 55244d29aeaace64d95862d0c3e8a973, type: 3}
+--- !u!1 &693610691
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 693610693}
+  - component: {fileID: 693610692}
+  m_Layer: 0
+  m_Name: '>>> TODO Boid Spawner (0) <<< (2)'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &693610692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 693610691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ff52aac4e7a0fa4094d2079d3649fd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alwaysDrawGizmos: 1
+  gizmoColor: {r: 0, g: 0.49803922, b: 1, a: 1}
+  boidManager: {fileID: 853572280}
+  boidPrefab: {fileID: 2057215368311582435, guid: d3d5e44bc30578a4fb0c34675b7821ab,
+    type: 3}
+  boidSettings: {fileID: 11400000, guid: bc60af9c64f24c840b71d7d11eab2761, type: 2}
+  spawnOnStart: 1
+  spawnNumber: 100
+  randomSeed: 380
+  size: 5
+  shape: 1
+--- !u!4 &693610693
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 693610691}
+  m_LocalRotation: {x: -0, y: -0.9945484, z: -0, w: 0.10427643}
+  m_LocalPosition: {x: 338.94, y: 91.96, z: 274.24}
+  m_LocalScale: {x: 2, y: 1, z: 3}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 25
+  m_LocalEulerAnglesHint: {x: 0, y: -168.029, z: 0}
 --- !u!1 &694154483
 GameObject:
   m_ObjectHideFlags: 0
@@ -10528,7 +10582,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   alwaysDrawGizmos: 1
   gizmoColor: {r: 1, g: 1, b: 1, a: 1}
-  boundingVolumeExtents: {x: 20, y: 12, z: 20}
+  boundingVolumeExtents: {x: 50, y: 25, z: 50}
   ground: {fileID: 159697811}
   colliders: []
 --- !u!4 &853572281
@@ -11251,7 +11305,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   alwaysDrawGizmos: 1
   gizmoColor: {r: 0, g: 0.49803922, b: 1, a: 1}
-  boidPrefab: {fileID: 711887896699445828}
+  boidManager: {fileID: 853572280}
+  boidPrefab: {fileID: 2057215368311582435, guid: d3d5e44bc30578a4fb0c34675b7821ab,
+    type: 3}
+  boidSettings: {fileID: 11400000, guid: bc60af9c64f24c840b71d7d11eab2761, type: 2}
   spawnOnStart: 1
   spawnNumber: 50
   randomSeed: 355
@@ -11915,8 +11972,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1048669131}
-  m_LocalRotation: {x: 0.1432471, y: -0.8396237, z: 0.26664612, w: 0.4510125}
-  m_LocalPosition: {x: 340.22974, y: 60.49527, z: 186.51105}
+  m_LocalRotation: {x: 0.29692048, y: 0.33172598, z: -0.11088356, w: 0.88853866}
+  m_LocalPosition: {x: 284.12134, y: 92.78558, z: 213.04572}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -13981,6 +14038,60 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1235641322}
   m_Mesh: {fileID: 4300000, guid: 2d0289b341e655d4da35e7abd1347cf0, type: 3}
+--- !u!1 &1237126878
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1237126880}
+  - component: {fileID: 1237126879}
+  m_Layer: 0
+  m_Name: '>>> TODO Boid Spawner (0) <<< (1)'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1237126879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237126878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ff52aac4e7a0fa4094d2079d3649fd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alwaysDrawGizmos: 1
+  gizmoColor: {r: 0, g: 0.49803922, b: 1, a: 1}
+  boidManager: {fileID: 853572280}
+  boidPrefab: {fileID: 2057215368311582435, guid: d3d5e44bc30578a4fb0c34675b7821ab,
+    type: 3}
+  boidSettings: {fileID: 11400000, guid: bc60af9c64f24c840b71d7d11eab2761, type: 2}
+  spawnOnStart: 1
+  spawnNumber: 200
+  randomSeed: 431
+  size: 5
+  shape: 1
+--- !u!4 &1237126880
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237126878}
+  m_LocalRotation: {x: -0, y: 0.5207466, z: -0, w: 0.85371137}
+  m_LocalPosition: {x: 273.83, y: 91.96, z: 204.06}
+  m_LocalScale: {x: 2, y: 1, z: 3}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 24
+  m_LocalEulerAnglesHint: {x: 0, y: 62.765003, z: 0}
 --- !u!1 &1239694500
 GameObject:
   m_ObjectHideFlags: 0
@@ -24740,28 +24851,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2057215368311582435, guid: d3d5e44bc30578a4fb0c34675b7821ab,
         type: 3}
-      propertyPath: boundingVolume
-      value: 
-      objectReference: {fileID: 941512355}
-    - target: {fileID: 2057215368311582435, guid: d3d5e44bc30578a4fb0c34675b7821ab,
-        type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d3d5e44bc30578a4fb0c34675b7821ab, type: 3}
---- !u!114 &711887896699445828 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2057215368311582435, guid: d3d5e44bc30578a4fb0c34675b7821ab,
-    type: 3}
-  m_PrefabInstance: {fileID: 711887896699445827}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d22c0e328e38b14681d6e992a6b217b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &6042339447690807058
 PrefabInstance:
   m_ObjectHideFlags: 0

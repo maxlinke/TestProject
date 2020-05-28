@@ -450,7 +450,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d22c0e328e38b14681d6e992a6b217b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boundingVolume: {fileID: 0}
   boundingVolumeRange:
     m_influenceMode: 1
     m_attractionMode: 1
