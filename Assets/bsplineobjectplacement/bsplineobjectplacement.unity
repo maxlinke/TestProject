@@ -11232,7 +11232,7 @@ Transform:
   m_GameObject: {fileID: 987460041}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 293.6, y: 83.5, z: 225.1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 1, z: 3}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 18
@@ -11251,11 +11251,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   alwaysDrawGizmos: 1
   gizmoColor: {r: 1, g: 0.7490196, b: 0, a: 1}
-  boidPrefab: {fileID: 0}
-  spawnOnStart: 0
-  spawnNumber: 0
-  randomSeed: 0
-  extents: {x: 0, y: 0, z: 0}
+  boidPrefab: {fileID: 711887896699445828}
+  spawnOnStart: 1
+  spawnNumber: 50
+  randomSeed: 355
+  size: 3
   shape: 0
 --- !u!1001 &1009879304
 PrefabInstance:
@@ -24750,6 +24750,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d3d5e44bc30578a4fb0c34675b7821ab, type: 3}
+--- !u!114 &711887896699445828 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2057215368311582435, guid: d3d5e44bc30578a4fb0c34675b7821ab,
+    type: 3}
+  m_PrefabInstance: {fileID: 711887896699445827}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d22c0e328e38b14681d6e992a6b217b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &6042339447690807058
 PrefabInstance:
   m_ObjectHideFlags: 0

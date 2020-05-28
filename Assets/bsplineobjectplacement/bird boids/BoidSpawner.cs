@@ -6,6 +6,8 @@ namespace Boids {
 
     public class BoidSpawner : MonoBehaviour {
 
+        const int SPAWN_ITERATION_COUNT_LIMIT = 9001;
+
         public enum Shape {
             BOX,
             SPHERE
@@ -38,7 +40,7 @@ namespace Boids {
         [SerializeField] int randomSeed;
 
         [Header("Spawner Specifics")]
-        [SerializeField] Vector3 extents;
+        [SerializeField] float size;
         [SerializeField] Shape shape;
 
         void Start () {
@@ -58,8 +60,59 @@ namespace Boids {
         }
 
         void DrawGizmos (bool detailed) {
-            
-            // if detailed also draw the spawn points
+            var colCache = Gizmos.color;
+            Gizmos.color = gizmoColor;
+            var matCache = Gizmos.matrix;
+            Gizmos.matrix = transform.localToWorldMatrix;
+            switch(shape){
+                case Shape.BOX:
+                    Gizmos.DrawWireCube(Vector3.zero, Vector3.one * size);
+                    break;
+                case Shape.SPHERE:
+                    Gizmos.DrawWireSphere(Vector3.zero, 0.5f * size);
+                    break;
+                default:
+                    Debug.LogError($"Unknown {nameof(Shape)} \"{shape}\"!");
+                    return;
+            }
+            Gizmos.matrix = matCache;
+            if(detailed){
+
+                foreach(var point in GetSpawnPoints()){
+                    Gizmos.DrawCube(point, Vector3.one * 0.1f);
+                }
+            }
+            Gizmos.color = colCache;
+        }
+
+        IEnumerable<Vector3> GetSpawnPoints () {
+            var rng = new System.Random(randomSeed);
+            int iteration = 0;
+            int spawned = 0;
+            while(iteration < SPAWN_ITERATION_COUNT_LIMIT && spawned < spawnNumber){
+                iteration++;
+                Vector3 tempPoint;
+                // switch(shape){
+                //     case Shape.BOX:
+                        tempPoint = new Vector3((float)(rng.NextDouble()), (float)(rng.NextDouble()), (float)(rng.NextDouble()));
+                        tempPoint *= 2f;
+                        tempPoint -= Vector3.one;
+                        // break;
+                //     case Shape.SPHERE:
+                //         tempPoint = 
+                //         break;
+                //     default:
+                //         Debug.LogError($"Unknown {nameof(Shape)} \"{shape}\"!");
+                //         yield break;
+                // }
+                tempPoint *= 0.5f * size;
+                tempPoint = transform.TransformPoint(tempPoint);
+                spawned++;
+                yield return tempPoint;
+            }
+            if(iteration >= SPAWN_ITERATION_COUNT_LIMIT){
+                Debug.LogWarning("Exceeded spawn iteration limit!");
+            }
         }
         
         
