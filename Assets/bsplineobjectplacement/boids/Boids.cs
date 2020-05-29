@@ -83,6 +83,10 @@ public class Boids : MonoBehaviour {
             Debug.LogError("No boid prefab assigned!");
             return;
         }
+        if(!AdditionalPreSpawnCheck(out var msg)){
+            Debug.LogError(msg);
+            return;
+        }
         if(boids == null){
             boids = new List<Boid>();
             boidAccelerations = new List<Vector3>();
@@ -103,6 +107,11 @@ public class Boids : MonoBehaviour {
             boidAccelerations.Add(Vector3.zero);
             OnAdditionalBoidAdded(newBoid);
         }
+    }
+
+    protected virtual bool AdditionalPreSpawnCheck (out string message) {
+        message = string.Empty;
+        return true;
     }
 
     protected virtual void AdditionalPreSpawnSetup () { }
