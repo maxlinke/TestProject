@@ -5155,7 +5155,7 @@ GameObject:
   - component: {fileID: 436487516}
   - component: {fileID: 436487515}
   m_Layer: 0
-  m_Name: Boids
+  m_Name: Boids (No Additional Behaviors)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5174,27 +5174,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   alwaysDrawGizmos: 1
-  gizmoColor: {r: 0, g: 1, b: 0, a: 1}
-  gizmoSize: 0.333
-  spawnOnStart: 1
-  spawnNumber: 200
+  gizmoColor: {r: 0, g: 0, b: 0, a: 1}
+  gizmoSize: 0.25
+  spawnOnStart: 0
+  spawnNumber: 20
   randomSeed: 167389448
-  size: 30
-  shape: 0
+  size: 5
+  shape: 1
   boidPrefab: {fileID: 711887896606468339, guid: 62f6872c45e5c8344b998fdb6f012b27,
     type: 3}
   initAnimName: flap
   boidMinSpeed: 5
   boidMaxSpeed: 10
-  boidMaxAccel: 100
+  boidMaxAccel: 20
+  boidMaxVisualRotationSpeed: 360
   boidCohesionDistance: 7
-  boidCohesionWeight: 1.5
+  boidCohesionWeight: 0.5
   boidAlignmentDistance: 5
-  boidAlignmentWeight: 0.5
+  boidAlignmentWeight: 0.2
   boidSeparationDistance: 1
-  boidSeparationWeight: 6.67
-  boidTarget: {fileID: 1824069667}
-  boidTargetSeekWeight: 10
+  boidSeparationWeight: 1.5
 --- !u!4 &436487516
 Transform:
   m_ObjectHideFlags: 0
@@ -5202,13 +5201,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 436487514}
-  m_LocalRotation: {x: -0, y: 0.36421025, z: -0, w: 0.9313168}
-  m_LocalPosition: {x: 281.505, y: 26.213713, z: 253.62561}
+  m_LocalRotation: {x: -0.27956474, y: 0.052274447, z: -0.32912326, w: 0.9004382}
+  m_LocalPosition: {x: 330.40363, y: 31.06, z: 238.17}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 17
-  m_LocalEulerAnglesHint: {x: 0, y: 42.718002, z: 0}
+  m_LocalEulerAnglesHint: {x: -27.973001, y: 18.358002, z: -44.766003}
 --- !u!1 &467451157
 GameObject:
   m_ObjectHideFlags: 0
@@ -16471,6 +16470,72 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1524583759}
   m_Mesh: {fileID: 4300000, guid: a55ca2fecc83cd840adeae7bcc03971a, type: 3}
+--- !u!1 &1538453367
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1538453369}
+  - component: {fileID: 1538453368}
+  m_Layer: 0
+  m_Name: Boids (TargetPoint)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1538453368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538453367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f5714f493a3c0649bb04f33846c5938, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alwaysDrawGizmos: 1
+  gizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  gizmoSize: 0.25
+  spawnOnStart: 1
+  spawnNumber: 100
+  randomSeed: 167389448
+  size: 20
+  shape: 0
+  boidPrefab: {fileID: 711887896606468339, guid: 62f6872c45e5c8344b998fdb6f012b27,
+    type: 3}
+  initAnimName: flap
+  boidMinSpeed: 5
+  boidMaxSpeed: 10
+  boidMaxAccel: 20
+  boidMaxVisualRotationSpeed: 360
+  boidCohesionDistance: 7
+  boidCohesionWeight: 0.5
+  boidAlignmentDistance: 5
+  boidAlignmentWeight: 0.2
+  boidSeparationDistance: 1
+  boidSeparationWeight: 1.5
+  boidTarget: {fileID: 1824069667}
+  boidTargetSeekWeight: 2
+--- !u!4 &1538453369
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538453367}
+  m_LocalRotation: {x: -0, y: 0.36421025, z: -0, w: 0.9313168}
+  m_LocalPosition: {x: 281.505, y: 26.213713, z: 253.62561}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 18
+  m_LocalEulerAnglesHint: {x: 0, y: 42.718002, z: 0}
 --- !u!1 &1553223130
 GameObject:
   m_ObjectHideFlags: 0
@@ -19545,7 +19610,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 18
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1828602072
 GameObject:
