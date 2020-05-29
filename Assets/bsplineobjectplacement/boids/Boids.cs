@@ -18,7 +18,7 @@ public class Boids : MonoBehaviour {
     [Header("Gizmos")]
     [SerializeField] protected bool alwaysDrawGizmos = true;
     [SerializeField] protected Color gizmoColor = Color.green;
-    [SerializeField] protected float gizmoSize = 0.1f;
+    [SerializeField] protected float gizmoSize = 0.5f;
 
     [Header("Spawning Settings")]
     [SerializeField] protected bool spawnOnStart = true;
@@ -26,8 +26,8 @@ public class Boids : MonoBehaviour {
     [SerializeField] protected int randomSeed = 0x9FA2908;
 
     [Header("Spawner Settings")]
-    [SerializeField] protected float size = 20;
     [SerializeField] protected Shape shape = Shape.BOX;
+    [SerializeField] protected float size = 20;
     
     [Header("Boid Settings")]
     [SerializeField] protected GameObject boidPrefab = null;
@@ -75,10 +75,6 @@ public class Boids : MonoBehaviour {
 
     [RuntimeMethodButton]
     public void SpawnBoids () {
-        // if(boids != null){
-        //     Debug.LogError("Already spawned boids! Multiple spawning isn't supported currently!");
-        //     return;
-        // }
         if(boidPrefab == null){
             Debug.LogError("No boid prefab assigned!");
             return;
@@ -321,8 +317,13 @@ public class BoidsEditor : RuntimeMethodButtonEditor {
         EditorGUILayout.PropertyField(serializedObject.FindProperty("spawnNumber"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("randomSeed"));
 
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("size"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("shape"));
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("size"));
+        GUI.enabled = false;
+        GUILayout.Label("(Transform scale also works)");
+        GUI.enabled = true;
+        EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.PropertyField(serializedObject.FindProperty("boidPrefab"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("initAnimName"));

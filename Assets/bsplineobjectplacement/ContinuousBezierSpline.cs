@@ -44,7 +44,7 @@ namespace SplineTools {
 
         protected override void Reset () {
             base.Reset();
-            points.Clear();
+            points?.Clear();
             ValidatePointsList();
         }
 

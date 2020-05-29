@@ -1,21 +1,36 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class WaypointBoids : Boids {
 
     [System.Serializable]
     public class Waypoint {
-        public const float MIN_SQ_RADIUS = 1f;
-        public const float MAX_SQ_RADIUS = 10000f;
+        public const float MIN_RADIUS = 1f;
+        public const float MAX_RADIUS = 100f;
+        public const float MIN_SQ_RADIUS = MIN_RADIUS * MIN_RADIUS;
+        public const float MAX_SQ_RADIUS = MAX_RADIUS * MAX_RADIUS;
 
-        [SerializeField] Transform point;
-        [SerializeField] float sqRadius;
+        [SerializeField] Transform point = null;
+        [SerializeField] float sqRadius = MIN_SQ_RADIUS;
 
         public Vector3 Position => point.position;
         public float SqRadius => sqRadius;
         public float Radius => (sqRadius > 0 ? Mathf.Sqrt(sqRadius) : Mathf.Sqrt(-sqRadius));
 
         public bool IsValid => (point != null);
+
+        public Waypoint (Transform point, float sqRadius) {
+            this.point = point;
+            this.sqRadius = sqRadius;
+        }
+
+        public Waypoint () {
+            this.point = null;
+            this.sqRadius = MIN_SQ_RADIUS;
+        }
     }
 
     enum LastWaypointMode {
@@ -23,15 +38,22 @@ public class WaypointBoids : Boids {
         LOOP
     }
 
-    [SerializeField] LastWaypointMode lastWaypointMode;
-    [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] float boidWaypointSeekWeight;
-    [SerializeField] Waypoint[] waypoints;
+    [SerializeField] LastWaypointMode lastWaypointMode = LastWaypointMode.DESTROY;
+    [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] float boidWaypointSeekWeight = 1f;
+    [SerializeField] List<Waypoint> waypoints;
 
     List<int> boidWaypoints;
     List<Boid> boidsToDelete;
 
+    public Waypoint this[int index] => waypoints[index];
+    public int WaypointCount => (waypoints == null ? 0 : waypoints.Count);
+
     protected override bool AdditionalPreSpawnCheck (out string message) {
         var output = base.AdditionalPreSpawnCheck(out message);
+        if(waypoints == null){
+            message += "Waypoints list is null?!?!";
+            return false;
+        }
         var waypointsValid = true;
         foreach(var waypoint in waypoints){
             waypointsValid &= waypoint.IsValid; 
@@ -39,7 +61,7 @@ public class WaypointBoids : Boids {
         if(!waypointsValid){
             message += "Not all waypoints are valid!\n";
         }
-        if(waypoints.Length < 1){
+        if(WaypointCount < 1){
             message += "No waypoints assigned!";
             waypointsValid = false;
         }
@@ -79,7 +101,7 @@ public class WaypointBoids : Boids {
         UpdateWaypointData();
         if(sqDist < waypoint.SqRadius){
             var nextWaypointIndex = (waypointIndex + 1);
-            if(nextWaypointIndex < waypoints.Length){
+            if(nextWaypointIndex < WaypointCount){
                 boidWaypoints[boidIndex] = nextWaypointIndex;
                 UpdateWaypointData();
             }else{
@@ -109,7 +131,7 @@ public class WaypointBoids : Boids {
     }
 
     protected override void DrawAdditionalGizmos () {
-        if(waypoints.Length < 1){
+        if(WaypointCount < 1){
             return;
         }
         var cc = Gizmos.color;
@@ -119,7 +141,6 @@ public class WaypointBoids : Boids {
         foreach(var waypoint in waypoints){
             if(waypoint.IsValid){
                 var current = waypoint.Position;
-                Gizmos.DrawWireSphere(current, waypoint.Radius);
                 Gizmos.color = (valid ? cc : errorCol);
                 Gizmos.DrawLine(last, current);
                 Gizmos.color = cc;
@@ -135,5 +156,141 @@ public class WaypointBoids : Boids {
         }
         Gizmos.color = cc;
     }
+
+    protected override void DrawAdditionalDetailedGizmos () {
+        foreach(var waypoint in waypoints){
+            if(waypoint.IsValid){
+                Gizmos.DrawWireSphere(waypoint.Position, waypoint.Radius);
+            }
+        }
+    }
+
+    private bool IndexCheckAndComplain (int inputIndex) {
+        if(inputIndex < 0){
+            Debug.LogError("Negative indices are not allowed!");
+            return false;
+        }
+        if(inputIndex >= WaypointCount){
+            Debug.LogError("Index out of bounds!");
+            return false;
+        }
+        return true;
+    }
+
+    public void RemoveWaypoint (int deleteIndex) {
+        if(!IndexCheckAndComplain(deleteIndex)){
+            return;
+        }
+        BuildSafeUndo.RecordObject(this, "Delete point");
+        waypoints.RemoveAt(deleteIndex);
+    }
+
+    public void AddWaypoint () {
+        BuildSafeUndo.RecordObject(this, "Add point");
+        if(waypoints == null){
+            waypoints = new List<Waypoint>();
+        }
+        waypoints.Add(new Waypoint(null, Waypoint.MIN_SQ_RADIUS));
+    }
+
+    public void MovePointIndex (int startIndex, int delta) {
+        if(!IndexCheckAndComplain(startIndex)){
+            return;
+        }
+        BuildSafeUndo.RecordObject(this, "Move point index");
+        int endIndex = Mathf.Min(WaypointCount - 1, Mathf.Max(0, startIndex + delta));
+        var movePoint = waypoints[startIndex];
+        waypoints.RemoveAt(startIndex);
+        waypoints.Insert(endIndex, movePoint);
+    }
 	
 }
+
+#if UNITY_EDITOR
+
+[CustomEditor(typeof(WaypointBoids))]
+public class WaypointBoidsEditor : BoidsEditor {
+
+    const int DEFAULT_INDEX = -1;
+    float INLINE_BUTTON_WIDTH => 20f;
+    float INLINE_BUTTON_HEIGHT => EditorGUIUtility.singleLineHeight - 2;
+
+    protected override MonoScript GetCallingScript () => MonoScript.FromMonoBehaviour((WaypointBoids)target);
+    protected override System.Type GetCallingType () => typeof(WaypointBoids);
+
+    protected override void DrawAdditionalProperties () {
+        base.DrawAdditionalProperties();
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("lastWaypointMode"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidWaypointSeekWeight"));
+
+        var wpArrayProp = serializedObject.FindProperty("waypoints");
+        GUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        GUILayout.Label(wpArrayProp.displayName);
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
+        var bgCache = GUI.backgroundColor;
+        var errorBGCol = (0.25f * Color.red) + (0.75f * bgCache);
+        var boidsScript = target as WaypointBoids;
+
+        if(wpArrayProp.arraySize < 1){
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("No waypoints assigned!");
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
+        int removeIndex = DEFAULT_INDEX;
+        for(int i=0; i<wpArrayProp.arraySize; i++){
+            var wpProp = wpArrayProp.GetArrayElementAtIndex(i);
+            var wpTransformProp = wpProp.FindPropertyRelative("point");
+            var wpSQRadProp = wpProp.FindPropertyRelative("sqRadius");
+            var wp = boidsScript[i];
+            Line(i.ToString(), () => {
+                GUI.backgroundColor = wp.IsValid ? bgCache : errorBGCol;
+                EditorGUILayout.PropertyField(wpTransformProp);
+                GUI.backgroundColor = errorBGCol;
+                if(GUILayout.Button("X", GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT))){
+                    removeIndex = i;
+                }
+                GUI.backgroundColor = bgCache;
+            });
+            Line(string.Empty, () => {
+                var origRadius = wp.Radius;
+                var newRadius = EditorGUILayout.Slider("Radius", origRadius, WaypointBoids.Waypoint.MIN_RADIUS, WaypointBoids.Waypoint.MAX_RADIUS);
+                wpSQRadProp.floatValue = newRadius * newRadius;
+                if(GUILayout.Button("Λ", GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT))){
+                    boidsScript.MovePointIndex(i, -1);
+                }
+                if(GUILayout.Button("V", GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT))){
+                    boidsScript.MovePointIndex(i, +1);
+                }
+            });
+
+            void Line (string labelText, System.Action drawLine) {
+                GUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField(labelText, GUILayout.Width(24));
+                drawLine();
+                GUILayout.EndHorizontal();
+            }
+        }
+
+        if(removeIndex != DEFAULT_INDEX){
+            boidsScript.RemoveWaypoint(removeIndex);
+        }
+
+        GUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        if(GUILayout.Button("+", GUILayout.Width(EditorGUIUtility.currentViewWidth / 2))){
+            boidsScript.AddWaypoint();
+        }
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
+
+        GUI.backgroundColor = bgCache;
+    }
+
+}
+
+#endif
