@@ -7863,7 +7863,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &650499645
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -11782,7 +11782,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1057536977
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -16856,7 +16856,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1538453368
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16871,15 +16871,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   alwaysDrawGizmos: 1
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
-  gizmoSize: 0.25
+  gizmoSize: 0.5
   spawnOnStart: 1
   spawnNumber: 100
   randomSeed: 167389448
   shape: 0
   size: 20
-  boidPrefab: {fileID: 711887896606468339, guid: 62f6872c45e5c8344b998fdb6f012b27,
+  boidPrefab: {fileID: 4911033319500306062, guid: 543e030cf8b34ef44ba0e37591a2fdc1,
     type: 3}
-  initAnimName: flap
+  initAnimName: fbxbird_flap
   boidMinSpeed: 5
   boidMaxSpeed: 10
   boidMaxAccel: 20
@@ -18338,7 +18338,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1660646362
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18359,9 +18359,9 @@ MonoBehaviour:
   randomSeed: 167389448
   shape: 0
   size: 10
-  boidPrefab: {fileID: 711887896606468339, guid: 62f6872c45e5c8344b998fdb6f012b27,
+  boidPrefab: {fileID: 4911033319500306062, guid: 543e030cf8b34ef44ba0e37591a2fdc1,
     type: 3}
-  initAnimName: flap
+  initAnimName: fbxbird_flap
   boidMinSpeed: 5
   boidMaxSpeed: 10
   boidMaxAccel: 20
