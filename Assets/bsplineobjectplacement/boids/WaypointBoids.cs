@@ -158,6 +158,9 @@ public class WaypointBoids : Boids {
     }
 
     protected override void DrawAdditionalDetailedGizmos () {
+        if(WaypointCount < 1){
+            return;
+        }
         foreach(var waypoint in waypoints){
             if(waypoint.IsValid){
                 Gizmos.DrawWireSphere(waypoint.Position, waypoint.Radius);

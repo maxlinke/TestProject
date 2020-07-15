@@ -7,7 +7,7 @@ using UnityEditor;
 public class Boids : MonoBehaviour {
 
     const int SPAWN_ITERATION_COUNT_LIMIT = 9001;
-    protected const float MIN_BEHAVIOR_WEIGHT = 0f;
+    protected const float MIN_BEHAVIOR_WEIGHT = -2f;
     protected const float MAX_BEHAVIOR_WEIGHT = 2f;
 
     public enum Shape {
@@ -44,6 +44,8 @@ public class Boids : MonoBehaviour {
     [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] protected float boidAlignmentWeight = 0.2f;
     [SerializeField] protected float boidSeparationDistance = 1f;
     [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] protected float boidSeparationWeight = 1.5f;
+    [SerializeField] protected float boidRandomDirectionRecalcInterval = 5f;
+    [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] protected float boidRandomDirectionWeight = 0.667f;
 
     protected class Boid {
         public Transform transform;
@@ -57,6 +59,8 @@ public class Boids : MonoBehaviour {
     protected GameObject boidParent;
     protected List<Boid> boids;
     protected List<Vector3> boidAccelerations;
+    protected List<Vector3> boidRandomDirections;
+    protected List<float> boidRandomTimers;
 
     void Start () {
         if(spawnOnStart){
@@ -86,21 +90,23 @@ public class Boids : MonoBehaviour {
         if(boids == null){
             boids = new List<Boid>();
             boidAccelerations = new List<Vector3>();
+            boidRandomDirections = new List<Vector3>();
+            boidRandomTimers = new List<float>();
             boidParent = new GameObject("Boid Parent");
             AdditionalPreSpawnSetup();
         }
         var rng = new System.Random(randomSeed);
         foreach(var point in GetSpawnPoints()){
-            var randomVec = new Vector3((float)(rng.NextDouble()), (float)(rng.NextDouble()), (float)(rng.NextDouble())) * 2f - Vector3.one;
-            var boidForward = (this.transform.forward + 0.1f * randomVec).normalized;
-            var newBoidGO = Instantiate(boidPrefab, point, Quaternion.LookRotation(boidForward, Vector3.up), boidParent.transform);
+            var newBoidGO = Instantiate(boidPrefab, point, Quaternion.LookRotation(this.transform.forward, Vector3.up), boidParent.transform);
             var newBoidAnim = newBoidGO.GetComponent<Animator>();
             if(newBoidAnim != null){
                 newBoidAnim.Play(initAnimName, 0, Random.value);
             }
-            var newBoid = new Boid(newBoidGO.transform, boidForward * Mathf.Lerp(boidMinSpeed, boidMaxSpeed, (float)(rng.NextDouble())));
+            var newBoid = new Boid(newBoidGO.transform, newBoidGO.transform.forward * Mathf.Lerp(boidMinSpeed, boidMaxSpeed, (float)(rng.NextDouble())));
             boids.Add(newBoid);
             boidAccelerations.Add(Vector3.zero);
+            boidRandomDirections.Add(Vector3.zero);
+            boidRandomTimers.Add((float)(rng.NextDouble()) * boidRandomDirectionRecalcInterval);
             OnAdditionalBoidAdded(newBoid);
         }
     }
@@ -174,10 +180,15 @@ public class Boids : MonoBehaviour {
                     separationCount++;
                 }
             }
+            boidRandomTimers[i] -= Time.deltaTime;
+            if(boidRandomTimers[i] <= 0 && boidRandomDirectionRecalcInterval > 0){
+                boidRandomDirections[i] = Random.insideUnitSphere;
+                boidRandomTimers[i] = Mathf.Repeat(boidRandomTimers[i], boidRandomDirectionRecalcInterval);
+            }
             var cohesion = ((flockPosSum / flockPosCount) - activePos).normalized;
             var alignment = (flockVelocitySum / flockVelocityCount) - activeBoid.velocity;
             var separation = (separationSum / separationCount).normalized;
-            var rawAccel = boidCohesionWeight * cohesion + boidAlignmentWeight * alignment + boidSeparationWeight * separation;
+            var rawAccel = boidCohesionWeight * cohesion + boidAlignmentWeight * alignment + boidSeparationWeight * separation + boidRandomDirectionWeight * boidRandomDirections[i];
             rawAccel += GetAdditionalBehavior(i);
             rawAccel *= boidMaxAccel;
             var accelMag = rawAccel.magnitude;
@@ -338,6 +349,8 @@ public class BoidsEditor : RuntimeMethodButtonEditor {
         EditorGUILayout.PropertyField(serializedObject.FindProperty("boidAlignmentWeight"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("boidSeparationDistance"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("boidSeparationWeight"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidRandomDirectionRecalcInterval"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidRandomDirectionWeight"));
     }
 
     protected virtual void DrawAdditionalProperties () { }
