@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class Boids : MonoBehaviour {
 
@@ -77,7 +74,6 @@ public class Boids : MonoBehaviour {
         OnUpdateFinished();
     }
 
-    [RuntimeMethodButton]
     public void SpawnBoids () {
         if(boidPrefab == null){
             Debug.LogError("No boid prefab assigned!");
@@ -294,67 +290,3 @@ public class Boids : MonoBehaviour {
 #endregion
 	
 }
-
-#if UNITY_EDITOR
-
-[CustomEditor(typeof(Boids))]
-public class BoidsEditor : RuntimeMethodButtonEditor {
-
-    protected override void DrawInspector () {
-        serializedObject.Update();
-        DrawScriptHeader();
-        DrawDefaultProperties();
-        DrawAdditionalProperties();
-        serializedObject.ApplyModifiedProperties();
-    }
-
-    protected void DrawScriptHeader () {
-        GUI.enabled = false;
-        var callingScript = GetCallingScript();
-        var callingType = GetCallingType();
-        EditorGUILayout.ObjectField("Script", callingScript, callingType, false);
-        GUI.enabled = true;
-    }
-
-    protected virtual MonoScript GetCallingScript () => MonoScript.FromMonoBehaviour((Boids)target);
-    protected virtual System.Type GetCallingType () => typeof(Boids);
-
-    protected void DrawDefaultProperties () {
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("alwaysDrawGizmos"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("gizmoColor"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("gizmoSize"));
-
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("spawnOnStart"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("spawnNumber"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("randomSeed"));
-
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("shape"));
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("size"));
-        GUI.enabled = false;
-        GUILayout.Label("(Transform scale also works)");
-        GUI.enabled = true;
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidPrefab"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("initAnimName"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidMinSpeed"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidMaxSpeed"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidMaxAccel"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidMaxVisualRotationSpeed"));
-
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidCohesionDistance"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidCohesionWeight"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidAlignmentDistance"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidAlignmentWeight"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidSeparationDistance"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidSeparationWeight"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidRandomDirectionRecalcInterval"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidRandomDirectionWeight"));
-    }
-
-    protected virtual void DrawAdditionalProperties () { }
-
-}
-
-#endif

@@ -1,7 +1,4 @@
 ﻿using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class TargetPointBoids : Boids {
 
@@ -27,21 +24,3 @@ public class TargetPointBoids : Boids {
     }
 	
 }
-
-#if UNITY_EDITOR
-
-[CustomEditor(typeof(TargetPointBoids))]
-public class TargetPointBoidsEditor : BoidsEditor {
-
-    protected override MonoScript GetCallingScript () => MonoScript.FromMonoBehaviour((TargetPointBoids)target);
-    protected override System.Type GetCallingType () => typeof(TargetPointBoids);
-
-    protected override void DrawAdditionalProperties () {
-        base.DrawAdditionalProperties();
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidTarget"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("boidTargetSeekWeight"));
-    }
-
-}
-
-#endif
