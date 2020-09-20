@@ -180,31 +180,30 @@ public class WaypointBoids : Boids {
         return true;
     }
 
-    public void RemoveWaypoint (int deleteIndex) {
+    public bool RemoveWaypoint (int deleteIndex) {
         if(!IndexCheckAndComplain(deleteIndex)){
-            return;
+            return false;
         }
-        BuildSafeUndo.RecordObject(this, "Delete point");
         waypoints.RemoveAt(deleteIndex);
+        return true;
     }
 
     public void AddWaypoint () {
-        BuildSafeUndo.RecordObject(this, "Add point");
         if(waypoints == null){
             waypoints = new List<Waypoint>();
         }
         waypoints.Add(new Waypoint(null, Waypoint.MIN_SQ_RADIUS));
     }
 
-    public void MovePointIndex (int startIndex, int delta) {
+    public bool MovePointIndex (int startIndex, int delta) {
         if(!IndexCheckAndComplain(startIndex)){
-            return;
+            return false;
         }
-        BuildSafeUndo.RecordObject(this, "Move point index");
         int endIndex = Mathf.Min(WaypointCount - 1, Mathf.Max(0, startIndex + delta));
         var movePoint = waypoints[startIndex];
         waypoints.RemoveAt(startIndex);
         waypoints.Insert(endIndex, movePoint);
+        return true;
     }
 	
 }
@@ -264,9 +263,11 @@ public class WaypointBoidsEditor : BoidsEditor {
                 var newRadius = EditorGUILayout.Slider("Radius", origRadius, WaypointBoids.Waypoint.MIN_RADIUS, WaypointBoids.Waypoint.MAX_RADIUS);
                 wpSQRadProp.floatValue = newRadius * newRadius;
                 if(GUILayout.Button("Λ", GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT))){
+                    Undo.RecordObject(boidsScript, "Move point index");
                     boidsScript.MovePointIndex(i, -1);
                 }
                 if(GUILayout.Button("V", GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT))){
+                    Undo.RecordObject(boidsScript, "Move point index");
                     boidsScript.MovePointIndex(i, +1);
                 }
             });
@@ -280,12 +281,14 @@ public class WaypointBoidsEditor : BoidsEditor {
         }
 
         if(removeIndex != DEFAULT_INDEX){
+            Undo.RecordObject(boidsScript, "Delete point");
             boidsScript.RemoveWaypoint(removeIndex);
         }
 
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
         if(GUILayout.Button("+", GUILayout.Width(EditorGUIUtility.currentViewWidth / 2))){
+            Undo.RecordObject(boidsScript, "Add point");
             boidsScript.AddWaypoint();
         }
         GUILayout.FlexibleSpace();

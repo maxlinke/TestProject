@@ -15,7 +15,7 @@ public class SomeClassWithVariablesEditor : Editor {
 
 		serializedObject.Update();
 
-		EditorTools.DrawScriptField(scwv);
+		EditorTools.DrawScriptReference(scwv);
 //		DrawScriptReference(scwv);
 //		EditorGUILayout.Space();
 //		DrawConditionalPart_Old(scwv);
