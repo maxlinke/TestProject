@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace SplineTools {
@@ -41,10 +39,14 @@ namespace SplineTools {
         }
 
         private BezierSpline spline;
+        private SerializedProperty overrideColorProp;
+        private SerializedProperty customColorProp;
 
         protected override void OnEnable () {
             base.OnEnable();
             spline = target as BezierSpline;
+            overrideColorProp = serializedObject.FindProperty("overrideGizmoColor");
+            customColorProp = serializedObject.FindProperty("customGizmoColor");
         }
 
         public override void OnInspectorGUI () {
@@ -55,7 +57,16 @@ namespace SplineTools {
 
         protected override bool DrawPropertyCustom (SerializedProperty property) {
             switch(property.name){
-
+                case "overrideGizmoColor":
+                    EditorTools.DrawHorizontal(() => {
+                        EditorGUILayout.PropertyField(overrideColorProp);
+                        if(overrideColorProp.boolValue){
+                            EditorGUILayout.PropertyField(customColorProp, GUIContent.none);
+                        }
+                    });
+                    return true;
+                case "customGizmoColor":
+                    return true;
                 default:
                     return false;
             }

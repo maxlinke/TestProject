@@ -1,19 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace SplineTools {
 
     [CustomEditor(typeof(CubicBezierSpline))]
-    public class CubicBezierSplineEditor : Editor {
+    public class CubicBezierSplineEditor : BezierSplineEditor {
 
         CubicBezierSpline cbs;
         GUIStyle textStyle;
 
-        void OnEnable () {
+        protected override void OnEnable () {
+            base.OnEnable();
             cbs = target as CubicBezierSpline;
             textStyle = BezierSplineEditor.GetHandlesTextStyle();
+        }
+
+        protected override bool DrawPropertyCustom (SerializedProperty property) {
+            return base.DrawPropertyCustom(property);
         }
 
         void OnSceneGUI () {
@@ -26,10 +29,10 @@ namespace SplineTools {
             var p3 = cbs.p3;
             if(cbs.showHandles){
                 EditorGUI.BeginChangeCheck();
-                Vector3 newp0 = Handles.PositionHandle(cbs.p0, Quaternion.identity);
-                Vector3 newp1 = Handles.PositionHandle(cbs.p1, Quaternion.identity);
-                Vector3 newp2 = Handles.PositionHandle(cbs.p2, Quaternion.identity);
-                Vector3 newp3 = Handles.PositionHandle(cbs.p3, Quaternion.identity);
+                Vector3 newp0 = Handles.PositionHandle(p0, Quaternion.identity);
+                Vector3 newp1 = Handles.PositionHandle(p1, Quaternion.identity);
+                Vector3 newp2 = Handles.PositionHandle(p2, Quaternion.identity);
+                Vector3 newp3 = Handles.PositionHandle(p3, Quaternion.identity);
                 if(EditorGUI.EndChangeCheck()){
                     Undo.RecordObject(cbs, "Change Handle Position");
                     cbs.localP0 = cbs.transform.InverseTransformPoint(newp0);
@@ -43,7 +46,6 @@ namespace SplineTools {
                 Handles.Label(p1, nameof(cbs.p1).ToUpper(), textStyle);
                 Handles.Label(p2, nameof(cbs.p2).ToUpper(), textStyle);
                 Handles.Label(p3, nameof(cbs.p3).ToUpper(), textStyle);
-
             }
         }
 

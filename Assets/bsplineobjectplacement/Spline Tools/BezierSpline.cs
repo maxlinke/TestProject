@@ -9,10 +9,15 @@ namespace SplineTools {
         public const float MAX_GIZMO_SIZE = 10f;
         public const float DEFAULT_GIZMO_SIZE = 0.5f;
 
+        [Header("Display")]
         [SerializeField] public bool showLabels = true;
         [SerializeField] public bool showHandles = true;
         [SerializeField] public bool showDirection = true;
+
+        [Header("Gizmos")]
         [SerializeField] public bool alwaysDrawGizmos = true;
+        [SerializeField] public bool overrideGizmoColor = false;
+        [SerializeField] public Color customGizmoColor = Color.white;
         [SerializeField, Range(MIN_GIZMO_SIZE, MAX_GIZMO_SIZE)] public float gizmoSize = DEFAULT_GIZMO_SIZE;
 
         public abstract int DEFAULT_LENGTH_CALC_ITERATIONS { get; }
@@ -23,6 +28,8 @@ namespace SplineTools {
         private Vector3 lastLossyScale;
         private Color m_gizmoColor;
         private Color m_inverseGizmoColor;
+
+        private bool lastOverrideColor;
         private string lastName;
 
         private bool m_drawingGizmosSelected = false;
@@ -50,16 +57,24 @@ namespace SplineTools {
         }}
 
         public Color GizmoColor { get {
-            if(gameObject.name != lastName){
+            bool recalcInverse = false;
+            if(overrideGizmoColor){
+                m_gizmoColor = customGizmoColor;
+                recalcInverse = true;
+            }else if(gameObject.name != lastName || lastOverrideColor){
                 m_gizmoColor = GetGizmoColor();
+                recalcInverse = true;
+            }
+            if(recalcInverse){
                 Color.RGBToHSV(m_gizmoColor, out var h, out var s, out var v);
                 m_inverseGizmoColor = Color.HSVToRGB(
                     H: Mathf.Repeat(h + 0.5f, 1), 
                     S: 0, 
                     V: Mathf.Repeat(v + 0.5f, 1)
                 );
-                lastName = gameObject.name;
             }
+            lastOverrideColor = overrideGizmoColor;
+            lastName = gameObject.name;
             return m_gizmoColor;
         }}
 
@@ -87,6 +102,9 @@ namespace SplineTools {
         protected abstract IEnumerable<(Vector3 start, Vector3 end)> GetWorldSpaceHandleLines ();
 
         public Color GetGizmoColor () {
+            if(overrideGizmoColor){
+                return customGizmoColor;
+            }
             int hash = 0;
             foreach(var ch in gameObject.name){
                 hash += 17 * ch;

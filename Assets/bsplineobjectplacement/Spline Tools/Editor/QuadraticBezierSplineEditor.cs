@@ -15,6 +15,10 @@ namespace SplineTools {
             textStyle = BezierSplineEditor.GetHandlesTextStyle();
         }
 
+        protected override bool DrawPropertyCustom (SerializedProperty property) {
+            return base.DrawPropertyCustom(property);
+        }
+
         void OnSceneGUI () {
             if(!(qbs.showHandles || qbs.showLabels)){
                 return;
@@ -24,9 +28,9 @@ namespace SplineTools {
             var p2 = qbs.p2;
             if(qbs.showHandles){
                 EditorGUI.BeginChangeCheck();
-                Vector3 newp0 = Handles.PositionHandle(qbs.p0, Quaternion.identity);
-                Vector3 newp1 = Handles.PositionHandle(qbs.p1, Quaternion.identity);
-                Vector3 newp2 = Handles.PositionHandle(qbs.p2, Quaternion.identity);
+                Vector3 newp0 = Handles.PositionHandle(p0, Quaternion.identity);
+                Vector3 newp1 = Handles.PositionHandle(p1, Quaternion.identity);
+                Vector3 newp2 = Handles.PositionHandle(p2, Quaternion.identity);
                 if(EditorGUI.EndChangeCheck()){
                     Undo.RecordObject(qbs, "Change Handle Position");
                     qbs.localP0 = qbs.transform.InverseTransformPoint(newp0);
