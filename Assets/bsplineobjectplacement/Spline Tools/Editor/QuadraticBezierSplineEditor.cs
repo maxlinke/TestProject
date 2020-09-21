@@ -4,12 +4,13 @@ using UnityEditor;
 namespace SplineTools {
 
     [CustomEditor(typeof(QuadraticBezierSpline))]
-    public class QuadraticBezierSplineEditor : Editor {
+    public class QuadraticBezierSplineEditor : BezierSplineEditor {
 
         QuadraticBezierSpline qbs;
         GUIStyle textStyle;
 
-        void OnEnable () {
+        protected override void OnEnable () {
+            base.OnEnable();
             qbs = target as QuadraticBezierSpline;
             textStyle = BezierSplineEditor.GetHandlesTextStyle();
         }

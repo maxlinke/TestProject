@@ -5,8 +5,7 @@ using UnityEditor;
 
 namespace SplineTools {
 
-    // public abstract class BezierSplineEditor : GenericEditor {
-    public abstract class BezierSplineEditor : Editor {
+    public abstract class BezierSplineEditor : GenericEditor {
 
         private const int GUI_HANDLES_FONT_SIZE = 12;
         private static Color GUI_HANDLES_TEXT_BACKGROUND => new Color(1, 1, 1, 0.5f);
@@ -41,13 +40,48 @@ namespace SplineTools {
             return output;
         }
 
-        // protected override bool DrawPropertyCustom (SerializedProperty property) {
-        //     switch(property.name){
+        private BezierSpline spline;
 
-        //         default:
-        //             return false;
-        //     }
-        // }
+        protected override void OnEnable () {
+            base.OnEnable();
+            spline = target as BezierSpline;
+        }
+
+        public override void OnInspectorGUI () {
+            base.OnInspectorGUI();
+            GUILayout.Space(10f);
+            DrawButtons();
+        }
+
+        protected override bool DrawPropertyCustom (SerializedProperty property) {
+            switch(property.name){
+
+                default:
+                    return false;
+            }
+        }
+
+        void DrawButtons () {
+            var buttonWidth = Mathf.Max(250f, EditorGUIUtility.currentViewWidth - 100f);
+            if(Button("Reverse Direction")){
+                Undo.RecordObject(spline, "Reverse spline direction");
+                spline.ReverseDirection();
+            }
+            if(Button("Apply Transform Scale")){
+                Undo.RecordObject(spline.transform, "Apply spline scale");
+                Undo.RecordObject(spline, "Apply spline scale");
+                spline.ApplyScale();
+            }
+            if(Button("Move Origin To Center")){
+                Undo.RecordObject(spline.transform, "Move position to average point");
+                Undo.RecordObject(spline, "Move position to average point");
+                spline.MovePositionToAveragePoint();
+            }
+
+            bool Button (string text) {
+                return EditorTools.ButtonCentered(text, buttonWidth);
+            }
+        }
 
         public static void GenericSplineInspector (SerializedObject serializedObject, MonoScript callingScript, System.Type callingType) {
             GUI.enabled = false;
