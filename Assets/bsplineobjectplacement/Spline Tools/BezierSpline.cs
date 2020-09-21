@@ -62,16 +62,12 @@ namespace SplineTools {
                 m_gizmoColor = customGizmoColor;
                 recalcInverse = true;
             }else if(gameObject.name != lastName || lastOverrideColor){
-                m_gizmoColor = GetGizmoColor();
+                m_gizmoColor = GetGizmoColorFromNameHash();
                 recalcInverse = true;
             }
             if(recalcInverse){
-                Color.RGBToHSV(m_gizmoColor, out var h, out var s, out var v);
-                m_inverseGizmoColor = Color.HSVToRGB(
-                    H: Mathf.Repeat(h + 0.5f, 1), 
-                    S: 0, 
-                    V: Mathf.Repeat(v + 0.5f, 1)
-                );
+                var lum = 0.299f * m_gizmoColor.r + 0.587f * m_gizmoColor.g + 0.115f * m_gizmoColor.b;
+                m_inverseGizmoColor = lum < 0.5f ? Color.white : Color.black;
             }
             lastOverrideColor = overrideGizmoColor;
             lastName = gameObject.name;
@@ -105,6 +101,10 @@ namespace SplineTools {
             if(overrideGizmoColor){
                 return customGizmoColor;
             }
+            return GetGizmoColorFromNameHash();
+        }
+
+        public Color GetGizmoColorFromNameHash () {
             int hash = 0;
             foreach(var ch in gameObject.name){
                 hash += 17 * ch;
@@ -122,9 +122,9 @@ namespace SplineTools {
             if(!showDirection){
                 return GizmoColor;
             }
-            float lrp = 1f - Mathf.Clamp01(Mathf.Abs((inputT - inputTime) / 0.2f));
-            lrp *= (1f - inputTime);
-            return Color.Lerp(GizmoColor, InverseGizmoColor, lrp);
+            float delta = Mathf.Abs(inputT - inputTime);
+            float lrp = Mathf.Clamp01(Mathf.Min(delta, 1f - delta) / 0.1f);
+            return Color.Lerp(InverseGizmoColor, GizmoColor, lrp);
         }
 
         float MovingThingyInputTime () {

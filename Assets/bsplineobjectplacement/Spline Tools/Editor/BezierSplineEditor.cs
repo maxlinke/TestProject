@@ -93,30 +93,6 @@ namespace SplineTools {
                 return EditorTools.ButtonCentered(text, buttonWidth);
             }
         }
-
-        public static void GenericSplineInspector (SerializedObject serializedObject, MonoScript callingScript, System.Type callingType) {
-            GUI.enabled = false;
-            EditorGUILayout.ObjectField("Script", callingScript, callingType, false);
-            GUI.enabled = true;
-
-            // GUILayout.BeginHorizontal();
-            // GUILayout.Label("Labels:", GUILayout.Width(44));
-            // EditorGUILayout.PropertyField(serializedObject.FindProperty("showLabels"), GUIContent.none, GUILayout.Width(10));
-            // GUILayout.Space(20);
-            // GUILayout.Label("Handles:", GUILayout.Width(52));
-            // EditorGUILayout.PropertyField(serializedObject.FindProperty("showHandles"), GUIContent.none, GUILayout.Width(10));
-            // GUILayout.Space(20);
-            // GUILayout.Label("Direction:", GUILayout.Width(58));
-            // EditorGUILayout.PropertyField(serializedObject.FindProperty("showDirection"), GUIContent.none, GUILayout.Width(10));
-            // GUILayout.EndHorizontal();
-
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("showLabels"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("showHandles"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("showDirection"));
-
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("alwaysDrawGizmos"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("gizmoSize"));
-        }
         
     }
 

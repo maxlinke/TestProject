@@ -2058,20 +2058,20 @@ MonoBehaviour:
   overrideGizmoColor: 0
   customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 0.5
-  cyclic: 0
+  cyclic: 1
   points:
   - m_type: 0
-    m_pos: {x: -7, y: 0, z: -4}
-    m_handleFwd: {x: 5, y: 0, z: 10}
-    m_handleBwd: {x: -5, y: -0, z: -10}
+    m_position: {x: -4.563616, y: -3.2112179, z: -5.500181}
+    m_handleFwd: {x: 5, y: -0, z: 10}
+    m_handleBwd: {x: -5, y: 0, z: -10}
   - m_type: 0
-    m_pos: {x: 7, y: -0, z: 4}
-    m_handleFwd: {x: 5, y: 0, z: 10}
-    m_handleBwd: {x: -5, y: -0, z: -10}
+    m_position: {x: 9.436384, y: -3.2112179, z: 2.4998188}
+    m_handleFwd: {x: 5, y: -0, z: 10}
+    m_handleBwd: {x: -5, y: 0, z: -10}
   - m_type: 0
-    m_pos: {x: -2.1716976, y: 0, z: 20.328678}
-    m_handleFwd: {x: 5, y: 15.660004, z: -11.754356}
-    m_handleBwd: {x: -2.7661886, y: -8.663705, z: 6.5029535}
+    m_position: {x: -4.8727646, y: 6.4224377, z: 3.0003624}
+    m_handleFwd: {x: -5.615457, y: -10.365266, z: -7.0743194}
+    m_handleBwd: {x: 5.85602, y: 10.809307, z: 7.3773785}
 --- !u!1 &790663918
 GameObject:
   m_ObjectHideFlags: 0

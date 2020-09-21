@@ -5,6 +5,7 @@ namespace SplineTools {
 
     public class ContinuousBezierSpline : BezierSpline {
 
+        [Header("Spline")]
         [SerializeField] public bool cyclic;
         [SerializeField] List<Point> points;
 
@@ -21,7 +22,7 @@ namespace SplineTools {
         private Point DefaultPoint () {
             var pos = new Vector3(-7,0,-4);
             var handle = new Vector3(5, 0, 10);
-            return new Point(Point.Type.SMOOTH, pos, handle, -handle);
+            return new Point(Point.Type.Smooth, pos, handle, -handle);
         }
 
         private void ValidatePointsList () {
@@ -33,9 +34,9 @@ namespace SplineTools {
             }
             if(points.Count < 2){
                 var p0 = points[0];
-                var pos = p0.pos;
+                var pos = p0.position;
                 var h1 = p0.handleFwd;
-                points.Add(new Point(Point.Type.SMOOTH, -pos, h1, -h1));
+                points.Add(new Point(Point.Type.Smooth, -pos, h1, -h1));
             }
         }
 
@@ -159,8 +160,12 @@ namespace SplineTools {
 
 #endregion
 
+        public Vector3 WorldPoint (Point point) {
+            return transform.TransformPoint(point.position);
+        }
+
         public void WorldPoints (Point point, out Vector3 wPos, out Vector3 wHFwd, out Vector3 wHBwd) {
-            wPos = transform.TransformPoint(point.pos);
+            wPos = transform.TransformPoint(point.position);
             wHFwd = wPos + transform.TransformVector(point.handleFwd);
             wHBwd = wPos + transform.TransformVector(point.handleBwd);
         }
@@ -170,7 +175,7 @@ namespace SplineTools {
         }
 
         public Vector3 PointSpaceHandlePos (Point point, Vector3 wHandlePos) {
-            return transform.InverseTransformVector(wHandlePos - transform.TransformPoint(point.pos));
+            return transform.InverseTransformVector(wHandlePos - transform.TransformPoint(point.position));
         }
 
         private bool IndexCheckAndComplain (int inputIndex) {
@@ -189,7 +194,6 @@ namespace SplineTools {
             if(!IndexCheckAndComplain(insertIndex)){
                 return;
             }
-            BuildSafeUndo.RecordObject(this, "Insert new point");
             Point prev = points[insertIndex];
             if((insertIndex + 1) < PointCount){
                 var next = points[insertIndex+1];
@@ -198,7 +202,7 @@ namespace SplineTools {
                 var bPoint = CubicBezierSpline.BezierPoint(p0, p1, p2, p3, 0.5f);
                 var bFwd = CubicBezierSpline.BezierDerivative(p0, p1, p2, p3, 0.5f);
                 var newPoint = new Point(
-                    type: Point.Type.SMOOTH, 
+                    type: Point.Type.Smooth, 
                     pos: LocalPointPos(bPoint),
                     handleFwd: Vector3.one,
                     handleBwd: -Vector3.one
@@ -211,7 +215,7 @@ namespace SplineTools {
             }else{
                 WorldPoints(prev, out var wPrevPos, out var wPrevHFwd, out _);
                 points.Insert(insertIndex + 1, new Point(
-                    type: Point.Type.SMOOTH,
+                    type: Point.Type.Smooth,
                     pos: LocalPointPos(wPrevPos + 3f * (wPrevHFwd - wPrevPos)),
                     handleFwd: prev.handleFwd,
                     handleBwd: -prev.handleFwd
@@ -223,7 +227,6 @@ namespace SplineTools {
             if(!IndexCheckAndComplain(deleteIndex)){
                 return;
             }
-            BuildSafeUndo.RecordObject(this, "Delete point");
             points.RemoveAt(deleteIndex);
             ValidatePointsList();
         }
@@ -232,7 +235,6 @@ namespace SplineTools {
             if(!IndexCheckAndComplain(startIndex)){
                 return;
             }
-            BuildSafeUndo.RecordObject(this, "Move point index");
             int endIndex = Mathf.Min(PointCount - 1, Mathf.Max(0, startIndex + delta));
             var movePoint = points[startIndex];
             points.RemoveAt(startIndex);
@@ -240,14 +242,13 @@ namespace SplineTools {
         }
 
         public override void ReverseDirection () {
-            BuildSafeUndo.RecordObject(this, "Reverse spline direction");
             var newPoints = new List<Point>();
             int loopStart, loopEnd;
             if(cyclic){
                 var startPoint = points[0];
                 newPoints.Add(new Point(
                     type: startPoint.type,
-                    pos: startPoint.pos,
+                    pos: startPoint.position,
                     handleFwd: startPoint.handleBwd,
                     handleBwd: startPoint.handleFwd
                 ));
@@ -261,7 +262,7 @@ namespace SplineTools {
                 var origPoint = points[i];
                 var newPoint = new Point(
                     type: origPoint.type,
-                    pos: origPoint.pos,
+                    pos: origPoint.position,
                     handleFwd: origPoint.handleBwd,
                     handleBwd: origPoint.handleFwd
                 );
@@ -281,7 +282,7 @@ namespace SplineTools {
             changeTransform(pointSum);
             for(int i=0; i<PointCount; i++){
                 var point = points[i];
-                point.pos = LocalPointPos(wPoints[i].Item1);
+                point.position = LocalPointPos(wPoints[i].Item1);
                 point.handleFwd = PointSpaceHandlePos(point, wPoints[i].Item2);
                 point.handleBwd = PointSpaceHandlePos(point, wPoints[i].Item3);
             }
@@ -291,14 +292,10 @@ namespace SplineTools {
             if(transform.localScale.Equals(Vector3.one)){
                 return;
             }
-            BuildSafeUndo.RecordObject(this.transform, "Apply spline scale");
-            BuildSafeUndo.RecordObject(this, "Apply spline scale");
             ChangeTransformButKeepPoints((ps) => {this.transform.localScale = Vector3.one;});
         }
 
         public override void MovePositionToAveragePoint () {
-            BuildSafeUndo.RecordObject(this.transform, "Move position to average point");
-            BuildSafeUndo.RecordObject(this, "Move position to average point");
             ChangeTransformButKeepPoints((ps) => {this.transform.position = ps / PointCount;});
         }
 
@@ -306,22 +303,22 @@ namespace SplineTools {
         public class Point {
 
             public enum Type {
-                SMOOTH,
-                BROKEN
+                Smooth,
+                Broken
             }
 
             [SerializeField] private Type m_type;
-            [SerializeField] private Vector3 m_pos;
+            [SerializeField] private Vector3 m_position;
             [SerializeField] private Vector3 m_handleFwd;
             [SerializeField] private Vector3 m_handleBwd;
 
             public Type type { get => m_type ; set {
                 m_type = value;
                 switch(value){
-                    case Type.SMOOTH:
+                    case Type.Smooth:
                         handleFwd = handleFwd;  // recalc handleback
                         break;
-                    case Type.BROKEN:
+                    case Type.Broken:
                         break;
                     default: 
                         Debug.LogError($"Unknown {typeof(Point.Type)} \"{value}\"");
@@ -329,18 +326,18 @@ namespace SplineTools {
                 }
             }}
 
-            public Vector3 pos { get => m_pos; set {
-                m_pos = value;
+            public Vector3 position { get => m_position; set {
+                m_position = value;
             }}
 
             public Vector3 handleFwd { get => m_handleFwd; set {
                 m_handleFwd = value;
                 switch(type){
-                    case Type.SMOOTH:
+                    case Type.Smooth:
                         var bwdMag = handleBwd.magnitude;
                         m_handleBwd = -bwdMag * value.normalized;
                         break;
-                    case Type.BROKEN:
+                    case Type.Broken:
                         break;
                     default: 
                         Debug.LogError($"Unknown {typeof(Point.Type)} \"{value}\"");
@@ -351,11 +348,11 @@ namespace SplineTools {
             public Vector3 handleBwd { get => m_handleBwd; set {
                 m_handleBwd = value;
                 switch(type){
-                    case Type.SMOOTH:
+                    case Type.Smooth:
                         var fwdMag = handleFwd.magnitude;
                         m_handleFwd = -fwdMag * value.normalized;
                         break;
-                    case Type.BROKEN:
+                    case Type.Broken:
                         break;
                     default: 
                         Debug.LogError($"Unknown {typeof(Point.Type)} \"{value}\"");
@@ -364,29 +361,29 @@ namespace SplineTools {
             }}
 
             public Point () {
-                m_type = Type.SMOOTH;
-                m_pos = Vector3.zero;
+                m_type = Type.Smooth;
+                m_position = Vector3.zero;
                 m_handleFwd = Vector3.one;
                 m_handleBwd = -Vector3.one;
             }
 
             public Point (Type type, Vector3 pos, Vector3 handleFwd, Vector3 handleBwd) {
                 m_type = type;
-                m_pos = pos;
+                m_position = pos;
                 m_handleBwd = handleBwd;
                 this.handleFwd = handleFwd;
             }
 
             public Point (Point other) {
                 m_type = other.type;
-                m_pos = other.pos;
+                m_position = other.position;
                 m_handleFwd = other.handleFwd;
                 m_handleBwd = other.handleBwd;
             }
 
             public override bool Equals (object obj) {
                 if(obj is Point other){
-                    if(other.pos == this.pos){
+                    if(other.position == this.position){
                         if(other.type == this.type){
                             if(other.handleFwd == this.handleFwd && other.handleBwd == this.handleBwd){
                                 return true;
@@ -398,7 +395,7 @@ namespace SplineTools {
             }
 
             public override int GetHashCode () {
-                return m_type.GetHashCode() + m_pos.GetHashCode() + m_handleFwd.GetHashCode() + m_handleBwd.GetHashCode();
+                return m_type.GetHashCode() + m_position.GetHashCode() + m_handleFwd.GetHashCode() + m_handleBwd.GetHashCode();
             }
 
         }
