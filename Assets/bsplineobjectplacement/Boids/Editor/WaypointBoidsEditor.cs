@@ -25,7 +25,7 @@ namespace Boids {
             GUILayout.Space(10f);
             EditorTools.HeaderLabel(wpArrayProp.displayName);
             var bgCache = GUI.backgroundColor;
-            var removeButtonColor = Color.Lerp(bgCache, Color.red, BACKGROUND_TINT_STRENGTH);
+            var removeButtonColor = Color.Lerp(bgCache, Color.red, EditorTools.BACKGROUND_TINT_STRENGTH);
             var boidsScript = target as WaypointBoids;
 
             if(wpArrayProp.arraySize < 1){
@@ -39,7 +39,7 @@ namespace Boids {
                 var wpSQRadProp = wpProp.FindPropertyRelative("sqRadius");
                 var wp = boidsScript[i];
                 Line(i.ToString(), () => {
-                    ObjectFieldRedBackgroundIfNull(wpTransformProp);
+                    EditorTools.DrawObjectFieldWarnIfNull(wpTransformProp);
                     GUI.backgroundColor = removeButtonColor;
                     if(GUILayout.Button("X", GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT))){
                         removeIndex = i;

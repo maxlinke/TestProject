@@ -10,7 +10,7 @@ namespace Boids {
                 return true;
             }
             if(property.name.Equals("boidTarget")){
-                ObjectFieldRedBackgroundIfNull(property);
+                EditorTools.DrawObjectFieldWarnIfNull(property);
                 return true;
             }
             return false;

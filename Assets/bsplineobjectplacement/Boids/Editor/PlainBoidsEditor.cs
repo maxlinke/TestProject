@@ -18,7 +18,7 @@ namespace Boids {
             if(EditorApplication.isPlaying){
                 GUILayout.Space(10f);
                 var bgColCache = GUI.backgroundColor;
-                GUI.backgroundColor = Color.Lerp(bgColCache, Color.green, BACKGROUND_TINT_STRENGTH);
+                GUI.backgroundColor = Color.Lerp(bgColCache, Color.green, EditorTools.BACKGROUND_TINT_STRENGTH);
                 if(EditorTools.ButtonCentered("Spawn Boids", 250f)){
                     (target as PlainBoids).SpawnBoids();
                 }
@@ -36,7 +36,7 @@ namespace Boids {
                     });
                     return true;
                 case "boidPrefab":
-                    ObjectFieldRedBackgroundIfNull(property);
+                    EditorTools.DrawObjectFieldWarnIfNull(property);
                     return true;
                 case "initialAnimationName":
                     var guiOn = GUI.enabled;

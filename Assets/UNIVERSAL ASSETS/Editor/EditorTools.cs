@@ -3,6 +3,8 @@ using UnityEditor;
 
 public static class EditorTools {
 
+    public const float BACKGROUND_TINT_STRENGTH = 0.3f;
+
     public static void DrawScriptReference (UnityEngine.Object obj) {
         if(obj is MonoBehaviour monoBehaviour){
             DrawScriptReference(monoBehaviour);
@@ -30,6 +32,15 @@ public static class EditorTools {
 
     public static void DrawProperty (SerializedProperty property) {
         EditorGUILayout.PropertyField(property, true);
+    }
+
+    public static void DrawObjectFieldWarnIfNull (SerializedProperty property) {
+        var bgCol = GUI.backgroundColor;
+        if(property.objectReferenceValue == null){
+            GUI.backgroundColor = Color.Lerp(bgCol, Color.red, BACKGROUND_TINT_STRENGTH);
+        }
+        EditorGUILayout.PropertyField(property, true);
+        GUI.backgroundColor = bgCol;
     }
 
     public static void DrawDisabled (System.Action drawAction) {
