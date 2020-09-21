@@ -4,32 +4,48 @@ using UnityEditor;
 namespace SplineTools {
 
     [CustomEditor(typeof(BSplineObjectPlacer))]
-    public class BSplineObjectPlacerEditor : Editor {
+    public class BSplineObjectPlacerEditor : GenericEditor {
 
         BSplineObjectPlacer bsop;
+        SerializedProperty placementMode;
 
-        void OnEnable () {
+        protected override void OnEnable () {
+            base.OnEnable();
             bsop = target as BSplineObjectPlacer;
+            placementMode = serializedObject.FindProperty("placementMode");
+        }
+
+        protected override bool DrawPropertyCustom (SerializedProperty property) {
+            switch(property.name){
+                case "spline":
+                    EditorTools.DrawObjectFieldWarnIfNull(property);
+                    return true;
+                case "objectPool":
+                    EditorTools.DrawObjectFieldWarnIfNull(property);
+                    return true;
+                case "groundCollider":
+                    if(placementMode.enumValueIndex != (int)BSplineObjectPlacer.PlacementMode.OnSpline){
+                        EditorTools.DrawObjectFieldWarnIfNull(property);
+                    }
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         public override void OnInspectorGUI () {
-            DrawDefaultInspector();
+            base.OnInspectorGUI();
+            var buttonWidth = Mathf.Max(250f, EditorGUIUtility.currentViewWidth - 100f);
             GUILayout.Space(10);
-            if(GUILayout.Button("Delete placed objects")){
-                bsop.DeletePlacedObjects();
-            }
-            if(GUILayout.Button("(Re)Place")){
-                bsop.PlaceObjects();
-            }
-            if(GUILayout.Button("Randomize Seed")){
-                bsop.RandomizeSeed();
-            }
+            if(EditorTools.ButtonCenteredWithTint("Clear placed objects", buttonWidth, Color.red)) bsop.DeletePlacedObjects();
+            if(Button("(Re)Place")) bsop.PlaceObjects();
+            if(Button("Randomize Seed")) bsop.RandomizeSeed();
             GUILayout.Space(10);
-            if(GUILayout.Button("Rotate placed objects 90°")){
-                bsop.Rotate90Deg();
-            }
-            if(GUILayout.Button("Reverse direction")){
-                bsop.ReverseDirection();
+            if(Button("Rotate placed objects 90°")) bsop.Rotate90Deg();
+            if(Button("Reverse direction")) bsop.ReverseDirection();
+
+            bool Button (string text) {
+                return EditorTools.ButtonCentered(text, buttonWidth);
             }
         }
 

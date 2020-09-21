@@ -18,7 +18,7 @@ namespace SplineTools {
 
         [Header("Placement Settings")]
         [SerializeField] public BSplineObjectPlacer.DistanceMode distanceMode = default;
-        [SerializeField] public BSplineObjectPlacer.GroundMode groundMode = default;
+        [SerializeField] public BSplineObjectPlacer.PlacementMode placementMode = default;
         [SerializeField] public Collider groundCollider = default;
         [SerializeField] public bool noOvershoot = true;
 
@@ -74,7 +74,7 @@ namespace SplineTools {
 
         public void UpdatePlacementSettings () {
             foreach(var child in GetPlacerChildren()){
-                child.UpdatePlacementSettings(distanceMode, groundMode, groundCollider, noOvershoot);
+                child.UpdatePlacementSettings(distanceMode, placementMode, groundCollider, noOvershoot);
             }
         }
 

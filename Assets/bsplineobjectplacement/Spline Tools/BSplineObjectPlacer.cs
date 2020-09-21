@@ -22,19 +22,19 @@ namespace SplineTools {
 
         [Header("Placement Settings")]
         [SerializeField] DistanceMode distanceMode;
-        [SerializeField] GroundMode groundMode;
+        [SerializeField] PlacementMode placementMode;
         [SerializeField] Collider groundCollider;
         [SerializeField] bool noOvershoot;
 
         public enum DistanceMode {
-            EUCLIDIAN,
-            BEZIER
+            Euclidian,
+            Bezier
         }
 
-        public enum GroundMode {
-            DISABLED,
-            SNAP,
-            SNAP_AND_ALIGN
+        public enum PlacementMode {
+            OnSpline,
+            OnGround,
+            OnGroundAligned
         }
 
         void UndoRecordThisObject (string message) {
@@ -72,10 +72,10 @@ namespace SplineTools {
             ConditionalReplace();
         }
 
-        public void UpdatePlacementSettings (DistanceMode newDistanceMode, GroundMode newGroundMode, Collider newGroundCollider, bool newOvershootMode) {
+        public void UpdatePlacementSettings (DistanceMode newDistanceMode, PlacementMode newPlacementMode, Collider newGroundCollider, bool newOvershootMode) {
             UndoRecordThisObject("Update placement settings");
             this.distanceMode = newDistanceMode;
-            this.groundMode = newGroundMode;
+            this.placementMode = newPlacementMode;
             this.groundCollider = newGroundCollider;
             this.noOvershoot = newOvershootMode;
             ConditionalReplace();
@@ -199,9 +199,6 @@ namespace SplineTools {
                     var rotationOffset = universalRotationOffset + RandomDistribution() * rotationRandomness;
                     bool successfullyPlaced = TryPlace();
                     if(!successfullyPlaced || !TryAdvanceT(newGOSize / 2f) || (t > 1f && noOvershoot)){
-                        if(!successfullyPlaced){
-                            Debug.LogWarning("No place point found! Aborting...", this.gameObject);
-                        }
                         #if UNITY_EDITOR
                         DestroyImmediate(newGO);
                         #else
@@ -232,32 +229,28 @@ namespace SplineTools {
                     bool TryFindPlacePointAndNormal (out Vector3 outputPlacePoint, out Vector3 outputPlaceNormal) {
                         outputPlacePoint = default;
                         outputPlaceNormal = default;
-                        if(groundMode == GroundMode.DISABLED){
+                        if(placementMode == PlacementMode.OnSpline){
                             outputPlacePoint = bPoint;
                             outputPlaceNormal = Vector3.up;
                             return true;
-                        }else{
-                            if(groundCollider == null){
-                                Debug.LogWarning("No ground collider set even though snapping to ground is activated!", this.gameObject);
-                            }
-                            var gcb = groundCollider.bounds;
-                            var ro = new Vector3(bPoint.x, gcb.center.y + gcb.extents.y + 1f, bPoint.z);
-                            if(groundCollider.Raycast(new Ray(ro, Vector3.down), out RaycastHit hit, 2f * gcb.extents.y + 2f)){
-                                Debug.DrawLine(ro, hit.point, Color.green, 0f, false);
-                                Debug.DrawRay(hit.point, hit.normal, Color.blue, 0f, false);
-                                outputPlacePoint = hit.point;
-                                if(groundMode == GroundMode.SNAP_AND_ALIGN){
-                                    outputPlaceNormal = hit.normal;
-                                }else{
-                                    outputPlaceNormal = Vector3.up;
-                                }
-                                return true;        
-                            }else{
-                                Debug.DrawRay(ro, Vector3.down * (gcb.extents.y * 2f + 2f), Color.red, 10f, false);
-                                Debug.Log("no hit");
-                                return false;
-                            }
                         }
+                        if(groundCollider == null){
+                            Debug.LogError("No ground collider set even though snapping to ground is activated!", this.gameObject);
+                            return false;
+                        }
+                        var gcb = groundCollider.bounds;
+                        var ro = new Vector3(bPoint.x, gcb.center.y + gcb.extents.y + 1f, bPoint.z);
+                        if(groundCollider.Raycast(new Ray(ro, Vector3.down), out RaycastHit hit, 2f * gcb.extents.y + 2f)){
+                            outputPlacePoint = hit.point;
+                            if(placementMode == PlacementMode.OnGroundAligned){
+                                outputPlaceNormal = hit.normal;
+                            }else{
+                                outputPlaceNormal = Vector3.up;
+                            }
+                            return true;        
+                        }
+                        Debug.LogError("Missed the ground. Make sure the spline is always over the ground!");
+                        return false;
                     }
 
                     void PlaceAtPointAndNormalWithRotationOffset (Vector3 inputPlacePoint, Vector3 inputPlaceNormal, Vector3 inputSplineForward, float inputRotationOffset) {
@@ -270,10 +263,10 @@ namespace SplineTools {
                     bool TryAdvanceT (float advanceDist, bool allowBackwards = false) {
                         float newT;
                         switch(distanceMode){
-                            case DistanceMode.EUCLIDIAN:
+                            case DistanceMode.Euclidian:
                                 newT = spline.NextTFromEuclidianDistance(t, advanceDist);
                                 break;
-                            case DistanceMode.BEZIER:
+                            case DistanceMode.Bezier:
                                 newT = spline.NextTFromBezierDistance(t, advanceDist);
                                 break;
                             default:
