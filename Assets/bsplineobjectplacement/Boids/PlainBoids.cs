@@ -30,7 +30,7 @@ namespace Boids {
         
         [Header("Boid Settings")]
         [SerializeField] protected GameObject boidPrefab = null;
-        [SerializeField] protected string initAnimName = string.Empty;
+        [SerializeField] protected string initialAnimationName = string.Empty;
         [SerializeField] protected float boidMinSpeed = 5f;
         [SerializeField] protected float boidMaxSpeed = 10f;
         [SerializeField] protected float boidMaxAccel = 20f;
@@ -94,7 +94,7 @@ namespace Boids {
                 var newBoidGO = Instantiate(boidPrefab, point, Quaternion.LookRotation(this.transform.forward, Vector3.up), boidParent.transform);
                 var newBoidAnim = newBoidGO.GetComponent<Animator>();
                 if(newBoidAnim != null){
-                    newBoidAnim.Play(initAnimName, 0, Random.value);
+                    newBoidAnim.Play(initialAnimationName, 0, Random.value);
                 }
                 var newBoid = new Boid(newBoidGO.transform, newBoidGO.transform.forward * Mathf.Lerp(boidMinSpeed, boidMaxSpeed, (float)(rng.NextDouble())));
                 boids.Add(newBoid);

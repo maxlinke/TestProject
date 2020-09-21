@@ -8,6 +8,10 @@ namespace Boids {
 
         public const float COLOR_STRENGTH = 0.3f;
 
+        private const string SIZE_PROP = "size";
+        private const string PREFAB_PROP = "boidPrefab";
+        private const string ANIM_NAME_PROP = "initialAnimationName";
+
         public override void OnInspectorGUI () {
             EditorTools.DrawScriptReference(target);
             serializedObject.Update();
@@ -34,18 +38,33 @@ namespace Boids {
         }
 
         protected virtual bool IsSpecialProperty (SerializedProperty property) {
-            return property.name.Equals("size") || property.name.Equals("boidPrefab");
+            return property.name.Equals(SIZE_PROP) || property.name.Equals(PREFAB_PROP) || property.name.Equals(ANIM_NAME_PROP);
         }
 
         protected virtual void DrawSpecialProperty (SerializedProperty property) {
-            if(property.name.Equals("size")){
+            if(property.name.Equals(SIZE_PROP)){
                 EditorTools.DrawHorizontal(() => {
                     EditorGUILayout.PropertyField(property, true);
                     EditorTools.DrawDisabled(() => GUILayout.Label("(Transform scale also works)"));
                 });
             }
-            if(property.name.Equals("boidPrefab")){
+            if(property.name.Equals(PREFAB_PROP)){
                 ObjectFieldRedBackgroundIfNull(property);
+            }
+            if(property.name.Equals(ANIM_NAME_PROP)){
+                var prefabProp = serializedObject.FindProperty(PREFAB_PROP);
+                var guiOn = GUI.enabled;
+                if(prefabProp.objectReferenceValue == null){
+                    GUI.enabled = false;
+                    property.stringValue = string.Empty;
+                }else if((prefabProp.objectReferenceValue as GameObject).GetComponent<Animator>() == null){
+                    GUI.enabled = false;
+                    property.stringValue = string.Empty;
+                }
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(property);
+                EditorGUI.indentLevel--;
+                GUI.enabled = guiOn;
             }
         }
 
