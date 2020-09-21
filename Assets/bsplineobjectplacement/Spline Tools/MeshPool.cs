@@ -11,8 +11,8 @@ namespace SplineTools{
 
         private const int MAX_DUPLICATE_AVOIDANCE_ITERATIONS = 32;
 
-        [SerializeField] OutputType outputType = OutputType.ORDERED;
-        [SerializeField] RandomRepetitionType randomRepetitionType = RandomRepetitionType.ALLOW;
+        [SerializeField] PlacementOrder placementOrder = PlacementOrder.FixedOrder;
+        [SerializeField] RandomRepetition randomRepetition = RandomRepetition.Allow;
         [SerializeField] MeshPoolObject[] objects = default;
 
         public override int ObjectCount => (objects == null) ? 0 : objects.Length;
@@ -23,15 +23,15 @@ namespace SplineTools{
         MeshPoolObject lastPO;
         Material lastMat;
 
-        public enum OutputType {
-            ORDERED,
-            RANDOM
+        public enum PlacementOrder {
+            FixedOrder,
+            RandomOrder
         }
 
-        public enum RandomRepetitionType {
-            ALLOW,
-            AVOID_DUPLICATE_OBJECT,
-            AVOID_DUPLICATE_APPEARANCE
+        public enum RandomRepetition {
+            Allow,
+            AvoidDuplicateObjects,
+            AvoidDuplicateAppearance
         }
 
         protected override void Init () {
@@ -53,12 +53,12 @@ namespace SplineTools{
             }
             MeshPoolObject po;
             Material mat;
-            switch(outputType){
-                case OutputType.ORDERED:
+            switch(placementOrder){
+                case PlacementOrder.FixedOrder:
                     po = occurenceList[nextIndex];
                     mat = po.RandomMaterial(rng);
                     break;
-                case OutputType.RANDOM:
+                case PlacementOrder.RandomOrder:
                     po = null;
                     mat = null;
                     for(int i=0; i<MAX_DUPLICATE_AVOIDANCE_ITERATIONS; i++){
@@ -68,18 +68,18 @@ namespace SplineTools{
                         mat = po.RandomMaterial(rng);
                         var samePO = po == lastPO;
                         var sameMat = mat == lastMat;
-                        switch(randomRepetitionType){
-                            case RandomRepetitionType.ALLOW:
+                        switch(randomRepetition){
+                            case RandomRepetition.Allow:
                                 validSelection = true;
                                 break;
-                            case RandomRepetitionType.AVOID_DUPLICATE_APPEARANCE:
+                            case RandomRepetition.AvoidDuplicateAppearance:
                                 validSelection = !(samePO && sameMat);
                                 break;
-                            case RandomRepetitionType.AVOID_DUPLICATE_OBJECT:
+                            case RandomRepetition.AvoidDuplicateObjects:
                                 validSelection = !samePO;
                                 break;
                             default:
-                                Debug.LogError($"Unknown {nameof(RandomRepetitionType)} \"{randomRepetitionType}\"!");
+                                Debug.LogError($"Unknown {nameof(RandomRepetition)} \"{randomRepetition}\"!");
                                 validSelection = true;
                                 break;
                         }
@@ -89,7 +89,7 @@ namespace SplineTools{
                     }
                     break;
                 default:
-                    Debug.LogError($"Unknown {typeof(OutputType)} \"{outputType}\"!");
+                    Debug.LogError($"Unknown {typeof(PlacementOrder)} \"{placementOrder}\"!");
                     return null;
             }
             var output = InstantiatePrefabAndMeasureSize(po.Prefab, mat, measureAxis, po.UseBoxColliderForSpacing);
@@ -263,10 +263,10 @@ namespace SplineTools{
             EditorGUILayout.ObjectField("Script", MonoScript.FromScriptableObject(mp), typeof(MeshPool), false);
             GUI.enabled = true;
 
-            var otProp = serializedObject.FindProperty("outputType");
+            var otProp = serializedObject.FindProperty("placementOrder");
             EditorGUILayout.PropertyField(otProp);
-            if(((MeshPool.OutputType)(otProp.enumValueIndex)) == MeshPool.OutputType.RANDOM){
-                var rrtProp = serializedObject.FindProperty("randomRepetitionType");
+            if(((MeshPool.PlacementOrder)(otProp.enumValueIndex)) == MeshPool.PlacementOrder.RandomOrder){
+                var rrtProp = serializedObject.FindProperty("randomRepetition");
                 EditorGUILayout.PropertyField(rrtProp);
             }
 

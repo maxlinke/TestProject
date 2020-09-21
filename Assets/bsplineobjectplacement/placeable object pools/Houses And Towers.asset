@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 728f1e4ae076d6c40a6302fe3bbc3817, type: 3}
   m_Name: Houses And Towers
   m_EditorClassIdentifier: 
-  outputType: 1
-  randomRepetitionType: 2
+  placementOrder: 1
+  randomRepetition: 2
   objects:
   - prefab: {fileID: 4446828546740407144, guid: d53d7927d17aa8b4f8d5ca7632814990,
       type: 3}
@@ -27,7 +27,7 @@ MonoBehaviour:
     - {fileID: 2100000, guid: 67853cdab5ad2cb4ba32d83c0dec4d7c, type: 2}
   - prefab: {fileID: 7762986431524703118, guid: 56639b458cbb3094d97ef857aafef8e2,
       type: 3}
-    occurences: 7
+    occurences: 5
     useBoxColliderForSpacing: 0
     materials:
     - {fileID: 2100000, guid: 1d721299359bdaf4cbfcd5ba94891827, type: 2}
