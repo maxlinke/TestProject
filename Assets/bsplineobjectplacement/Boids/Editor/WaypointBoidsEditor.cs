@@ -24,8 +24,6 @@ namespace Boids {
         void DrawWaypointsProperty (SerializedProperty wpArrayProp) {
             GUILayout.Space(10f);
             EditorTools.HeaderLabel(wpArrayProp.displayName);
-            var bgCache = GUI.backgroundColor;
-            var removeButtonColor = Color.Lerp(bgCache, Color.red, EditorTools.BACKGROUND_TINT_STRENGTH);
             var boidsScript = target as WaypointBoids;
 
             if(wpArrayProp.arraySize < 1){
@@ -40,21 +38,19 @@ namespace Boids {
                 var wp = boidsScript[i];
                 Line(i.ToString(), () => {
                     EditorTools.DrawObjectFieldWarnIfNull(wpTransformProp);
-                    GUI.backgroundColor = removeButtonColor;
-                    if(GUILayout.Button("X", GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT))){
+                    if(InlineButton("X", true, Color.red)){
                         removeIndex = i;
                     }
-                    GUI.backgroundColor = bgCache;
                 });
                 Line(string.Empty, () => {
                     var origRadius = wp.Radius;
                     var newRadius = EditorGUILayout.Slider("Radius", origRadius, WaypointBoids.Waypoint.MIN_RADIUS, WaypointBoids.Waypoint.MAX_RADIUS);
                     wpSQRadProp.floatValue = newRadius * newRadius;
-                    if(GUILayout.Button("Λ", GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT))){
+                    if(InlineButton("Λ")){
                         Undo.RecordObject(boidsScript, "Move point index");
                         boidsScript.MovePointIndex(i, -1);
                     }
-                    if(GUILayout.Button("V", GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT))){
+                    if(InlineButton("V")){
                         Undo.RecordObject(boidsScript, "Move point index");
                         boidsScript.MovePointIndex(i, +1);
                     }
@@ -65,6 +61,16 @@ namespace Boids {
                         EditorGUILayout.LabelField(labelText, GUILayout.Width(24));
                         drawLine();
                     });
+                }
+
+                bool InlineButton (string text, bool tint = false, Color tintColor = default) {
+                    var bgCol = GUI.backgroundColor;
+                    if(tint){
+                        GUI.backgroundColor = Color.Lerp(bgCol, tintColor, EditorTools.BACKGROUND_TINT_STRENGTH);
+                    }
+                    var output = GUILayout.Button(text, GUILayout.Width(INLINE_BUTTON_WIDTH), GUILayout.Height(INLINE_BUTTON_HEIGHT));
+                    GUI.backgroundColor = bgCol;
+                    return output;
                 }
             }
 
@@ -77,8 +83,6 @@ namespace Boids {
                 Undo.RecordObject(boidsScript, "Add point");
                 boidsScript.AddWaypoint();
             }
-
-            GUI.backgroundColor = bgCache;
         }
         
     }

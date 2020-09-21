@@ -92,6 +92,7 @@ namespace Boids {
             var rng = new System.Random(randomSeed);
             foreach(var point in GetSpawnPoints()){
                 var newBoidGO = Instantiate(boidPrefab, point, Quaternion.LookRotation(this.transform.forward, Vector3.up), boidParent.transform);
+                newBoidGO.SetActive(true);
                 var newBoidAnim = newBoidGO.GetComponent<Animator>();
                 if(newBoidAnim != null){
                     newBoidAnim.Play(initialAnimationName, 0, Random.value);

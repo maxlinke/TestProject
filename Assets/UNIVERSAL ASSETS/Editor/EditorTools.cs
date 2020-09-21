@@ -78,14 +78,14 @@ public static class EditorTools {
         DrawIndented(() => DrawProperty(property), indentLevel);
     }
 
-    public static void DrawWithTintedBackground (System.Action drawAction, Color tintColor, float tintStrength) {
+    public static void DrawWithTintedBackground (System.Action drawAction, Color tintColor, float tintStrength = BACKGROUND_TINT_STRENGTH) {
         var bgCol = GUI.backgroundColor;
         GUI.backgroundColor = Color.Lerp(bgCol, tintColor, tintStrength);
         drawAction();
         GUI.backgroundColor = bgCol;
     }
 
-    public static void DrawWithTintedBackground (SerializedProperty property, Color tintColor, float tintStrength) {
+    public static void DrawWithTintedBackground (SerializedProperty property, Color tintColor, float tintStrength = BACKGROUND_TINT_STRENGTH) {
         DrawWithTintedBackground(() => DrawProperty(property), tintColor, tintStrength);
     }
 
@@ -123,6 +123,12 @@ public static class EditorTools {
                 output = GUILayout.Button(text, GUILayout.Width(width));
             }
         });
+        return output;
+    }
+
+    public static bool ButtonCenteredWithTint (string text, float width, Color tintColor, float tintStrength = BACKGROUND_TINT_STRENGTH, bool miniButton = false) {
+        var output = false;
+        DrawWithTintedBackground(() => {output = ButtonCentered(text, width, miniButton);}, tintColor, tintStrength);
         return output;
     }
 	

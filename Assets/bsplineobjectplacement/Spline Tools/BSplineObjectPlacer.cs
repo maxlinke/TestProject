@@ -1,9 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+﻿using UnityEngine;
 
 namespace SplineTools {
 
@@ -42,6 +37,12 @@ namespace SplineTools {
             SNAP_AND_ALIGN
         }
 
+        void UndoRecordThisObject (string message) {
+            #if UNITY_EDITOR
+            UnityEditor.Undo.RecordObject(this, message);
+            #endif
+        }
+
         public void RandomizeSeed () {
             int hash = Random.value.GetHashCode();
             int loopCount = Mathf.Abs(hash)%64;
@@ -52,27 +53,27 @@ namespace SplineTools {
         }
 
         public void UpdateSeed (int newSeed) {
-            BuildSafeUndo.RecordObject(this, "Update random seed");
+            UndoRecordThisObject("Update random seed");
             this.randomSeed = newSeed;
             ConditionalReplace();
         }
 
         public void UpdateRandomizationSettings (Vector3 newPlacementRandomness,  float newRotationRandomness) {
-            BuildSafeUndo.RecordObject(this, "Update randomization settings");
+            UndoRecordThisObject("Update randomization settings");
             this.placementRandomness = newPlacementRandomness;
             this.rotationRandomness = newRotationRandomness;
             ConditionalReplace();
         }
 
         public void UpdateObjectSettings (ObjectPool newPool, float newSpaceBetweenObjects) {
-            BuildSafeUndo.RecordObject(this, "Update object settings");
+            UndoRecordThisObject("Update object settings");
             this.objectPool = newPool;
             this.spaceBetweenObjects = newSpaceBetweenObjects;
             ConditionalReplace();
         }
 
         public void UpdatePlacementSettings (DistanceMode newDistanceMode, GroundMode newGroundMode, Collider newGroundCollider, bool newOvershootMode) {
-            BuildSafeUndo.RecordObject(this, "Update placement settings");
+            UndoRecordThisObject("Update placement settings");
             this.distanceMode = newDistanceMode;
             this.groundMode = newGroundMode;
             this.groundCollider = newGroundCollider;
@@ -81,7 +82,7 @@ namespace SplineTools {
         }
 
         public void ReverseDirection () {
-            BuildSafeUndo.RecordObject(this, "Reverse Direction");
+            UndoRecordThisObject("Reverse Direction");
             if(spline != null){
                 spline.ReverseDirection();
             }
@@ -91,7 +92,7 @@ namespace SplineTools {
         }
 
         public void Rotate90Deg () {
-            BuildSafeUndo.RecordObject(this, "Rotate 90 deg");
+            UndoRecordThisObject("Rotate 90 deg");
             universalRotationOffset = Mathf.Repeat(universalRotationOffset + 90f, 360f);
             ConditionalReplace();
         }
@@ -99,9 +100,9 @@ namespace SplineTools {
         public void DeletePlacedObjects () {
             for(int i=transform.childCount-1; i>=0; i--){
                 #if UNITY_EDITOR
-                Undo.DestroyObjectImmediate(transform.GetChild(i).gameObject);
+                    UnityEditor.Undo.DestroyObjectImmediate(transform.GetChild(i).gameObject);
                 #else
-                Destroy(transform.GetChild(i).gameObject);
+                    Destroy(transform.GetChild(i).gameObject);
                 #endif
             }
         }
@@ -160,9 +161,9 @@ namespace SplineTools {
                 tempGO.transform.localRotation = Quaternion.Euler(0, universalRotationOffset, 0);
                 Vector3 sizeMeasureAxis = tempGO.transform.InverseTransformDirection(Vector3.forward);
                 #if UNITY_EDITOR
-                DestroyImmediate(tempGO);
+                    DestroyImmediate(tempGO);
                 #else
-                Destroy(tempGO);
+                    Destroy(tempGO);
                 #endif
 
                 while(t < 1f){
@@ -209,9 +210,10 @@ namespace SplineTools {
                         return;
                     }
                     newGO.transform.position += vPlaceOffset;
-                    // save the creation
-                    BuildSafeUndo.RegisterCreatedObjectUndo(newGO, "Placed object from spline");
-                    // finally do the last advance
+                    // save and advance
+                    #if UNITY_EDITOR
+                        UnityEditor.Undo.RegisterCreatedObjectUndo(newGO, "Placed object from spline");
+                    #endif
                     TryAdvanceT(spaceBetweenObjects, allowBackwards: true);
 
                     float RandomDistribution () {
@@ -290,41 +292,5 @@ namespace SplineTools {
         }
     
     }
-
-    #if UNITY_EDITOR
-
-    [CustomEditor(typeof(BSplineObjectPlacer))]
-    public class BSplineObjectPlacerEditor : Editor {
-
-        BSplineObjectPlacer bsop;
-
-        void OnEnable () {
-            bsop = target as BSplineObjectPlacer;
-        }
-
-        public override void OnInspectorGUI () {
-            DrawDefaultInspector();
-            GUILayout.Space(10);
-            if(GUILayout.Button("Delete placed objects")){
-                bsop.DeletePlacedObjects();
-            }
-            if(GUILayout.Button("(Re)Place")){
-                bsop.PlaceObjects();
-            }
-            if(GUILayout.Button("Randomize Seed")){
-                bsop.RandomizeSeed();
-            }
-            GUILayout.Space(10);
-            if(GUILayout.Button("Rotate placed objects 90°")){
-                bsop.Rotate90Deg();
-            }
-            if(GUILayout.Button("Reverse direction")){
-                bsop.ReverseDirection();
-            }
-        }
-
-    }
-
-    #endif
 
 }
