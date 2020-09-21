@@ -28,11 +28,19 @@ public static class EditorTools {
         GUI.enabled = ge;
     }
 
+    public static void DrawProperty (SerializedProperty property) {
+        EditorGUILayout.PropertyField(property, true);
+    }
+
     public static void DrawDisabled (System.Action drawAction) {
         var guiOn = GUI.enabled;
         GUI.enabled = false;
         drawAction();
         GUI.enabled = guiOn;
+    }
+
+    public static void DrawDisabled (SerializedProperty property) {
+        DrawDisabled(() => DrawProperty(property));
     }
 
     public static void DrawHorizontal (System.Action drawAction) {
@@ -49,11 +57,25 @@ public static class EditorTools {
         GUILayout.EndHorizontal();
     }
 
+    public static void DrawIndented (System.Action drawAction, int indentLevel = 1) {
+        EditorGUI.indentLevel += indentLevel;
+        drawAction();
+        EditorGUI.indentLevel -= indentLevel;
+    }
+
+    public static void DrawIndented (SerializedProperty property, int indentLevel = 1) {
+        DrawIndented(() => DrawProperty(property), indentLevel);
+    }
+
     public static void DrawWithTintedBackground (System.Action drawAction, Color tintColor, float tintStrength) {
         var bgCol = GUI.backgroundColor;
         GUI.backgroundColor = Color.Lerp(bgCol, tintColor, tintStrength);
         drawAction();
         GUI.backgroundColor = bgCol;
+    }
+
+    public static void DrawWithTintedBackground (SerializedProperty property, Color tintColor, float tintStrength) {
+        DrawWithTintedBackground(() => DrawProperty(property), tintColor, tintStrength);
     }
 
     public static void HeaderLabel (string text) {

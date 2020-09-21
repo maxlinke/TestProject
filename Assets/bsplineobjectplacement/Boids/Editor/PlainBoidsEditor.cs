@@ -6,9 +6,12 @@ namespace Boids {
     [CustomEditor(typeof(PlainBoids))]
     public class PlainBoidsEditor : GenericEditor {
 
-        private const string SIZE_PROP = "size";
-        private const string PREFAB_PROP = "boidPrefab";
-        private const string ANIM_NAME_PROP = "initialAnimationName";
+        SerializedProperty prefabProp;
+
+        protected override void OnEnable () {
+            base.OnEnable();
+            prefabProp = serializedObject.FindProperty("boidPrefab");
+        }
 
         public override void OnInspectorGUI () {
             base.OnInspectorGUI();
@@ -25,34 +28,32 @@ namespace Boids {
         }
 
         protected override bool DrawPropertyCustom (SerializedProperty property) {
-            if(property.name.Equals(SIZE_PROP)){
-                EditorTools.DrawHorizontal(() => {
-                    EditorGUILayout.PropertyField(property, true);
-                    EditorTools.DrawDisabled(() => GUILayout.Label("(Transform scale also works)"));
-                });
-                return true;
+            switch(property.name){
+                case "size":
+                    EditorTools.DrawHorizontal(() => {
+                        EditorGUILayout.PropertyField(property, true);
+                        EditorTools.DrawDisabled(() => GUILayout.Label("(Transform scale works too)"));
+                    });
+                    return true;
+                case "boidPrefab":
+                    ObjectFieldRedBackgroundIfNull(property);
+                    return true;
+                case "initialAnimationName":
+                    var guiOn = GUI.enabled;
+                    if(prefabProp.objectReferenceValue == null){
+                        GUI.enabled = false;
+                        property.stringValue = string.Empty;
+                    }else if((prefabProp.objectReferenceValue as GameObject).GetComponent<Animator>() == null){
+                        GUI.enabled = false;
+                        property.stringValue = string.Empty;
+                    }
+                    EditorTools.DrawIndented(property);
+                    GUI.enabled = guiOn;
+                    return true;
+                default:
+                    return false;
             }
-            if(property.name.Equals(PREFAB_PROP)){
-                ObjectFieldRedBackgroundIfNull(property);
-                return true;
-            }
-            if(property.name.Equals(ANIM_NAME_PROP)){
-                var prefabProp = serializedObject.FindProperty(PREFAB_PROP);
-                var guiOn = GUI.enabled;
-                if(prefabProp.objectReferenceValue == null){
-                    GUI.enabled = false;
-                    property.stringValue = string.Empty;
-                }else if((prefabProp.objectReferenceValue as GameObject).GetComponent<Animator>() == null){
-                    GUI.enabled = false;
-                    property.stringValue = string.Empty;
-                }
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(property);
-                EditorGUI.indentLevel--;
-                GUI.enabled = guiOn;
-                return true;
-            }
-            return false;
+
         }
 
     }

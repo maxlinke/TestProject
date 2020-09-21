@@ -5,6 +5,8 @@ public abstract class GenericEditor : Editor{
 
     public const float BACKGROUND_TINT_STRENGTH = 0.3f;
 
+    protected virtual void OnEnable () { }
+
     public override void OnInspectorGUI () {
         serializedObject.Update();
         var currentProperty = serializedObject.GetIterator();
