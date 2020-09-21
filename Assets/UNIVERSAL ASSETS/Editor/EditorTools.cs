@@ -49,6 +49,13 @@ public static class EditorTools {
         GUILayout.EndHorizontal();
     }
 
+    public static void DrawWithTintedBackground (System.Action drawAction, Color tintColor, float tintStrength) {
+        var bgCol = GUI.backgroundColor;
+        GUI.backgroundColor = Color.Lerp(bgCol, tintColor, tintStrength);
+        drawAction();
+        GUI.backgroundColor = bgCol;
+    }
+
     public static void HeaderLabel (string text) {
         GUILayout.Label(text, EditorStyles.boldLabel);
     }

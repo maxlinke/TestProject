@@ -5,15 +5,15 @@ namespace Boids {
     [CustomEditor(typeof(TargetPointBoids))]
     public class TargetPointBoidsEditor : PlainBoidsEditor { 
 
-        protected override bool IsSpecialProperty (SerializedProperty property) {
-            return base.IsSpecialProperty(property) || property.name.Equals("boidTarget");
-        }
-
-        protected override void DrawSpecialProperty (SerializedProperty property) {
-            base.DrawSpecialProperty(property);
+        protected override bool DrawPropertyCustom (SerializedProperty property) {
+            if(base.DrawPropertyCustom(property)){
+                return true;
+            }
             if(property.name.Equals("boidTarget")){
                 ObjectFieldRedBackgroundIfNull(property);
+                return true;
             }
+            return false;
         }
 
     }

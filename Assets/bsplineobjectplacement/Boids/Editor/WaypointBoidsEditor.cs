@@ -10,22 +10,22 @@ namespace Boids {
         float INLINE_BUTTON_WIDTH => 20f;
         float INLINE_BUTTON_HEIGHT => EditorGUIUtility.singleLineHeight - 2;
 
-        protected override bool IsSpecialProperty (SerializedProperty property) {
-            return base.IsSpecialProperty(property) || property.name.Equals("waypoints");
-        }
-
-        protected override void DrawSpecialProperty (SerializedProperty property) {
-            base.DrawSpecialProperty(property);
+        protected override bool DrawPropertyCustom (SerializedProperty property) {
+            if(base.DrawPropertyCustom(property)){
+                return true;
+            }
             if(property.name.Equals("waypoints")){
                 DrawWaypointsProperty(property);
+                return true;
             }
+            return false;
         }
 
         void DrawWaypointsProperty (SerializedProperty wpArrayProp) {
             GUILayout.Space(10f);
             EditorTools.HeaderLabel(wpArrayProp.displayName);
             var bgCache = GUI.backgroundColor;
-            var removeButtonColor = (COLOR_STRENGTH * Color.red) + ((1f - COLOR_STRENGTH) * bgCache);
+            var removeButtonColor = Color.Lerp(bgCache, Color.red, BACKGROUND_TINT_STRENGTH);
             var boidsScript = target as WaypointBoids;
 
             if(wpArrayProp.arraySize < 1){

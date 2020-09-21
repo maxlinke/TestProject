@@ -29,7 +29,7 @@ namespace Boids {
             var bgCache = GUI.backgroundColor;
             if(leftProp.propertyType == SerializedPropertyType.ObjectReference){
                 if(leftProp.objectReferenceValue == null){
-                    GUI.backgroundColor = Color.Lerp(bgCache, Color.red, PlainBoidsEditor.COLOR_STRENGTH);
+                    GUI.backgroundColor = Color.Lerp(bgCache, Color.red, PlainBoidsEditor.BACKGROUND_TINT_STRENGTH);
                 }                
             }
             EditorGUI.PropertyField(leftPropRect, leftProp, noLabel);
