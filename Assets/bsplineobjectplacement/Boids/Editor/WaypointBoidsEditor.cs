@@ -22,7 +22,8 @@ namespace Boids {
         }
 
         void DrawWaypointsProperty (SerializedProperty wpArrayProp) {
-            EditorTools.DrawCentered(() => GUILayout.Label(wpArrayProp.displayName));
+            GUILayout.Space(10f);
+            EditorTools.HeaderLabel(wpArrayProp.displayName);
             var bgCache = GUI.backgroundColor;
             var removeButtonColor = (COLOR_STRENGTH * Color.red) + ((1f - COLOR_STRENGTH) * bgCache);
             var boidsScript = target as WaypointBoids;

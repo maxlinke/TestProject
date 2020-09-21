@@ -6,7 +6,7 @@ namespace Boids {
     [CustomEditor(typeof(PlainBoids))]
     public class PlainBoidsEditor : Editor {
 
-        protected const float COLOR_STRENGTH = 0.3f;
+        public const float COLOR_STRENGTH = 0.3f;
 
         public override void OnInspectorGUI () {
             EditorTools.DrawScriptReference(target);

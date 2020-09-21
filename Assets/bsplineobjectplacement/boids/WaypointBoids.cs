@@ -32,13 +32,12 @@ namespace Boids {
             }
         }
 
-        enum LastWaypointMode {
-            DESTROY,
-            LOOP
+        public enum LastWaypointMode {
+            DestroyAtEnd,
+            Loop
         }
 
-        [SerializeField] LastWaypointMode lastWaypointMode = LastWaypointMode.DESTROY;
-        [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] float boidWaypointSeekWeight = 1f;
+        [SerializeField] WaypointBehaviourParameters waypointBehaviour = BehaviourParameters.WaypointDefault;
         [SerializeField] List<Waypoint> waypoints;
 
         List<int> boidWaypoints;
@@ -104,21 +103,21 @@ namespace Boids {
                     boidWaypoints[boidIndex] = nextWaypointIndex;
                     UpdateWaypointData();
                 }else{
-                    switch(lastWaypointMode){
-                        case LastWaypointMode.DESTROY:
+                    switch(waypointBehaviour.Mode){
+                        case LastWaypointMode.DestroyAtEnd:
                             boidsToDelete.Add(boid);
                             break;
-                        case LastWaypointMode.LOOP:
+                        case LastWaypointMode.Loop:
                             boidWaypoints[boidIndex] = 0;
                             UpdateWaypointData();
                             break;
                         default:
-                            Debug.LogError($"Unknown {nameof(LastWaypointMode)} \"{lastWaypointMode}\"!");
+                            Debug.LogError($"Unknown {nameof(LastWaypointMode)} \"{waypointBehaviour.Mode}\"!");
                             return output;
                     }
                 }            
             }
-            output += toWaypoint.normalized * boidWaypointSeekWeight;
+            output += toWaypoint.normalized * waypointBehaviour.Weight;
             return output;
 
             void UpdateWaypointData () {
@@ -149,7 +148,7 @@ namespace Boids {
                     valid = false;
                 }
             }
-            if(lastWaypointMode == LastWaypointMode.LOOP && waypoints[0].IsValid){
+            if(waypointBehaviour.Mode == LastWaypointMode.Loop && waypoints[0].IsValid){
                 Gizmos.color = (valid ? cc : errorCol);
                 Gizmos.DrawLine(last, waypoints[0].Position);
             }

@@ -156,16 +156,21 @@ MonoBehaviour:
   boidMaxSpeed: 10
   boidMaxAccel: 20
   boidMaxVisualRotationSpeed: 360
-  boidCohesionDistance: 7
-  boidCohesionWeight: 0.5
-  boidAlignmentDistance: 5
-  boidAlignmentWeight: 0.2
-  boidSeparationDistance: 1
-  boidSeparationWeight: 1.5
-  boidRandomDirectionRecalcInterval: 5
-  boidRandomDirectionWeight: 0.667
-  lastWaypointMode: 1
-  boidWaypointSeekWeight: 1
+  cohesion:
+    m_weight: 0.5
+    m_distance: 7
+  alignment:
+    m_weight: 0.2
+    m_distance: 5
+  separation:
+    m_weight: 1.5
+    m_distance: 1
+  randomDirection:
+    m_weight: 0.667
+    m_interval: 5
+  waypointBehaviour:
+    m_weight: 1
+    m_mode: 0
   waypoints:
   - point: {fileID: 826964228}
     sqRadius: 25
@@ -233,14 +238,18 @@ MonoBehaviour:
   boidMaxSpeed: 10
   boidMaxAccel: 20
   boidMaxVisualRotationSpeed: 360
-  boidCohesionDistance: 7
-  boidCohesionWeight: 0.5
-  boidAlignmentDistance: 5
-  boidAlignmentWeight: 0.2
-  boidSeparationDistance: 1
-  boidSeparationWeight: 1.5
-  boidRandomDirectionRecalcInterval: 5
-  boidRandomDirectionWeight: 0.667
+  cohesion:
+    m_weight: 0.5
+    m_distance: 7
+  alignment:
+    m_weight: 0.2
+    m_distance: 5
+  separation:
+    m_weight: 1.5
+    m_distance: 1
+  randomDirection:
+    m_weight: 0.667
+    m_interval: 5
 --- !u!4 &665970767
 Transform:
   m_ObjectHideFlags: 0
@@ -299,16 +308,21 @@ MonoBehaviour:
   boidMaxSpeed: 10
   boidMaxAccel: 20
   boidMaxVisualRotationSpeed: 360
-  boidCohesionDistance: 7
-  boidCohesionWeight: 0.5
-  boidAlignmentDistance: 5
-  boidAlignmentWeight: 0.2
-  boidSeparationDistance: 1
-  boidSeparationWeight: 1.5
-  boidRandomDirectionRecalcInterval: 5
-  boidRandomDirectionWeight: 0.667
-  boidTarget: {fileID: 2079804332}
-  boidTargetSeekWeight: 2
+  cohesion:
+    m_weight: 0.5
+    m_distance: 7
+  alignment:
+    m_weight: 0.2
+    m_distance: 5
+  separation:
+    m_weight: 1.5
+    m_distance: 1
+  randomDirection:
+    m_weight: 0.667
+    m_interval: 5
+  targetBehaviour:
+    m_weight: 2
+    m_target: {fileID: 2079804332}
 --- !u!4 &675709735
 Transform:
   m_ObjectHideFlags: 0

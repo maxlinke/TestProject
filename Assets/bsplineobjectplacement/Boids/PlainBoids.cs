@@ -37,14 +37,10 @@ namespace Boids {
         [SerializeField] protected float boidMaxVisualRotationSpeed = 360f;
 
         [Header("Boid Behaviors")]
-        [SerializeField] protected float boidCohesionDistance = 7f;
-        [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] protected float boidCohesionWeight = 0.5f;
-        [SerializeField] protected float boidAlignmentDistance = 5f;
-        [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] protected float boidAlignmentWeight = 0.2f;
-        [SerializeField] protected float boidSeparationDistance = 1f;
-        [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] protected float boidSeparationWeight = 1.5f;
-        [SerializeField] protected float boidRandomDirectionRecalcInterval = 5f;
-        [SerializeField, Range(MIN_BEHAVIOR_WEIGHT, MAX_BEHAVIOR_WEIGHT)] protected float boidRandomDirectionWeight = 0.667f;
+        [SerializeField] protected DistancedBehaviourParameters cohesion = BehaviourParameters.CohesionDefault;
+        [SerializeField] protected DistancedBehaviourParameters alignment = BehaviourParameters.AlignmentDefault;
+        [SerializeField] protected DistancedBehaviourParameters separation = BehaviourParameters.SeparationDefault;
+        [SerializeField] protected TimedBehaviourParameters randomDirection = BehaviourParameters.RandomDirectionDefault;
 
         protected class Boid {
             public Transform transform;
@@ -104,7 +100,7 @@ namespace Boids {
                 boids.Add(newBoid);
                 boidAccelerations.Add(Vector3.zero);
                 boidRandomDirections.Add(Vector3.zero);
-                boidRandomTimers.Add((float)(rng.NextDouble()) * boidRandomDirectionRecalcInterval);
+                boidRandomTimers.Add((float)(rng.NextDouble()) * randomDirection.Interval);
                 OnAdditionalBoidAdded(newBoid);
             }
         }
@@ -148,9 +144,9 @@ namespace Boids {
         }
 
         void CalculateBoidAccelerations () {
-            float sqCohesionDist = boidCohesionDistance * boidCohesionDistance;
-            float sqAlignmentDist = boidAlignmentDistance * boidAlignmentDistance;
-            float sqSeparationDist = boidSeparationDistance * boidSeparationDistance;
+            float sqCohesionDist = cohesion.Distance * cohesion.Distance;
+            float sqAlignmentDist = alignment.Distance * alignment.Distance;
+            float sqSeparationDist = separation.Distance * separation.Distance;
             for(int i=0; i<boids.Count; i++){
                 var activeBoid = boids[i];
                 var activePos = activeBoid.transform.position;
@@ -179,14 +175,14 @@ namespace Boids {
                     }
                 }
                 boidRandomTimers[i] -= Time.deltaTime;
-                if(boidRandomTimers[i] <= 0 && boidRandomDirectionRecalcInterval > 0){
+                if(boidRandomTimers[i] <= 0 && randomDirection.Interval > 0){
                     boidRandomDirections[i] = Random.insideUnitSphere;
-                    boidRandomTimers[i] = Mathf.Repeat(boidRandomTimers[i], boidRandomDirectionRecalcInterval);
+                    boidRandomTimers[i] = Mathf.Repeat(boidRandomTimers[i], randomDirection.Interval);
                 }
-                var cohesion = ((flockPosSum / flockPosCount) - activePos).normalized;
-                var alignment = (flockVelocitySum / flockVelocityCount) - activeBoid.velocity;
-                var separation = (separationSum / separationCount).normalized;
-                var rawAccel = boidCohesionWeight * cohesion + boidAlignmentWeight * alignment + boidSeparationWeight * separation + boidRandomDirectionWeight * boidRandomDirections[i];
+                var rawAccel = cohesion.Weight * ((flockPosSum / flockPosCount) - activePos).normalized;
+                rawAccel += alignment.Weight * ((flockVelocitySum / flockVelocityCount) - activeBoid.velocity);
+                rawAccel += separation.Weight * (separationSum / separationCount).normalized;
+                rawAccel += randomDirection.Weight * boidRandomDirections[i];
                 rawAccel += GetAdditionalBehavior(i);
                 rawAccel *= boidMaxAccel;
                 var accelMag = rawAccel.magnitude;
