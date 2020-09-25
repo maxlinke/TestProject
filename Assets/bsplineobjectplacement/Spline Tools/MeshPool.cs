@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace SplineTools{
 
@@ -126,25 +123,6 @@ namespace SplineTools{
             }
         }
 
-        public bool CanUseBoxCollForSpacing (GameObject inputGO, out BoxCollider col, out string message) {
-            if(inputGO == null){
-                col = null;
-                message = "The GameObject is null!";
-                return false;
-            }
-            var boxColliders = inputGO.GetComponents<BoxCollider>();
-            message = string.Empty;
-            col = null;
-            if(boxColliders == null || boxColliders.Length <= 0){
-                message = "No BoxCollider on object!";
-            }else if(boxColliders.Length > 1){
-                message = "Multiple BoxColliders on object, this isn't supported!";
-            }else{
-                col = boxColliders[0];
-            }
-            return col != null;
-        }
-
         protected SplineObject InstantiatePrefabAndMeasureSize (MeshPoolObject mpo, Material material, Vector3 measureAxis) {
             var newGO = Instantiate(mpo.Prefab, Vector3.zero, Quaternion.identity, null);   // do i really want the zero pos and identity rotation?
             float linearSize;
@@ -152,7 +130,7 @@ namespace SplineTools{
                 var newGOMR = newGO.GetComponent<MeshRenderer>();
                 newGOMR.sharedMaterial = material;
             }
-            var canUseBoxColliderForSpacing = CanUseBoxCollForSpacing(newGO, out var col, out var msg);
+            var canUseBoxColliderForSpacing = mpo.CanUseBoxCollForSpacing(out var col, out var msg);
             if(mpo.UseBoxColliderForSpacing && !canUseBoxColliderForSpacing){
                 Debug.LogError(msg);
             }
@@ -226,159 +204,7 @@ namespace SplineTools{
             tempList.Add(new MeshPoolObject());
             objects = tempList.ToArray();
         }
-
-        [System.Serializable] 
-        public class MeshPoolObject {
-
-            [SerializeField] GameObject prefab = default;
-            [SerializeField, Range(1, 10)] int occurences = default;
-            [SerializeField] bool useBoxColliderForSpacing = default;
-            [SerializeField] Material[] materials = default;
-            [SerializeField] bool useCustomBounds = default;
-            [SerializeField] Vector3 customBoundsCenter = Vector3.zero;
-            [SerializeField] Vector3 customBoundsSize = Vector3.one;
-
-            public GameObject Prefab => prefab;
-            public int MaterialCount => materials.Length;
-            public Material Material (int i) => materials[i];
-            public int Occurences => occurences;
-            public bool UseBoxColliderForSpacing => useBoxColliderForSpacing;
-            public bool UseCustomBounds => useCustomBounds;
-            public Bounds CustomBounds => new Bounds(customBoundsCenter, customBoundsSize);
-
-            public Material RandomMaterial (System.Random rng) {
-                if(MaterialCount > 0){
-                    return materials[(rng != null) ? rng.Next(0, MaterialCount) : Random.Range(0, MaterialCount)];
-                }
-                rng?.Next();
-                return null;
-            }
-
-            public MeshPoolObject () {
-                occurences = 1;
-            }
-
-        }
         
     }
-
-    // TODO in editor: when boxcolls not possible, set flag to false, gui.disable the field and add a tooltip
-
-    #if UNITY_EDITOR
-
-    [CustomEditor(typeof(MeshPool))]
-    public class MeshPoolEditor : Editor {
-
-        MeshPool mp;
-
-        void OnEnable () {
-            mp = target as MeshPool;
-        }
-
-        public override void OnInspectorGUI () {
-            serializedObject.Update();
-
-            GUI.enabled = false;
-            EditorGUILayout.ObjectField("Script", MonoScript.FromScriptableObject(mp), typeof(MeshPool), false);
-            GUI.enabled = true;
-
-            var otProp = serializedObject.FindProperty("placementOrder");
-            EditorGUILayout.PropertyField(otProp);
-            if(((MeshPool.PlacementOrder)(otProp.enumValueIndex)) == MeshPool.PlacementOrder.RandomOrder){
-                var rrtProp = serializedObject.FindProperty("randomRepetition");
-                EditorGUILayout.PropertyField(rrtProp);
-            }
-
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            GUILayout.Label("Objects");
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-            GUILayout.Space(10);
-
-            var listProp = serializedObject.FindProperty("objects");
-            int deleteIndex = -1;
-
-            for(int i=0; i<mp.ObjectCount; i++){
-                var poProp = listProp.GetArrayElementAtIndex(i);
-
-                var prefabProp = poProp.FindPropertyRelative("prefab");
-                InsetLine(1, () => {
-                    EditorGUILayout.PropertyField(prefabProp);
-                    var bgCache = GUI.backgroundColor;
-                    GUI.backgroundColor = (0.25f * Color.red) + (0.75f * bgCache);
-                    if(GUILayout.Button("X", GUILayout.Width(20))){
-                        deleteIndex = i;
-                    }
-                    GUI.backgroundColor = bgCache;
-                }, i.ToString());
-
-                var occProp = poProp.FindPropertyRelative("occurences");
-                InsetLine(1, () => {
-                    var occVal = occProp.intValue;
-                    if(occVal < 1){
-                        occProp.intValue = 1;
-                    }
-                    EditorGUILayout.PropertyField(occProp);
-                });
-
-                var bcProp = poProp.FindPropertyRelative("useBoxColliderForSpacing");
-                if(!mp.CanUseBoxCollForSpacing(mp[i].Prefab, out _, out var boxColMsg)){
-                    GUI.enabled = false;
-                    bcProp.boolValue = false;
-                }
-                InsetLine(1, () => {
-                    EditorGUILayout.PropertyField(bcProp);
-                    GUILayout.Label(boxColMsg);
-                });
-                GUI.enabled = true;
-
-                var cbProp = poProp.FindPropertyRelative("useCustomBounds");
-                if(bcProp.boolValue){
-                    GUI.enabled = false;
-                }
-                InsetLine(1, () => EditorGUILayout.PropertyField(cbProp));
-                if(cbProp.boolValue){
-                    InsetLine(2, () => EditorGUILayout.PropertyField(poProp.FindPropertyRelative("customBoundsCenter")));
-                    InsetLine(2, () => EditorGUILayout.PropertyField(poProp.FindPropertyRelative("customBoundsSize")));
-                }
-                GUI.enabled = true;
-
-                var matProp = poProp.FindPropertyRelative("materials");
-                InsetLine(1, () => EditorGUILayout.PropertyField(matProp, true));
-
-                Separator();
-
-                void InsetLine (int insetLevel, System.Action drawLine, string label = "") {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label(label, GUILayout.Width(insetLevel * 20));
-                    drawLine();
-                    GUILayout.EndHorizontal();
-                }
-            }
-
-            void Separator () {
-                var guiCache = GUI.enabled;
-                GUI.enabled = false;
-                GUILayout.Box(string.Empty, GUILayout.Height(2), GUILayout.Width(EditorGUIUtility.currentViewWidth-30));
-                GUI.enabled = guiCache;
-            }
-
-            if(deleteIndex != -1){
-                Undo.RecordObject(mp, "Delete array element");
-                mp.DeleteObject(deleteIndex);
-            }
-
-            if(GUILayout.Button("+")){
-                Undo.RecordObject(mp, "Add array element");
-                mp.AddObject();
-            }
-
-            serializedObject.ApplyModifiedProperties();
-        }
-
-    }
-
-    #endif
 
 }
