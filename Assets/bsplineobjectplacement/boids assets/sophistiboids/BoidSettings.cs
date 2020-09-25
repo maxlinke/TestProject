@@ -6,13 +6,13 @@ namespace SophistiBoids {
     public class BoidSettings : ScriptableObject {
 
         [Header("Movement")]
-        [SerializeField] float maxSpeed;
-        [SerializeField] float maxAccel;
+        [SerializeField] float maxSpeed = default;
+        [SerializeField] float maxAccel = default;
 
         [Header("Ranges")]
-        [SerializeField] BoidRange boidSeparationRange;
-        [SerializeField] BoidRange boidAlignmentRange;
-        [SerializeField] BoidRange boidCohesionRange;
+        [SerializeField] BoidRange boidSeparationRange = default;
+        [SerializeField] BoidRange boidAlignmentRange = default;
+        [SerializeField] BoidRange boidCohesionRange = default;
 
         public float MaxSpeed => maxSpeed;
         public float MaxAccel => maxAccel;

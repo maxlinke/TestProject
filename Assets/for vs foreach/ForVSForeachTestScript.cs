@@ -1,20 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 public class ForVSForeachTestScript : MonoBehaviour {
 
 	private List<FVFETestObject> objects;
 	private int mode, iterations;
 
+    public int output = 0;
+
 	void Start () {
 		objects = new List<FVFETestObject>();
-		objects.Add(new FVFETestObject("paul"));
-		objects.Add(new FVFETestObject("mary"));
-		objects.Add(new FVFETestObject("peter"));
-		objects.Add(null);
-		objects.Add(new FVFETestObject(null));
+		objects.Add(new FVFETestObject(20));
+		objects.Add(new FVFETestObject(-24));
+		objects.Add(new FVFETestObject(4));
+		objects.Add(new FVFETestObject(-75));
+		objects.Add(new FVFETestObject(10));
+		objects.Add(new FVFETestObject(25));
+		objects.Add(new FVFETestObject(40));
+		objects.Add(new FVFETestObject(-19));
+		objects.Add(new FVFETestObject(20));
 	}
 	
 	void Update () {
@@ -22,17 +26,17 @@ public class ForVSForeachTestScript : MonoBehaviour {
 			for(int i=0; i<iterations; i++){
 				int count = objects.Count;
 				for(int j=0; j<count; j++){
-					//absolutely nothing
+					output += objects[j].number;
 				}
 			}
 		}else if(mode == 1){
 			for(int i=0; i<iterations; i++){
 				foreach(FVFETestObject o in objects){
-					//absolutely nothing
+					output += o.number;
 				}
 			}
 		}else{
-			throw new ArgumentException("unsupported mode-integer. only 0 or 1 allowed");
+			Debug.LogError("unsupported mode-integer. only 0 or 1 allowed");
 		}
 	}
 
@@ -54,10 +58,8 @@ public class ForVSForeachTestScript : MonoBehaviour {
 }
 
 class FVFETestObject{
-	public string name;
-	public int id;
-	public FVFETestObject(string name){
-		this.name = name;
-		this.id = UnityEngine.Random.Range(0, int.MaxValue);
+    public readonly int number;
+	public FVFETestObject(int number){
+		this.number = number;
 	}
 }
