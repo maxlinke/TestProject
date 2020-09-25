@@ -25,6 +25,9 @@ MonoBehaviour:
     - {fileID: 2100000, guid: e27eebddd4e2fa04b98b457fcd5f5b5c, type: 2}
     - {fileID: 2100000, guid: 4b3f1479a7f4bf84e80ee2242ba26b05, type: 2}
     - {fileID: 2100000, guid: 67853cdab5ad2cb4ba32d83c0dec4d7c, type: 2}
+    useCustomBounds: 0
+    customBoundsCenter: {x: 0, y: 0, z: 0}
+    customBoundsSize: {x: 1, y: 1, z: 1}
   - prefab: {fileID: 7762986431524703118, guid: 56639b458cbb3094d97ef857aafef8e2,
       type: 3}
     occurences: 5
@@ -33,10 +36,16 @@ MonoBehaviour:
     - {fileID: 2100000, guid: 1d721299359bdaf4cbfcd5ba94891827, type: 2}
     - {fileID: 2100000, guid: e27eebddd4e2fa04b98b457fcd5f5b5c, type: 2}
     - {fileID: 2100000, guid: badbc2e3bd3e325449f36fb605dc1924, type: 2}
+    useCustomBounds: 0
+    customBoundsCenter: {x: 0, y: 0, z: 0}
+    customBoundsSize: {x: 1, y: 1, z: 1}
   - prefab: {fileID: 234873939955978475, guid: fee3d7176e3884c4b989fd452748afdc, type: 3}
     occurences: 3
     useBoxColliderForSpacing: 0
     materials: []
+    useCustomBounds: 0
+    customBoundsCenter: {x: 0, y: 0, z: 0}
+    customBoundsSize: {x: 1, y: 1, z: 1}
   - prefab: {fileID: 847374953927684765, guid: 21cfaad44a4252e4dafb2ec26b3631e4, type: 3}
     occurences: 4
     useBoxColliderForSpacing: 0
@@ -45,9 +54,15 @@ MonoBehaviour:
     - {fileID: 2100000, guid: e27eebddd4e2fa04b98b457fcd5f5b5c, type: 2}
     - {fileID: 2100000, guid: 1d721299359bdaf4cbfcd5ba94891827, type: 2}
     - {fileID: 2100000, guid: 0c7d3b930ecd7434c92155e741b7bc78, type: 2}
+    useCustomBounds: 0
+    customBoundsCenter: {x: 0, y: 0, z: 0}
+    customBoundsSize: {x: 1, y: 1, z: 1}
   - prefab: {fileID: 5575301443482430368, guid: 19a0712ed4f8bb24d86c7a4f524705f3,
       type: 3}
     occurences: 1
-    useBoxColliderForSpacing: 1
+    useBoxColliderForSpacing: 0
     materials:
     - {fileID: 2100000, guid: f0aa44db06ecdd647958ed4ab380c8fc, type: 2}
+    useCustomBounds: 1
+    customBoundsCenter: {x: 0, y: 5, z: 0}
+    customBoundsSize: {x: 2, y: 10, z: 2}

@@ -92,7 +92,7 @@ namespace SplineTools{
                     Debug.LogError($"Unknown {typeof(PlacementOrder)} \"{placementOrder}\"!");
                     return null;
             }
-            var output = InstantiatePrefabAndMeasureSize(po.Prefab, mat, measureAxis, po.UseBoxColliderForSpacing);
+            var output = InstantiatePrefabAndMeasureSize(po, mat, measureAxis);
             nextIndex = (nextIndex + 1) % occurenceList.Count;
             lastPO = po;
             lastMat = mat;
@@ -145,18 +145,18 @@ namespace SplineTools{
             return col != null;
         }
 
-        protected SplineObject InstantiatePrefabAndMeasureSize (GameObject prefab, Material material, Vector3 measureAxis, bool useBoxColliderForSpacing) {
-            var newGO = Instantiate(prefab, Vector3.zero, Quaternion.identity, null);   // do i really want the zero pos and identity rotation?
+        protected SplineObject InstantiatePrefabAndMeasureSize (MeshPoolObject mpo, Material material, Vector3 measureAxis) {
+            var newGO = Instantiate(mpo.Prefab, Vector3.zero, Quaternion.identity, null);   // do i really want the zero pos and identity rotation?
             float linearSize;
             if(material != null){
                 var newGOMR = newGO.GetComponent<MeshRenderer>();
                 newGOMR.sharedMaterial = material;
             }
             var canUseBoxColliderForSpacing = CanUseBoxCollForSpacing(newGO, out var col, out var msg);
-            if(useBoxColliderForSpacing && !canUseBoxColliderForSpacing){
+            if(mpo.UseBoxColliderForSpacing && !canUseBoxColliderForSpacing){
                 Debug.LogError(msg);
             }
-            if(useBoxColliderForSpacing && canUseBoxColliderForSpacing){
+            if(mpo.UseBoxColliderForSpacing && canUseBoxColliderForSpacing){
                 var worldColCenter = newGO.transform.TransformPoint(col.center);
                 var worldColSize = newGO.transform.TransformVector(col.size);
                 var worldRD = -measureAxis;
@@ -165,32 +165,46 @@ namespace SplineTools{
                     linearSize = 2f * (worldColCenter - colRayHit.point).magnitude;
                 }else{
                     Debug.LogError("No Hit! WHAT?!!?!?");
-                    linearSize = float.NaN;
+                    linearSize = 0f;
                 }
             }else{
+                Bounds bounds;
+                Transform boundsTransform;
+                if(mpo.UseCustomBounds){
+                    bounds = mpo.CustomBounds;
+                    boundsTransform = newGO.transform;
+                }else{
+                    var newGOMF = GetNewGOMeshFilter();
+                    if(newGOMF == null){
+                        Debug.LogError($"No {nameof(MeshFilter)} on \"{newGO.name}\" to measure the size of!");
+                        bounds = new Bounds(Vector3.zero, Vector3.one * 0.01f);
+                        boundsTransform = newGO.transform;
+                    }else{
+                        bounds = newGOMF.sharedMesh.bounds;
+                        boundsTransform = newGOMF.transform;
+                    }
+                }
+                var localDir = boundsTransform.transform.InverseTransformVector(measureAxis).normalized;
+                var boundsRO = bounds.center + (localDir * bounds.extents.magnitude * 2f);
+                if(bounds.IntersectRay(new Ray(boundsRO, -localDir), out float boundsHitDist)){
+                    var boundsHit = boundsRO - localDir * boundsHitDist;
+                    var worldBoundsCenter = boundsTransform.transform.TransformPoint(bounds.center);
+                    var worldBoundsHit = boundsTransform.transform.TransformPoint(boundsHit);
+                    linearSize = 2f * (worldBoundsCenter - worldBoundsHit).magnitude;
+                }else{
+                    Debug.LogError("No Hit! WHAT?!!?!?");
+                    linearSize = 0f;
+                }
+            }
+            return new SplineObject(newGO, linearSize);
+
+            MeshFilter GetNewGOMeshFilter () {
                 var newGOMF = newGO.GetComponent<MeshFilter>();
                 if(newGOMF == null){
                     newGOMF = newGO.GetComponentInChildren<MeshFilter>();
                 }
-                if(newGOMF == null){
-                    Debug.LogError("No MeshFilter to measure the size on!");
-                    linearSize = float.NaN;
-                }else{
-                    var bounds = newGOMF.sharedMesh.bounds;
-                    var localDir = newGOMF.transform.InverseTransformVector(measureAxis).normalized;
-                    var boundsRO = bounds.center + (localDir * bounds.extents.magnitude * 2f);
-                    if(bounds.IntersectRay(new Ray(boundsRO, -localDir), out float boundsHitDist)){
-                        var boundsHit = boundsRO - localDir * boundsHitDist;
-                        var worldBoundsCenter = newGOMF.transform.TransformPoint(bounds.center);
-                        var worldBoundsHit = newGOMF.transform.TransformPoint(boundsHit);
-                        linearSize = 2f * (worldBoundsCenter - worldBoundsHit).magnitude;
-                    }else{
-                        Debug.LogError("No Hit! WHAT?!!?!?");
-                        linearSize = float.NaN;
-                    }
-                }
+                return newGOMF;
             }
-            return new SplineObject(newGO, linearSize);
         }
 
         public void DeleteObject (int deleteIndex) {
@@ -216,16 +230,21 @@ namespace SplineTools{
         [System.Serializable] 
         public class MeshPoolObject {
 
-            [SerializeField] GameObject prefab;
-            [SerializeField, Range(1, 10)] int occurences;
-            [SerializeField] bool useBoxColliderForSpacing;
-            [SerializeField] Material[] materials;
+            [SerializeField] GameObject prefab = default;
+            [SerializeField, Range(1, 10)] int occurences = default;
+            [SerializeField] bool useBoxColliderForSpacing = default;
+            [SerializeField] Material[] materials = default;
+            [SerializeField] bool useCustomBounds = default;
+            [SerializeField] Vector3 customBoundsCenter = Vector3.zero;
+            [SerializeField] Vector3 customBoundsSize = Vector3.one;
 
             public GameObject Prefab => prefab;
             public int MaterialCount => materials.Length;
             public Material Material (int i) => materials[i];
             public int Occurences => occurences;
             public bool UseBoxColliderForSpacing => useBoxColliderForSpacing;
+            public bool UseCustomBounds => useCustomBounds;
+            public Bounds CustomBounds => new Bounds(customBoundsCenter, customBoundsSize);
 
             public Material RandomMaterial (System.Random rng) {
                 if(MaterialCount > 0){
@@ -284,7 +303,7 @@ namespace SplineTools{
                 var poProp = listProp.GetArrayElementAtIndex(i);
 
                 var prefabProp = poProp.FindPropertyRelative("prefab");
-                InsetLine(1, i.ToString(), () => {
+                InsetLine(1, () => {
                     EditorGUILayout.PropertyField(prefabProp);
                     var bgCache = GUI.backgroundColor;
                     GUI.backgroundColor = (0.25f * Color.red) + (0.75f * bgCache);
@@ -292,10 +311,10 @@ namespace SplineTools{
                         deleteIndex = i;
                     }
                     GUI.backgroundColor = bgCache;
-                });
+                }, i.ToString());
 
                 var occProp = poProp.FindPropertyRelative("occurences");
-                InsetLine(1, string.Empty, () => {
+                InsetLine(1, () => {
                     var occVal = occProp.intValue;
                     if(occVal < 1){
                         occProp.intValue = 1;
@@ -308,18 +327,29 @@ namespace SplineTools{
                     GUI.enabled = false;
                     bcProp.boolValue = false;
                 }
-                InsetLine(1, string.Empty, () => {
+                InsetLine(1, () => {
                     EditorGUILayout.PropertyField(bcProp);
                     GUILayout.Label(boxColMsg);
                 });
                 GUI.enabled = true;
 
+                var cbProp = poProp.FindPropertyRelative("useCustomBounds");
+                if(bcProp.boolValue){
+                    GUI.enabled = false;
+                }
+                InsetLine(1, () => EditorGUILayout.PropertyField(cbProp));
+                if(cbProp.boolValue){
+                    InsetLine(2, () => EditorGUILayout.PropertyField(poProp.FindPropertyRelative("customBoundsCenter")));
+                    InsetLine(2, () => EditorGUILayout.PropertyField(poProp.FindPropertyRelative("customBoundsSize")));
+                }
+                GUI.enabled = true;
+
                 var matProp = poProp.FindPropertyRelative("materials");
-                InsetLine(1, string.Empty, () => {EditorGUILayout.PropertyField(matProp, true);});
+                InsetLine(1, () => EditorGUILayout.PropertyField(matProp, true));
 
                 Separator();
 
-                void InsetLine (int insetLevel, string label, System.Action drawLine) {
+                void InsetLine (int insetLevel, System.Action drawLine, string label = "") {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label(label, GUILayout.Width(insetLevel * 20));
                     drawLine();
