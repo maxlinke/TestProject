@@ -42,8 +42,7 @@ namespace SplineTools {
         private SerializedProperty overrideColorProp;
         private SerializedProperty customColorProp;
 
-        protected override void OnEnable () {
-            base.OnEnable();
+        protected virtual void OnEnable () {
             spline = target as BezierSpline;
             overrideColorProp = serializedObject.FindProperty("overrideGizmoColor");
             customColorProp = serializedObject.FindProperty("customGizmoColor");

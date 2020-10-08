@@ -9,8 +9,7 @@ namespace SplineTools {
         BSplineObjectPlacer bsop;
         SerializedProperty placementMode;
 
-        protected override void OnEnable () {
-            base.OnEnable();
+        void OnEnable () {
             bsop = target as BSplineObjectPlacer;
             placementMode = serializedObject.FindProperty("placementMode");
         }

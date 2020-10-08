@@ -8,8 +8,7 @@ namespace SplineTools {
 
         BSplineMaster bsm;
 
-        protected override void OnEnable () {
-            base.OnEnable();
+        void OnEnable () {
             bsm = target as BSplineMaster;
         }
 

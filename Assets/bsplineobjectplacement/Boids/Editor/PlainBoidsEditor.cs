@@ -8,8 +8,7 @@ namespace Boids {
 
         SerializedProperty prefabProp;
 
-        protected override void OnEnable () {
-            base.OnEnable();
+        protected virtual void OnEnable () {
             prefabProp = serializedObject.FindProperty("boidPrefab");
         }
 
