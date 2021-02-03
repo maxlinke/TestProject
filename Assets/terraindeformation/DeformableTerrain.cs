@@ -27,7 +27,8 @@ public class DeformableTerrain : MonoBehaviour {
 			throw new UnityException("Terrain is not referenced!");
 		}else{
 			terrainData = terrain.terrainData;
-			origHeights = terrainData.GetHeights(0, 0, terrainData.heightmapWidth, terrainData.heightmapHeight);		//from 0 to 1
+            // vvv terraindata.heightmapwidth and -height were replaced by resolution. no idea if that's correct or what...
+			origHeights = terrainData.GetHeights(0, 0, terrainData.heightmapResolution, terrainData.heightmapResolution);		//from 0 to 1
 //			Debug.Log("height: " + terrainData.heightmapHeight);			//65
 //			Debug.Log("width: " + terrainData.heightmapWidth);				//65
 //			Debug.Log("resolution: " + terrainData.heightmapResolution);	//65

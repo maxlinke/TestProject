@@ -664,7 +664,7 @@ MonoBehaviour:
   universalRotationOffset: 270
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 752181347}
   noOvershoot: 1
 --- !u!114 &47397818
@@ -683,6 +683,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 0.5
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
@@ -803,21 +805,26 @@ MonoBehaviour:
   size: 20
   boidPrefab: {fileID: 4911033319500306062, guid: 543e030cf8b34ef44ba0e37591a2fdc1,
     type: 3}
-  initAnimName: 
+  initialAnimationName: 
   boidMinSpeed: 5
   boidMaxSpeed: 10
   boidMaxAccel: 20
   boidMaxVisualRotationSpeed: 360
-  boidCohesionDistance: 7
-  boidCohesionWeight: 0.5
-  boidAlignmentDistance: 5
-  boidAlignmentWeight: 0.2
-  boidSeparationDistance: 1
-  boidSeparationWeight: 1.5
-  boidRandomDirectionRecalcInterval: 5
-  boidRandomDirectionWeight: 0.667
-  lastWaypointMode: 1
-  boidWaypointSeekWeight: 1
+  cohesion:
+    m_weight: 0.5
+    m_distance: 7
+  alignment:
+    m_weight: 0.2
+    m_distance: 5
+  separation:
+    m_weight: 1.5
+    m_distance: 1
+  randomDirection:
+    m_weight: 0.667
+    m_interval: 5
+  waypointBehaviour:
+    m_weight: 1
+    m_mode: 0
   waypoints:
   - point: {fileID: 1022161837}
     sqRadius: 400
@@ -1033,7 +1040,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 752181347}
   noOvershoot: 1
 --- !u!4 &57016536
@@ -1071,6 +1078,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 0.5
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
@@ -3524,19 +3533,21 @@ MonoBehaviour:
   showHandles: 1
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 0.5
   cyclic: 0
   points:
   - m_type: 0
-    m_pos: {x: -13.492371, y: -0.682209, z: -2.2713165}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 5, y: -0, z: 10}
     m_handleBwd: {x: -5, y: 0, z: -10}
   - m_type: 0
-    m_pos: {x: 1.7525635, y: 1.3644218, z: 0.6884613}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 2.3442252, y: 8.817205, z: 4.1629815}
     m_handleBwd: {x: -2.874298, y: -10.81094, z: -5.104309}
   - m_type: 0
-    m_pos: {x: 11.739777, y: -0.682209, z: 1.5828094}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: -2.6281357, y: -7.1350718, z: 9.4731455}
     m_handleBwd: {x: 2.0102844, y: 5.4576797, z: -7.2460938}
 --- !u!4 &296849788
@@ -4132,7 +4143,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: -2, y: -1, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &346556460
@@ -4151,19 +4162,21 @@ MonoBehaviour:
   showHandles: 1
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.29
   cyclic: 1
   points:
   - m_type: 0
-    m_pos: {x: 5.7009187, y: 0, z: -21.769691}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 12.739794, y: -0, z: 6.446152}
     m_handleBwd: {x: -13.221966, y: 0, z: -6.6901245}
   - m_type: 0
-    m_pos: {x: 6.385568, y: 0, z: 9.942256}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: -7.588328, y: -0, z: 8.210795}
     m_handleBwd: {x: 6.8083587, y: 0, z: -7.3668456}
   - m_type: 0
-    m_pos: {x: -25.258484, y: 0, z: -10.076324}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: -5, y: -0, z: -10}
     m_handleBwd: {x: 5, y: 0, z: 10}
 --- !u!4 &346556461
@@ -4520,7 +4533,7 @@ MonoBehaviour:
   universalRotationOffset: 270
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &370743176
@@ -4539,6 +4552,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: -7.865815, y: 0, z: -2.9999976}
   localP1: {x: 0, y: 0.58885956, z: 10.925983}
@@ -4746,7 +4761,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &374905003
@@ -4765,6 +4780,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: -0.848279, y: 0, z: -16.703482}
   localP1: {x: -12.844772, y: -3.9395294, z: 2.7399502}
@@ -5187,43 +5204,45 @@ MonoBehaviour:
   showHandles: 1
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.36
   cyclic: 1
   points:
   - m_type: 0
-    m_pos: {x: 2.9856567, y: 0.10600662, z: -17.599869}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 4.907254, y: -0, z: 10.045838}
     m_handleBwd: {x: -3.088623, y: 0, z: -6.3228455}
   - m_type: 0
-    m_pos: {x: 19.30484, y: 0.10600662, z: -10.344894}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 7.3044715, y: -0, z: 6.4413323}
     m_handleBwd: {x: -8.38559, y: 0, z: -7.394699}
   - m_type: 0
-    m_pos: {x: 8.940521, y: 0.10600662, z: 6.739624}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: -11.177948, y: -0, z: 0.23076688}
     m_handleBwd: {x: 16.99582, y: 0, z: -0.35087585}
   - m_type: 0
-    m_pos: {x: -15.444122, y: 0.10600662, z: 12.28775}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: -7.6078715, y: -0, z: -8.192711}
     m_handleBwd: {x: 10.958038, y: 0, z: 11.800415}
   - m_type: 0
-    m_pos: {x: -20.458344, y: 4.6569366, z: 3.2708893}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 5.352835, y: -0, z: -9.815663}
     m_handleBwd: {x: -5.2606506, y: 0, z: 9.646622}
   - m_type: 0
-    m_pos: {x: 16.507812, y: -9.129265, z: 3.7978516}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 8.04571, y: -0, z: 7.4873104}
     m_handleBwd: {x: -8.184601, y: 0, z: -7.616562}
   - m_type: 0
-    m_pos: {x: 5.9583435, y: 5.482357, z: 25.845673}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: -8.444365, y: -0, z: -4.8860826}
     m_handleBwd: {x: 12.19278, y: 0, z: 7.0549927}
   - m_type: 0
-    m_pos: {x: -8.60849, y: -0.717041, z: 3.8123474}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: -2.5422957, y: -0, z: -12.7408}
     m_handleBwd: {x: 1.9090881, y: 0, z: 9.567459}
   - m_type: 0
-    m_pos: {x: -9.186493, y: -0.717041, z: -27.809372}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 4.1829214, y: -0, z: -1.2312496}
     m_handleBwd: {x: -12.463257, y: 0, z: 3.668579}
 --- !u!4 &410096685
@@ -5356,19 +5375,23 @@ MonoBehaviour:
   size: 5
   boidPrefab: {fileID: 711887896606468339, guid: 62f6872c45e5c8344b998fdb6f012b27,
     type: 3}
-  initAnimName: flap
+  initialAnimationName: 
   boidMinSpeed: 5
   boidMaxSpeed: 10
   boidMaxAccel: 20
   boidMaxVisualRotationSpeed: 360
-  boidCohesionDistance: 7
-  boidCohesionWeight: 0.5
-  boidAlignmentDistance: 5
-  boidAlignmentWeight: 0.2
-  boidSeparationDistance: 1
-  boidSeparationWeight: 1.5
-  boidRandomDirectionRecalcInterval: 5
-  boidRandomDirectionWeight: 0.667
+  cohesion:
+    m_weight: 0.5
+    m_distance: 7
+  alignment:
+    m_weight: 0.2
+    m_distance: 5
+  separation:
+    m_weight: 1.5
+    m_distance: 1
+  randomDirection:
+    m_weight: 0.667
+    m_interval: 5
 --- !u!4 &436487516
 Transform:
   m_ObjectHideFlags: 0
@@ -5853,7 +5876,7 @@ MonoBehaviour:
   universalRotationOffset: 270
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &485390266
@@ -5872,6 +5895,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: -4.644656, y: 0, z: 11.948217}
   localP1: {x: 0.6466236, y: -3.9395294, z: 2.7399502}
@@ -6090,7 +6115,7 @@ MonoBehaviour:
   universalRotationOffset: 270
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &498338273
@@ -6109,6 +6134,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: -0.82193446, y: 0, z: -17.574675}
   localP1: {x: -11.755314, y: -3.9395294, z: 2.7399502}
@@ -7171,7 +7198,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &572998070
@@ -7190,6 +7217,8 @@ MonoBehaviour:
   showHandles: 1
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: 14.88158, y: 0, z: 5.6852837}
   localP1: {x: -1.0944057, y: 0, z: -14.380532}
@@ -7460,7 +7489,7 @@ MonoBehaviour:
   objectPool: {fileID: 0}
   spaceBetweenObjects: 0.5
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 752181347}
   noOvershoot: 1
 --- !u!4 &597493853
@@ -7724,6 +7753,8 @@ MonoBehaviour:
   showHandles: 1
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: -93.643974, y: -0.0000019073486, z: -72.00418}
   localP1: {x: -48.286034, y: -0.0000019073486, z: 9.486938}
@@ -7750,7 +7781,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!1 &639995332
@@ -9059,7 +9090,7 @@ MonoBehaviour:
   universalRotationOffset: 270
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 752181347}
   noOvershoot: 1
 --- !u!114 &741240315
@@ -9078,6 +9109,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 0.5
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
@@ -9362,19 +9395,21 @@ MonoBehaviour:
   showHandles: 1
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.54
   cyclic: 1
   points:
   - m_type: 0
-    m_pos: {x: 15.650574, y: 0, z: 9.678864}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 5.304493, y: -0, z: -9.841864}
     m_handleBwd: {x: -6.549621, y: 0, z: 12.152054}
   - m_type: 0
-    m_pos: {x: 8.87619, y: 0, z: -10.937561}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: -10.330721, y: -0, z: -2.0547266}
     m_handleBwd: {x: 6.3895264, y: 0, z: 1.2708435}
   - m_type: 0
-    m_pos: {x: -7.046753, y: 0, z: 5.3002167}
+    m_position: {x: 0, y: 0, z: 0}
     m_handleFwd: {x: 5, y: -0, z: 10}
     m_handleBwd: {x: -5, y: 0, z: -10}
 --- !u!4 &759616069
@@ -9432,7 +9467,7 @@ MonoBehaviour:
   universalRotationOffset: 270
   universalPositionOffset: {x: -0, y: -0.5, z: -0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!1 &772524423
@@ -9492,7 +9527,7 @@ MonoBehaviour:
   universalRotationOffset: 270
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 752181347}
   noOvershoot: 1
 --- !u!114 &772524426
@@ -9511,6 +9546,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 0.5
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
@@ -11279,7 +11316,7 @@ MonoBehaviour:
   objectPool: {fileID: 11400000, guid: 22de4f9ccc0e249448e831bb5fa2df07, type: 2}
   spaceBetweenObjects: 0.5
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!4 &1033954501
@@ -11691,8 +11728,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1048669131}
-  m_LocalRotation: {x: -0.12412145, y: -0.2155287, z: 0.02766515, w: -0.9681818}
-  m_LocalPosition: {x: 261.26523, y: 68.14033, z: 184.1908}
+  m_LocalRotation: {x: -0.15183474, y: -0.24802527, z: 0.039426453, w: -0.9559683}
+  m_LocalPosition: {x: 285.40027, y: 51.975822, z: 251.36308}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -11756,7 +11793,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 752181347}
   noOvershoot: 1
 --- !u!114 &1051467773
@@ -11775,6 +11812,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 0.5
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
@@ -12341,7 +12380,7 @@ MonoBehaviour:
   universalRotationOffset: 0
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!1 &1099032832
@@ -15187,7 +15226,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &1330287569
@@ -15206,6 +15245,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: -7.309802, y: 0, z: 13.929672}
   localP1: {x: 3.1382065, y: -3.9395294, z: 2.7399502}
@@ -15346,7 +15387,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 752181347}
   noOvershoot: 1
 --- !u!114 &1342372298
@@ -15365,6 +15406,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 0.5
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
@@ -17048,21 +17091,26 @@ MonoBehaviour:
   size: 20
   boidPrefab: {fileID: 4911033319500306062, guid: 543e030cf8b34ef44ba0e37591a2fdc1,
     type: 3}
-  initAnimName: fbxbird_flap
+  initialAnimationName: 
   boidMinSpeed: 5
   boidMaxSpeed: 10
   boidMaxAccel: 20
   boidMaxVisualRotationSpeed: 360
-  boidCohesionDistance: 7
-  boidCohesionWeight: 0.5
-  boidAlignmentDistance: 5
-  boidAlignmentWeight: 0.2
-  boidSeparationDistance: 1
-  boidSeparationWeight: 1.5
-  boidRandomDirectionRecalcInterval: 5
-  boidRandomDirectionWeight: 0.667
-  boidTarget: {fileID: 1824069667}
-  boidTargetSeekWeight: 2
+  cohesion:
+    m_weight: 0.5
+    m_distance: 7
+  alignment:
+    m_weight: 0.2
+    m_distance: 5
+  separation:
+    m_weight: 1.5
+    m_distance: 1
+  randomDirection:
+    m_weight: 0.667
+    m_interval: 5
+  targetBehaviour:
+    m_weight: 2
+    m_target: {fileID: 0}
 --- !u!4 &1538453369
 Transform:
   m_ObjectHideFlags: 0
@@ -18533,21 +18581,26 @@ MonoBehaviour:
   size: 10
   boidPrefab: {fileID: 4911033319500306062, guid: 543e030cf8b34ef44ba0e37591a2fdc1,
     type: 3}
-  initAnimName: fbxbird_flap
+  initialAnimationName: 
   boidMinSpeed: 5
   boidMaxSpeed: 10
   boidMaxAccel: 20
   boidMaxVisualRotationSpeed: 360
-  boidCohesionDistance: 7
-  boidCohesionWeight: 0.5
-  boidAlignmentDistance: 5
-  boidAlignmentWeight: 0.2
-  boidSeparationDistance: 1
-  boidSeparationWeight: 1.5
-  boidRandomDirectionRecalcInterval: 5
-  boidRandomDirectionWeight: 0.667
-  lastWaypointMode: 1
-  boidWaypointSeekWeight: 1
+  cohesion:
+    m_weight: 0.5
+    m_distance: 7
+  alignment:
+    m_weight: 0.2
+    m_distance: 5
+  separation:
+    m_weight: 1.5
+    m_distance: 1
+  randomDirection:
+    m_weight: 0.667
+    m_interval: 5
+  waypointBehaviour:
+    m_weight: 1
+    m_mode: 0
   waypoints:
   - point: {fileID: 1416871636}
     sqRadius: 72.25
@@ -19061,7 +19114,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 752181347}
   noOvershoot: 1
 --- !u!114 &1698408548
@@ -19080,6 +19133,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 0.5
   localP0: {x: 0, y: 0, z: 0}
   localP1: {x: 0, y: 0, z: 0}
@@ -21814,7 +21869,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &1955322685
@@ -21833,6 +21888,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: -8.156952, y: 0, z: -3}
   localP1: {x: 0, y: 0.97924423, z: 2.4692297}
@@ -22435,7 +22492,7 @@ MonoBehaviour:
   universalRotationOffset: 90
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &2008862157
@@ -22454,6 +22511,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: 11.914474, y: 0, z: 1.0864334}
   localP1: {x: -7.399703, y: -3.9395294, z: -1.7200441}
@@ -23429,6 +23488,8 @@ MonoBehaviour:
   showHandles: 1
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: -9.451795, y: -4.5045166, z: -2.6151402}
   localP1: {x: -3.4469352, y: 1.7107022, z: 5.3736672}
@@ -24032,7 +24093,7 @@ MonoBehaviour:
   universalRotationOffset: 270
   universalPositionOffset: {x: 0, y: 0, z: 0}
   distanceMode: 0
-  groundMode: 1
+  placementMode: 0
   groundCollider: {fileID: 159697811}
   noOvershoot: 1
 --- !u!114 &2147215177
@@ -24051,6 +24112,8 @@ MonoBehaviour:
   showHandles: 0
   showDirection: 1
   alwaysDrawGizmos: 1
+  overrideGizmoColor: 0
+  customGizmoColor: {r: 1, g: 1, b: 1, a: 1}
   gizmoSize: 1.76
   localP0: {x: -113.49063, y: 0, z: 99.86374}
   localP1: {x: -4.525791, y: 0, z: -56.840645}
