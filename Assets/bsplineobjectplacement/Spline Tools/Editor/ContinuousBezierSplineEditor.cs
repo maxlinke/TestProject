@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEditor;
 
 namespace SplineTools {
@@ -10,7 +11,19 @@ namespace SplineTools {
 
         ContinuousBezierSpline cbs;
         GUIStyle textStyle;
-        int selectionIndex;
+
+        static Dictionary<ContinuousBezierSpline, int> selectionIndices = new Dictionary<ContinuousBezierSpline, int>();
+
+        int selectionIndex { 
+            get {
+                if(!selectionIndices.TryGetValue(cbs, out _)){
+                    selectionIndices[cbs] = DESELECTED_INDEX;
+                }
+                return selectionIndices[cbs];
+            } set {
+                selectionIndices[cbs] = value;
+            }
+        }
 
         protected override void OnEnable () {
             base.OnEnable();
